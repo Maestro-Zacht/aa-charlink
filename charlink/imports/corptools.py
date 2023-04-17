@@ -1,10 +1,10 @@
 from corptools.models import CharacterAudit
 from corptools.tasks import update_character
-from corptools.app_settings import get_character_scopes
+from corptools.app_settings import get_character_scopes, CORPTOOLS_APP_NAME
 
 from allianceauth.eveonline.models import EveCharacter
 
-field_label = 'Character Audit'
+field_label = CORPTOOLS_APP_NAME
 
 scopes = get_character_scopes()
 
