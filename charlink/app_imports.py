@@ -6,28 +6,34 @@ from allianceauth.services.hooks import get_extension_logger
 
 logger = get_extension_logger(__name__)
 
-_supported_apps = {}
+_supported_apps = {
+    'add_character': {
+        'field_label': 'Add Character (default)',
+        'add_character': lambda request, token: None,
+        'scopes': ['publicData'],
+    }
+}
 
 _imported = False
 
 
 def import_apps():
     global _imported
-    if _imported:
-        return _supported_apps
+    if not _imported:
+        for app in settings.INSTALLED_APPS:
+            try:
+                module = import_module(f'charlink.imports.{app}')
+            except ModuleNotFoundError:
+                pass
+            else:
+                _supported_apps[app] = {
+                    'field_label': module.field_label,
+                    'add_character': module.add_character,
+                    'scopes': module.scopes,
+                }
 
-    for app in settings.INSTALLED_APPS:
-        try:
-            module = import_module(f'charlink.imports.{app}')
-        except ModuleNotFoundError:
-            pass
-        else:
-            _supported_apps[app] = {
-                'field_label': module.field_label,
-                'add_character': module.add_character,
-            }
+                logger.debug(f"Loading of {app} link: success")
 
-            logger.debug(f"Loading of {app} link: success")
+        _imported = True
 
-    _imported = True
     return _supported_apps

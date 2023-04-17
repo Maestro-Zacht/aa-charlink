@@ -7,7 +7,11 @@
     <div class="col-lg-12">
         <h1 class="page-header text-center">Character Linking</h1>
         <div class="text-center">
-            {{ form|bootstrap }}
+            <form method="post">
+                {% csrf_token %}
+                {{ form|bootstrap }}
+                <button type="submit" class="btn btn-primary">Link</button>
+            </form>
         </div>
     </div>
 {% endblock content %}

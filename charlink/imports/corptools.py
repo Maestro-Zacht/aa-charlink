@@ -1,9 +1,12 @@
 from corptools.models import CharacterAudit
 from corptools.tasks import update_character
+from corptools.app_settings import get_character_scopes
 
 from allianceauth.eveonline.models import EveCharacter
 
 field_label = 'Character Audit'
+
+scopes = get_character_scopes()
 
 
 def add_character(request, token):
