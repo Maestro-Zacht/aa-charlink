@@ -11,10 +11,10 @@ class LinkForm(forms.Form):
         label='Add Character (default)'
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for app, data in import_apps().items():
-            if app != 'add_character':
+            if app != 'add_character' and user.has_perms(data['permissions']):
                 self.fields[app] = forms.BooleanField(
                     required=False,
                     initial=True,

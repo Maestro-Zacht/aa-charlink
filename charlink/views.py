@@ -14,7 +14,7 @@ logger = get_extension_logger(__name__)
 @login_required
 def index(request):
     if request.method == 'POST':
-        form = LinkForm(request.POST)
+        form = LinkForm(request.user, request.POST)
         if form.is_valid():
             imported_apps = import_apps()
             scopes = set()
@@ -35,7 +35,7 @@ def index(request):
             return redirect('charlink:login')
 
     else:
-        form = LinkForm()
+        form = LinkForm(request.user)
 
     context = {
         'form': form,
@@ -52,8 +52,13 @@ def login_view(request, token):
     charlink_data = request.session.pop('charlink')
 
     for app in charlink_data['apps']:
-        if app != 'add_character':
-            # messages.success(request, f"Linking {request.user} to {app}")
-            imported_apps[app]['add_character'](request, token)
+        if app != 'add_character' and request.user.has_perms(imported_apps[app]['permissions']):
+            try:
+                imported_apps[app]['add_character'](request, token)
+            except Exception as e:
+                logger.exception(e)
+                messages.error(request, f"Failed to add character to {import_apps[app]['field_label']}")
+            else:
+                messages.success(request, f"Character successfully to {import_apps[app]['field_label']}")
 
     return redirect('authentication:dashboard')

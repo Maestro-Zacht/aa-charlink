@@ -11,6 +11,7 @@ _supported_apps = {
         'field_label': 'Add Character (default)',
         'add_character': lambda request, token: None,
         'scopes': ['publicData'],
+        'permissions': [],
     }
 }
 
@@ -30,6 +31,7 @@ def import_apps():
                     'field_label': module.field_label,
                     'add_character': module.add_character,
                     'scopes': module.scopes,
+                    'permissions': module.permissions,
                 }
 
                 logger.debug(f"Loading of {app} link: success")

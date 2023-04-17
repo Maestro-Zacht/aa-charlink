@@ -8,6 +8,8 @@ field_label = 'Character Audit'
 
 scopes = get_character_scopes()
 
+permissions = []
+
 
 def add_character(request, token):
     CharacterAudit.objects.update_or_create(
