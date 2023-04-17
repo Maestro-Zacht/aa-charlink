@@ -57,8 +57,8 @@ def login_view(request, token):
                 imported_apps[app]['add_character'](request, token)
             except Exception as e:
                 logger.exception(e)
-                messages.error(request, f"Failed to add character to {import_apps[app]['field_label']}")
+                messages.error(request, f"Failed to add character to {imported_apps[app]['field_label']}")
             else:
-                messages.success(request, f"Character successfully to {import_apps[app]['field_label']}")
+                messages.success(request, f"Character successfully added to {imported_apps[app]['field_label']}")
 
     return redirect('authentication:dashboard')
