@@ -13,10 +13,12 @@ logger = get_extension_logger(__name__)
 
 @login_required
 def index(request):
+    imported_apps = import_apps()
+
     if request.method == 'POST':
         form = LinkForm(request.user, request.POST)
         if form.is_valid():
-            imported_apps = import_apps()
+
             scopes = set()
             selected_apps = []
 
@@ -39,6 +41,7 @@ def index(request):
 
     context = {
         'form': form,
+        'apps': {app: data for app, data in imported_apps.items() if app != 'add_character' and request.user.has_perms(data['permissions'])},
     }
 
     return render(request, 'charlink/charlink.html', context=context)
