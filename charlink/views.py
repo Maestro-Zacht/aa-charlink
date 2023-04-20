@@ -7,6 +7,7 @@ from allianceauth.services.hooks import get_extension_logger
 from .forms import LinkForm
 from .app_imports import import_apps
 from .decorators import charlink
+from .app_settings import CHARLINK_IGNORE_APPS
 
 logger = get_extension_logger(__name__)
 
@@ -41,7 +42,7 @@ def index(request):
 
     context = {
         'form': form,
-        'apps': [data for app, data in imported_apps.items() if app != 'add_character' and request.user.has_perms(data['permissions'])],
+        'apps': [data for app, data in imported_apps.items() if app != 'add_character' and app not in CHARLINK_IGNORE_APPS and request.user.has_perms(data['permissions'])],
     }
 
     return render(request, 'charlink/charlink.html', context=context)
@@ -55,7 +56,7 @@ def login_view(request, token):
     charlink_data = request.session.pop('charlink')
 
     for app in charlink_data['apps']:
-        if app != 'add_character' and request.user.has_perms(imported_apps[app]['permissions']):
+        if app != 'add_character' and app not in CHARLINK_IGNORE_APPS and request.user.has_perms(imported_apps[app]['permissions']):
             try:
                 imported_apps[app]['add_character'](request, token)
             except Exception as e:
