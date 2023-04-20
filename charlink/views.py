@@ -41,7 +41,7 @@ def index(request):
 
     context = {
         'form': form,
-        'apps': {app: data for app, data in imported_apps.items() if app != 'add_character' and request.user.has_perms(data['permissions'])},
+        'apps': [data for app, data in imported_apps.items() if app != 'add_character' and request.user.has_perms(data['permissions'])],
     }
 
     return render(request, 'charlink/charlink.html', context=context)
