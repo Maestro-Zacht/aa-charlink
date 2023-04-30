@@ -17,3 +17,7 @@ def add_character(request, token):
     with transaction.atomic():
         character, _ = Character.objects.update_or_create(eve_character=eve_character)
     tasks.update_character.delay(character_pk=character.pk)
+
+
+def is_character_added(character: EveCharacter):
+    return Character.objects.filter(eve_character=character).exists()

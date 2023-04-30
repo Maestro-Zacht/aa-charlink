@@ -3,7 +3,7 @@ from django.utils.translation import gettext as _
 from django.utils.html import format_html
 
 from structures import __title__, tasks
-from structures.models import Owner, Webhook
+from structures.models import Owner, Webhook, OwnerCharacter
 from structures.app_settings import (
     STRUCTURES_ADMIN_NOTIFICATIONS_ENABLED,
     STRUCTURES_DEFAULT_LANGUAGE,
@@ -107,3 +107,9 @@ def add_character(request, token):
                     },
                     title=_("%s: Character added to: %s") % (__title__, owner),
                 )
+
+
+def is_character_added(character: EveCharacter):
+    return OwnerCharacter.objects.filter(
+        character_ownership__character=character
+    ).exists()

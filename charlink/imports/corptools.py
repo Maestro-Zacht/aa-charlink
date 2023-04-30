@@ -15,3 +15,7 @@ def add_character(request, token):
     CharacterAudit.objects.update_or_create(
         character=EveCharacter.objects.get_character_by_id(token.character_id))
     update_character.apply_async(args=[token.character_id], priority=6)
+
+
+def is_character_added(character: EveCharacter):
+    return CharacterAudit.objects.filter(character=character).exists()

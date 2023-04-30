@@ -20,3 +20,7 @@ def add_character(request, token):
 
         # Schedule an import task to pull data from the new Tracking Character.
         import_extraction_data.delay()
+
+
+def is_character_added(character: EveCharacter):
+    return TrackingCharacter.objects.filter(character=character).exists()
