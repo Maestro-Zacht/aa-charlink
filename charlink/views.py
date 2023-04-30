@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 from allianceauth.services.hooks import get_extension_logger
+from allianceauth.eveonline.models import EveCharacter
 
 from .forms import LinkForm
 from .app_imports import import_apps
@@ -40,9 +41,30 @@ def index(request):
     else:
         form = LinkForm(request.user)
 
+    characters = EveCharacter.objects.filter(character_ownership__user=request.user)
+
+    characters_added = {
+        'apps': [data['field_label'] for app, data in imported_apps.items() if app not in CHARLINK_IGNORE_APPS and request.user.has_perms(data['permissions'])],
+        'characters': {},
+    }
+
+    # for app, data in imported_apps.items():
+    #     if app not in CHARLINK_IGNORE_APPS and request.user.has_perms(data['permissions']):
+    #         for character in characters:
+    #             setattr(character, f'has_{app}', data['has_character'](character))
+
+    for character in characters:
+        characters_added['characters'][character.character_name] = []
+        for app, data in imported_apps.items():
+            if app not in CHARLINK_IGNORE_APPS and request.user.has_perms(data['permissions']):
+                characters_added['characters'][character.character_name].append(
+                    data['is_character_added'](character)
+                )
+
     context = {
         'form': form,
-        'apps': [data for app, data in imported_apps.items() if app != 'add_character' and app not in CHARLINK_IGNORE_APPS and request.user.has_perms(data['permissions'])],
+        'apps': [data for app, data in imported_apps.items() if app not in CHARLINK_IGNORE_APPS and request.user.has_perms(data['permissions'])],
+        'characters_added': characters_added,
     }
 
     return render(request, 'charlink/charlink.html', context=context)
@@ -65,4 +87,4 @@ def login_view(request, token):
             else:
                 messages.success(request, f"Character successfully added to {imported_apps[app]['field_label']}")
 
-    return redirect('authentication:dashboard')
+    return redirect('charlink:index')

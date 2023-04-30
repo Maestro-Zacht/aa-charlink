@@ -27,3 +27,7 @@ def add_character(request, token):
         tasks.update_compliance_groups_for_user.apply_async(
             args=[request.user.pk], priority=MEMBERAUDIT_TASKS_NORMAL_PRIORITY
         )
+
+
+def is_character_added(character: EveCharacter):
+    return Character.objects.filter(eve_character=character).exists()

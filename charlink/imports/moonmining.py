@@ -5,7 +5,7 @@ from moonmining.app_settings import MOONMINING_ADMIN_NOTIFICATIONS_ENABLED
 from app_utils.messages import messages_plus
 from app_utils.allianceauth import notify_admins
 
-from allianceauth.eveonline.models import EveCorporationInfo
+from allianceauth.eveonline.models import EveCorporationInfo, EveCharacter
 
 field_label = __title__
 
@@ -41,3 +41,9 @@ def add_character(request, token):
             % {"corporation": owner, "user": request.user},
             title=f"{__title__}: Owner added: {owner}",
         )
+
+
+def is_character_added(character: EveCharacter):
+    return Owner.objects.filter(
+        character_ownership__character=character
+    ).exists()
