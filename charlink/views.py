@@ -4,6 +4,7 @@ from django.contrib import messages
 
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.eveonline.models import EveCharacter
+from allianceauth.authentication.decorators import permissions_required
 
 from .forms import LinkForm
 from .app_imports import import_apps
@@ -88,3 +89,13 @@ def login_view(request, token):
                 messages.success(request, f"Character successfully added to {imported_apps[app]['field_label']}")
 
     return redirect('charlink:index')
+
+
+@login_required
+@permissions_required([
+    'charlink.view_corp',
+    'charlink.view_alliance',
+    'charlink.view_state',
+])
+def audit(request):
+    return render(request, 'charlink/audit.html')
