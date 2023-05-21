@@ -18,6 +18,16 @@
 {% block content %}
     <div class="col-lg-12">
         <h1 class="page-header text-center">Character Linking</h1>
+        {% if is_auditor %}
+            <div class="panel panel-warning text-center">
+                <div class="panel-heading">
+                    <h3 class="panel-title text-center">Admin Section</h3>
+                </div>
+                <div class="panel-body">
+                    <a href="{% url 'charlink:audit' %}" class="btn btn-success">Auditing&nbsp;&nbsp;<i class="fas fa-external-link-alt fa-xs"></i></a>
+                </div>
+            </div>
+        {% endif %}
         <div class="panel panel-primary text-center">
             <div class="panel-heading">
                 <h3 class="panel-title text-center">Login Form</h3>
