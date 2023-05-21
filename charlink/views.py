@@ -143,64 +143,6 @@ def audit(request, corp_id=None):
     else:
         corp = None
 
-    # if request.user.is_superuser:
-    #     users = get_user_model().objects.all()
-    # else:
-    #     queries = []
-
-    #     if request.user.has_perm('charlink.view_alliance'):
-    #         queries.append(Q(profile__main_character__alliance_id=char.alliance_id))
-
-    #     if request.user.has_perm('charlink.view_corp') and not request.user.has_perm('charlink.view_alliance'):
-    #         queries.append(Q(profile__main_character__corporation_id=char.corporation_id))
-
-    #     if request.user.has_perm('charlink.view_state'):
-    #         alliances = request.user.profile.state.member_alliances.all()
-    #         corporations = request.user.profile.state.member_corporations.all()
-
-    #         queries.append(
-    #             Q(profile__main_character__alliance_id__in=alliances.values('alliance_id')) |
-    #             Q(profile__main_character__corporation_id__in=corporations.values('corporation_id'))
-    #         )
-
-    #     query = queries.pop()
-    #     for q in queries:
-    #         query |= q
-
-    #     users = get_user_model().objects.filter(query)
-
-    # users = (
-    #     users
-    #     .order_by(
-    #         'profile__main_character__alliance_id',
-    #         'profile__main_character__corporation_id'
-    #     )
-    #     .prefetch_related('character_ownerships__character')
-    #     .select_related('profile__main_character')
-    #     .distinct()
-    # )
-
-    # character_audit = {
-    #     'apps': [data['field_label'] for app, data in imported_apps.items() if app not in CHARLINK_IGNORE_APPS and request.user.has_perms(data['permissions'])],
-    #     'users': [],
-    # }
-
-    # for user in users:
-    #     user_data = {
-    #         'main_character': user.profile.main_character,
-    #         'characters': {},
-    #     }
-
-    #     for ownership in user.character_ownerships.all():
-    #         user_data['characters'][ownership.character.character_name] = []
-    #         for app, data in imported_apps.items():
-    #             if app not in CHARLINK_IGNORE_APPS and request.user.has_perms(data['permissions']):
-    #                 user_data['characters'][ownership.character.character_name].append(
-    #                     data['is_character_added'](ownership.character)
-    #                 )
-
-    #     character_audit['users'].append(user_data)
-
     corps = get_visible_corps(request.user)
 
     if corp_id and corp not in corps:
@@ -223,5 +165,27 @@ def audit(request, corp_id=None):
 
 
 @login_required
+@permissions_required([
+    'charlink.view_corp',
+    'charlink.view_alliance',
+    'charlink.view_state',
+])
 def search(request):
-    return HttpResponse('test')
+    search_string = request.GET.get('search_string', None)
+    if not search_string:
+        return redirect('charlink:index')
+
+    corps = get_visible_corps(request.user)
+
+    characters = EveCharacter.objects.filter(
+        character_name__icontains=search_string,
+        corporation_id__in=corps.values('corporation_id'),
+    ).order_by('character_name')
+
+    context = {
+        'search_string': search_string,
+        'characters': characters,
+        'available': corps,
+    }
+
+    return render(request, 'charlink/search.html', context=context)
