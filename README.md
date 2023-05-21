@@ -29,6 +29,7 @@ A user can be audited by clicking on the link on the `Main Character` column.
    ```
 
 2. Add `'charlink',` to your `INSTALLED_APPS` in `local.py`
+3. Run migrations
 
 ## Current apps
 
