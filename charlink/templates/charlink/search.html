@@ -1,5 +1,7 @@
 {% extends 'charlink/base_audit.html' %}
 
+{% block page_title %}Charlink Search{% endblock page_title %}
+
 {% block auditblock %}
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -26,7 +28,7 @@
                                     <td class="text-center">{{ character.corporation_name }}</td>
                                     <td class="text-center">
                                         {% if character.character_ownership.user.profile.main_character %}
-                                            <a href="#">{{ character.character_ownership.user.profile.main_character }} <i class="fas fa-external-link-alt fa-xs"></i></a>
+                                            <a href="{% url 'charlink:audit_user' character.character_ownership.user_id %}">{{ character.character_ownership.user.profile.main_character }} <i class="fas fa-external-link-alt fa-xs"></i></a>
                                         {% endif %}
                                     </td>
                                     <td class="text-center">{{ character.character_ownership.user.profile.main_character.corporation_name }}</td>

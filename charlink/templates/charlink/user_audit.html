@@ -1,0 +1,47 @@
+{% extends 'charlink/base_audit.html' %}
+
+{% block page_title %}Charlink User Audit{% endblock page_title %}
+
+{% block extra_css %}
+    <style>
+        .glyphicon-ok {
+            color: green;
+        }
+
+        .glyphicon-remove {
+            color: red;
+        }
+    </style>
+{% endblock extra_css %}
+
+{% block auditblock %}
+    <div class="panel panel-default text-center">
+        <div class="panel-heading">
+            <h3 class="panel-title text-center">Linked Characters</h3>
+        </div>
+        <div class="panel-body">
+            <table class="table table-aa">
+                <thead>
+                    <th class="text-center">Character</th>
+                    {% for app in characters_added.apps %}
+                        <th scope="row" class="text-center">{{ app }}</th>
+                    {% endfor %}
+                </thead>
+                <tbody>
+                    {% for char, app_list in characters_added.characters.items %}
+                        <tr>
+                            <td>{{ char }}</td>
+                            {% for is_added in app_list %}
+                                {% if is_added %}
+                                    <td><span class="glyphicon glyphicon-ok"></span></td>
+                                {% else %}
+                                    <td><span class="glyphicon glyphicon-remove"></span></td>
+                                {% endif %}
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock auditblock %}

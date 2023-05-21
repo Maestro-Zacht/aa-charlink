@@ -32,12 +32,15 @@ def get_visible_corps(user: User):
         corps = corps.all()
     else:
         queries = []
+        has_access = False
 
         if user.has_perm('charlink.view_alliance'):
             queries.append(Q(alliance__alliance_id=char.alliance_id))
+            has_access = True
 
         if user.has_perm('charlink.view_corp') and not user.has_perm('charlink.view_alliance'):
             queries.append(Q(corporation_id=char.corporation_id))
+            has_access = True
 
         if user.has_perm('charlink.view_state'):
             alliances = user.profile.state.member_alliances.all()
@@ -47,14 +50,37 @@ def get_visible_corps(user: User):
                 Q(alliance__alliance_id__in=alliances.values('alliance_id')) |
                 Q(id__in=corporations)
             )
+            has_access = True
 
-        query = queries.pop()
-        for q in queries:
-            query |= q
+        if not has_access:
+            query = queries.pop()
+            for q in queries:
+                query |= q
 
-        corps = corps.filter(query)
+            corps = corps.filter(query)
+        else:
+            corps = corps.none()
 
     return corps
+
+
+def get_user_linked_chars(user: User):
+    characters = EveCharacter.objects.filter(character_ownership__user=user)
+    imported_apps = import_apps()
+    characters_added = {
+        'apps': [data['field_label'] for app, data in imported_apps.items() if app not in CHARLINK_IGNORE_APPS and user.has_perms(data['permissions'])],
+        'characters': {},
+    }
+
+    for character in characters:
+        characters_added['characters'][character.character_name] = []
+        for app, data in imported_apps.items():
+            if app not in CHARLINK_IGNORE_APPS and user.has_perms(data['permissions']):
+                characters_added['characters'][character.character_name].append(
+                    data['is_character_added'](character)
+                )
+
+    return characters_added
 
 
 @login_required
@@ -85,25 +111,10 @@ def index(request):
     else:
         form = LinkForm(request.user)
 
-    characters = EveCharacter.objects.filter(character_ownership__user=request.user)
-
-    characters_added = {
-        'apps': [data['field_label'] for app, data in imported_apps.items() if app not in CHARLINK_IGNORE_APPS and request.user.has_perms(data['permissions'])],
-        'characters': {},
-    }
-
-    for character in characters:
-        characters_added['characters'][character.character_name] = []
-        for app, data in imported_apps.items():
-            if app not in CHARLINK_IGNORE_APPS and request.user.has_perms(data['permissions']):
-                characters_added['characters'][character.character_name].append(
-                    data['is_character_added'](character)
-                )
-
     context = {
         'form': form,
         'apps': [data for app, data in imported_apps.items() if app not in CHARLINK_IGNORE_APPS and request.user.has_perms(data['permissions'])],
-        'characters_added': characters_added,
+        'characters_added': get_user_linked_chars(request.user),
         'is_auditor': request.user.has_perm('charlink.view_state') or request.user.has_perm('charlink.view_corp') or request.user.has_perm('charlink.view_alliance'),
     }
 
@@ -194,3 +205,35 @@ def search(request):
     }
 
     return render(request, 'charlink/search.html', context=context)
+
+
+@login_required
+@permissions_required([
+    'charlink.view_corp',
+    'charlink.view_alliance',
+    'charlink.view_state',
+])
+def audit_user(request, user_id):
+    user = get_object_or_404(User, pk=user_id)
+
+    corps = get_visible_corps(request.user)
+
+    if (
+        not request.user.is_superuser
+        and
+        user != request.user
+        and
+        not corps
+        .filter(
+            corporation_id=user.profile.main_character.corporation_id
+        )
+        .exists()
+    ):
+        raise PermissionDenied('You do not have permission to view the selected user statistics.')
+
+    context = {
+        'characters_added': get_user_linked_chars(user),
+        'available': corps,
+    }
+
+    return render(request, 'charlink/user_audit.html', context=context)

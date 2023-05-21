@@ -1,6 +1,8 @@
 {% extends 'charlink/base_audit.html' %}
 {% load charlinkutils %}
 
+{% block page_title %}Charlink Audit{% endblock page_title %}
+
 {% block auditblock %}
     {% if selected %}
         <div class="row col-lg-12">
@@ -51,7 +53,7 @@
                                             <td class="text-center">{{ character }}</td>
                                             <td class="text-center">
                                                 {% if character.character_ownership.user.profile.main_character %}
-                                                    <a href="#">{{ character.character_ownership.user.profile.main_character }} <i class="fas fa-external-link-alt fa-xs"></i></a>
+                                                    <a href="{% url 'charlink:audit_user' character.character_ownership.user_id %}">{{ character.character_ownership.user.profile.main_character }} <i class="fas fa-external-link-alt fa-xs"></i></a>
                                                 {% endif %}
                                             </td>
                                         </tr>
