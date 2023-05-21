@@ -6,11 +6,19 @@ A simple app for AllianceAuth that allows users to link each character to all th
 
 ## Overview
 
+### Basic usage
+
 1. Select which app you want to link your character to
    ![Overview](https://raw.githubusercontent.com/Maestro-Zacht/aa-charlink/main/docs/images/charlink_homepage.png)
 2. Login on CPP site
 3. Character linked to the selected apps
    ![Success](https://raw.githubusercontent.com/Maestro-Zacht/aa-charlink/main/docs/images/charlink_success.png)
+
+### Auditing
+
+Users with the appropriate permission (see [permissions](#permissions)) can audit the linked characters of the users of their corporation, alliance or auth state. A link will appear on top of the main page of the app and will redirect to a page with a table of all the linked characters of the users of the selected corporation.
+
+A user can be audited by clicking on the link on the `Main Character` column.
 
 ## Installation
 
@@ -31,3 +39,11 @@ I've opened an [issue](https://github.com/Maestro-Zacht/aa-charlink/issues/1) to
 | Name                   | Description                                                                         | Default |
 | ---------------------- | ----------------------------------------------------------------------------------- | ------- |
 | `CHARLINK_IGNORE_APPS` | List of apps to ignore. Use the name of the app as it is called in `INSTALLED_APPS` | `[]`    |
+
+## Permissions
+
+| Name                     | Description                                                |
+| ------------------------ | ---------------------------------------------------------- |
+| `charlink.view_corp`     | Can view linked character of members of their corporation. |
+| `charlink.view_alliance` | Can view linked character of members of their alliance.    |
+| `charlink.view_state`    | Can view linked character of members of their auth state.  |
