@@ -177,10 +177,15 @@ def search(request):
 
     corps = get_visible_corps(request.user)
 
-    characters = EveCharacter.objects.filter(
-        character_name__icontains=search_string,
-        corporation_id__in=corps.values('corporation_id'),
-    ).order_by('character_name')
+    characters = (
+        EveCharacter.objects
+        .filter(
+            character_name__icontains=search_string,
+            corporation_id__in=corps.values('corporation_id'),
+        )
+        .order_by('character_name')
+        .select_related('character_ownership__user__profile__main_character')
+    )
 
     context = {
         'search_string': search_string,

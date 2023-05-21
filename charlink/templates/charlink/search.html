@@ -13,7 +13,9 @@
                             <tr>
                                 <th></th>
                                 <th class="text-center">Character</th>
+                                <th class="text-center">Corporation</th>
                                 <th class="text-center">Main Character</th>
+                                <th class="text-center">Main Corporation</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -21,11 +23,13 @@
                                 <tr>
                                     <td><img src="{{ character.portrait_url }}" class="img-circle" alt="{{ character }}"></td>
                                     <td class="text-center">{{ character }}</td>
+                                    <td class="text-center">{{ character.corporation_name }}</td>
                                     <td class="text-center">
                                         {% if character.character_ownership.user.profile.main_character %}
                                             <a href="#">{{ character.character_ownership.user.profile.main_character }} <i class="fas fa-external-link-alt fa-xs"></i></a>
                                         {% endif %}
                                     </td>
+                                    <td class="text-center">{{ character.character_ownership.user.profile.main_character.corporation_name }}</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
