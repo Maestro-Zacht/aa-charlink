@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -65,22 +65,21 @@ def get_visible_corps(user: User):
 
 
 def get_user_linked_chars(user: User):
-    characters = EveCharacter.objects.filter(character_ownership__user=user)
     imported_apps = import_apps()
-    characters_added = {
-        'apps': [data['field_label'] for app, data in imported_apps.items() if app not in CHARLINK_IGNORE_APPS and user.has_perms(data['permissions'])],
-        'characters': {},
+
+    available_apps = {app: data for app, data in imported_apps.items() if app not in CHARLINK_IGNORE_APPS and user.has_perms(data['permissions'])}
+
+    characters = EveCharacter.objects.filter(character_ownership__user=user)
+
+    for app, data in available_apps.items():
+        characters = characters.annotate(
+            **{app: data['is_character_added_annotation']()}
+        )
+
+    return {
+        'apps': available_apps,
+        'characters': characters,
     }
-
-    for character in characters:
-        characters_added['characters'][character.character_name] = []
-        for app, data in imported_apps.items():
-            if app not in CHARLINK_IGNORE_APPS and user.has_perms(data['permissions']):
-                characters_added['characters'][character.character_name].append(
-                    data['is_character_added'](character)
-                )
-
-    return characters_added
 
 
 @login_required
@@ -113,7 +112,6 @@ def index(request):
 
     context = {
         'form': form,
-        'apps': [data for app, data in imported_apps.items() if app not in CHARLINK_IGNORE_APPS and request.user.has_perms(data['permissions'])],
         'characters_added': get_user_linked_chars(request.user),
         'is_auditor': request.user.has_perm('charlink.view_state') or request.user.has_perm('charlink.view_corp') or request.user.has_perm('charlink.view_alliance'),
     }
