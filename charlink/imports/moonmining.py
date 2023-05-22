@@ -1,3 +1,5 @@
+from django.db.models import Exists, OuterRef
+
 from moonmining.models import Owner
 from moonmining import __title__, tasks
 from moonmining.app_settings import MOONMINING_ADMIN_NOTIFICATIONS_ENABLED
@@ -47,3 +49,10 @@ def is_character_added(character: EveCharacter):
     return Owner.objects.filter(
         character_ownership__character=character
     ).exists()
+
+
+def is_character_added_annotation():
+    return Exists(
+        Owner.objects
+        .filter(character_ownership__character_id=OuterRef('pk'))
+    )

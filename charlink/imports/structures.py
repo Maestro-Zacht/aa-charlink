@@ -1,3 +1,5 @@
+from django.db.models import Exists, OuterRef
+
 from django.utils import translation
 from django.utils.translation import gettext as _
 from django.utils.html import format_html
@@ -113,3 +115,10 @@ def is_character_added(character: EveCharacter):
     return OwnerCharacter.objects.filter(
         character_ownership__character=character
     ).exists()
+
+
+def is_character_added_annotation():
+    return Exists(
+        OwnerCharacter.objects
+        .filter(character_ownership__character_id=OuterRef('pk'))
+    )

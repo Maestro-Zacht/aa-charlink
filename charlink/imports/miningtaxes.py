@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.db.models import Exists, OuterRef
 
 from miningtaxes.models import Character
 from miningtaxes import tasks
@@ -21,3 +22,10 @@ def add_character(request, token):
 
 def is_character_added(character: EveCharacter):
     return Character.objects.filter(eve_character=character).exists()
+
+
+def is_character_added_annotation():
+    return Exists(
+        Character.objects
+        .filter(eve_character_id=OuterRef('pk'))
+    )

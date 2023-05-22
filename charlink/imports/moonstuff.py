@@ -1,3 +1,5 @@
+from django.db.models import Exists, OuterRef
+
 from moonstuff.providers import ESI_CHARACTER_SCOPES
 from moonstuff.models import TrackingCharacter
 from moonstuff.tasks import import_extraction_data
@@ -24,3 +26,10 @@ def add_character(request, token):
 
 def is_character_added(character: EveCharacter):
     return TrackingCharacter.objects.filter(character=character).exists()
+
+
+def is_character_added_annotation():
+    return Exists(
+        TrackingCharacter.objects
+        .filter(character_id=OuterRef('pk'))
+    )

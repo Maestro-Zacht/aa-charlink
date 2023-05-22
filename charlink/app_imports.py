@@ -36,6 +36,7 @@ def import_apps():
                         'scopes': module.scopes,
                         'permissions': module.permissions,
                         'is_character_added': module.is_character_added,
+                        'is_character_added_annotation': module.is_character_added_annotation
                     }
 
                     logger.debug(f"Loading of {app} link: success")
