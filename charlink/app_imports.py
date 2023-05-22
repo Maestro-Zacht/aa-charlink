@@ -1,6 +1,7 @@
 from importlib import import_module
 
 from django.conf import settings
+from django.db.models import Exists, OuterRef
 
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.authentication.models import CharacterOwnership
@@ -14,6 +15,7 @@ _supported_apps = {
         'scopes': ['publicData'],
         'permissions': [],
         'is_character_added': lambda character: CharacterOwnership.objects.filter(character=character).exists(),
+        'is_character_added_annotation': lambda: Exists(CharacterOwnership.objects.filter(character_id=OuterRef('pk')))
     }
 }
 
