@@ -182,6 +182,7 @@ def audit(request, corp_id=None):
     context = {
         'available': corps,
         'selected': corp,
+        'available_apps': get_user_available_apps(request.user),
     }
 
     return render(request, 'charlink/audit.html', context=context)
@@ -214,6 +215,7 @@ def search(request):
         'search_string': search_string,
         'characters': characters,
         'available': corps,
+        'available_apps': get_user_available_apps(request.user),
     }
 
     return render(request, 'charlink/search.html', context=context)
@@ -246,6 +248,7 @@ def audit_user(request, user_id):
     context = {
         'characters_added': get_user_linked_chars(user),
         'available': corps,
+        'available_apps': get_user_available_apps(user),
     }
 
     return render(request, 'charlink/user_audit.html', context=context)
@@ -286,6 +289,7 @@ def audit_app(request, app):
         'available': corps,
         'app': app,
         'app_data': app_data,
+        'available_apps': get_user_available_apps(request.user),
     }
 
     return render(request, 'charlink/app_audit.html', context=context)
