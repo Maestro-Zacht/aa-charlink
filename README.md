@@ -20,6 +20,8 @@ Users with the appropriate permission (see [permissions](#permissions)) can audi
 
 A user can be audited by clicking on the link on the `Main Character` column.
 
+NEW: Users can now audit the apps they have access to. Select the app you want to audit from the dropdown menu in the audit page.
+
 ## Installation
 
 1. Install the app with
