@@ -1,3 +1,5 @@
+from django.db.models import Exists, OuterRef
+
 from corptools.models import CharacterAudit
 from corptools.tasks import update_character
 from corptools.app_settings import get_character_scopes, CORPTOOLS_APP_NAME
@@ -19,3 +21,9 @@ def add_character(request, token):
 
 def is_character_added(character: EveCharacter):
     return CharacterAudit.objects.filter(character=character).exists()
+
+
+is_character_added_annotation = Exists(
+    CharacterAudit.objects
+    .filter(character_id=OuterRef('pk'))
+)

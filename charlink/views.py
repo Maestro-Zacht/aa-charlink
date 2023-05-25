@@ -1,9 +1,10 @@
-from django.shortcuts import render, redirect, get_object_or_404, HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.db.models import Exists, OuterRef, Q
 from django.core.exceptions import PermissionDenied
+from django.http import Http404
 
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
@@ -64,23 +65,35 @@ def get_visible_corps(user: User):
     return corps
 
 
-def get_user_linked_chars(user: User):
-    characters = EveCharacter.objects.filter(character_ownership__user=user)
+def chars_annotate_linked_apps(characters, apps: dict):
+    for app, data in apps.items():
+        characters = characters.annotate(
+            **{app: data['is_character_added_annotation']}
+        )
+
+    return characters
+
+
+def get_user_available_apps(user: User):
     imported_apps = import_apps()
-    characters_added = {
-        'apps': [data['field_label'] for app, data in imported_apps.items() if app not in CHARLINK_IGNORE_APPS and user.has_perms(data['permissions'])],
-        'characters': {},
+
+    return {
+        app: data
+        for app, data in imported_apps.items()
+        if app not in CHARLINK_IGNORE_APPS and user.has_perms(data['permissions'])
     }
 
-    for character in characters:
-        characters_added['characters'][character.character_name] = []
-        for app, data in imported_apps.items():
-            if app not in CHARLINK_IGNORE_APPS and user.has_perms(data['permissions']):
-                characters_added['characters'][character.character_name].append(
-                    data['is_character_added'](character)
-                )
 
-    return characters_added
+def get_user_linked_chars(user: User):
+    available_apps = get_user_available_apps(user)
+
+    return {
+        'apps': available_apps,
+        'characters': chars_annotate_linked_apps(
+            EveCharacter.objects.filter(character_ownership__user=user),
+            available_apps
+        )
+    }
 
 
 @login_required
@@ -113,7 +126,6 @@ def index(request):
 
     context = {
         'form': form,
-        'apps': [data for app, data in imported_apps.items() if app not in CHARLINK_IGNORE_APPS and request.user.has_perms(data['permissions'])],
         'characters_added': get_user_linked_chars(request.user),
         'is_auditor': request.user.has_perm('charlink.view_state') or request.user.has_perm('charlink.view_corp') or request.user.has_perm('charlink.view_alliance'),
     }
@@ -170,6 +182,7 @@ def audit(request, corp_id=None):
     context = {
         'available': corps,
         'selected': corp,
+        'available_apps': get_user_available_apps(request.user),
     }
 
     return render(request, 'charlink/audit.html', context=context)
@@ -202,6 +215,7 @@ def search(request):
         'search_string': search_string,
         'characters': characters,
         'available': corps,
+        'available_apps': get_user_available_apps(request.user),
     }
 
     return render(request, 'charlink/search.html', context=context)
@@ -234,6 +248,48 @@ def audit_user(request, user_id):
     context = {
         'characters_added': get_user_linked_chars(user),
         'available': corps,
+        'available_apps': get_user_available_apps(user),
     }
 
     return render(request, 'charlink/user_audit.html', context=context)
+
+
+@login_required
+@permissions_required([
+    'charlink.view_corp',
+    'charlink.view_alliance',
+    'charlink.view_state',
+])
+def audit_app(request, app):
+    imported_apps = import_apps()
+
+    if app not in imported_apps:
+        raise Http404()
+
+    app_data = imported_apps[app]
+
+    if not request.user.has_perms(app_data['permissions']):
+        raise PermissionDenied('You do not have permission to view the selected application statistics.')
+
+    corps = get_visible_corps(request.user)
+
+    visible_characters = EveCharacter.objects.filter(
+        Q(corporation_id__in=corps.values('corporation_id')) |
+        Q(character_ownership__user__profile__main_character__corporation_id__in=corps.values('corporation_id')),
+        character_ownership__isnull=False,
+    ).select_related('character_ownership__user__profile__main_character')
+
+    visible_characters = chars_annotate_linked_apps(
+        visible_characters,
+        {app: app_data}
+    ).order_by(app, 'character_name')
+
+    context = {
+        'characters': visible_characters,
+        'available': corps,
+        'app': app,
+        'app_data': app_data,
+        'available_apps': get_user_available_apps(request.user),
+    }
+
+    return render(request, 'charlink/app_audit.html', context=context)

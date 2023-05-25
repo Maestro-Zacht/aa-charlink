@@ -1,7 +1,7 @@
 {% extends 'charlink/base_audit.html' %}
 {% load charlinkutils %}
 
-{% block page_title %}Charlink User Audit{% endblock page_title %}
+{% block page_title %}Charlink App Audit{% endblock page_title %}
 
 {% block extra_css %}
     <style>
@@ -26,25 +26,25 @@
                     <tr>
                         <th></th>
                         <th class="text-center">Character</th>
-                        {% for app in characters_added.apps.values %}
-                            <th scope="row" class="text-center">{{ app.field_label }}</th>
-                        {% endfor %}
+                        <th scope="row" class="text-center">{{ app_data.field_label }}</th>
+                        <th class="text-center">Main Character</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for char in characters_added.characters %}
+                    {% for char in characters %}
                         <tr>
                             <td><img src="{{ char.portrait_url }}" class="img-circle" alt="{{ char }}"></td>
                             <td>{{ char }}</td>
-                            {% for app, data in characters_added.apps.items %}
-                                {% with is_added=char|get_char_attr:app %}
-                                    {% if is_added %}
-                                        <td><span class="glyphicon glyphicon-ok"></span></td>
-                                    {% else %}
-                                        <td><span class="glyphicon glyphicon-remove"></span></td>
-                                    {% endif %}
-                                {% endwith %}
-                            {% endfor %}
+                            {% with is_added=char|get_char_attr:app %}
+                                {% if is_added %}
+                                    <td><span class="glyphicon glyphicon-ok"></span></td>
+                                {% else %}
+                                    <td><span class="glyphicon glyphicon-remove"></span></td>
+                                {% endif %}
+                            {% endwith %}
+                            <td>
+                                <a href="{% url 'charlink:audit_user' char.character_ownership.user_id %}">{{ char.character_ownership.user.profile.main_character }} <i class="fas fa-external-link-alt fa-xs"></i></a>
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>

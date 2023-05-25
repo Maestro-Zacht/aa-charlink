@@ -1,5 +1,6 @@
 {% extends 'allianceauth/base.html' %}
 {% load bootstrap %}
+{% load charlinkutils %}
 
 {% block page_title %}Charlink{% endblock page_title %}
 
@@ -51,20 +52,22 @@
                 <table class="table table-aa">
                     <thead>
                         <th class="text-center">Character</th>
-                        {% for app in characters_added.apps %}
-                            <th scope="row" class="text-center">{{ app }}</th>
+                        {% for app in characters_added.apps.values %}
+                            <th scope="row" class="text-center">{{ app.field_label }}</th>
                         {% endfor %}
                     </thead>
                     <tbody>
-                        {% for char, app_list in characters_added.characters.items %}
+                        {% for char in characters_added.characters %}
                             <tr>
                                 <td>{{ char }}</td>
-                                {% for is_added in app_list %}
-                                    {% if is_added %}
-                                        <td><span class="glyphicon glyphicon-ok"></span></td>
-                                    {% else %}
-                                        <td><span class="glyphicon glyphicon-remove"></span></td>
-                                    {% endif %}
+                                {% for app, data in characters_added.apps.items %}
+                                    {% with is_added=char|get_char_attr:app %}
+                                        {% if is_added %}
+                                            <td><span class="glyphicon glyphicon-ok"></span></td>
+                                        {% else %}
+                                            <td><span class="glyphicon glyphicon-remove"></span></td>
+                                        {% endif %}
+                                    {% endwith %}
                                 {% endfor %}
                             </tr>
                         {% endfor %}
@@ -78,7 +81,7 @@
                 <h3 class="panel-title text-center">Applications Info</h3>
             </div>
             <div class="panel-body">
-                {% for app in apps %}
+                {% for app in characters_added.apps.values %}
                     <span>{{ app.field_label }}</span>
                     <br><br>
                     <span>Scopes:</span>

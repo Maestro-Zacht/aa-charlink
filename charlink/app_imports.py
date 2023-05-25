@@ -1,6 +1,7 @@
 from importlib import import_module
 
 from django.conf import settings
+from django.db.models import Exists, OuterRef
 
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.authentication.models import CharacterOwnership
@@ -14,6 +15,7 @@ _supported_apps = {
         'scopes': ['publicData'],
         'permissions': [],
         'is_character_added': lambda character: CharacterOwnership.objects.filter(character=character).exists(),
+        'is_character_added_annotation': Exists(CharacterOwnership.objects.filter(character_id=OuterRef('pk')))
     }
 }
 
@@ -36,6 +38,7 @@ def import_apps():
                         'scopes': module.scopes,
                         'permissions': module.permissions,
                         'is_character_added': module.is_character_added,
+                        'is_character_added_annotation': module.is_character_added_annotation
                     }
 
                     logger.debug(f"Loading of {app} link: success")

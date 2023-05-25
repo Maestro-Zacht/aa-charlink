@@ -1,3 +1,5 @@
+from django.db.models import Exists, OuterRef
+
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from allianceauth.corputils.views import SWAGGER_SPEC_PATH
 from allianceauth.corputils.models import CorpStats
@@ -31,3 +33,9 @@ def is_character_added(character: EveCharacter):
         .filter(token__character_id=character.character_id)
         .exists()
     )
+
+
+is_character_added_annotation = Exists(
+    CorpStats.objects
+    .filter(token__character_id=OuterRef('character_id'))
+)

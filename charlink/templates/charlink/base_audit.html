@@ -16,6 +16,16 @@
                             {% endfor %}
                         </ul>
                     </li>
+                    <li class="dropdown">
+                        <a href="#" id="appDrop" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="false" aria-expanded="false">Apps<span class="caret"></span></a>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="appDrop">
+                            {% for app, data in available_apps.items %}
+                                <li>
+                                    <a href="{% url 'charlink:audit_app' app %}">{{ data.field_label }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </li>
                 </ul>
                 <form class="navbar-form navbar-right" role="search" action="{% url 'charlink:search' %}" method="GET">
                     <div class="form-group">
