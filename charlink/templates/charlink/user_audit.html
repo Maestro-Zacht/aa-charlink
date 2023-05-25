@@ -23,14 +23,18 @@
         <div class="panel-body">
             <table class="table table-aa">
                 <thead>
-                    <th class="text-center">Character</th>
-                    {% for app in characters_added.apps.values %}
-                        <th scope="row" class="text-center">{{ app.field_label }}</th>
-                    {% endfor %}
+                    <tr>
+                        <th></th>
+                        <th class="text-center">Character</th>
+                        {% for app in characters_added.apps.values %}
+                            <th scope="row" class="text-center">{{ app.field_label }}</th>
+                        {% endfor %}
+                    </tr>
                 </thead>
                 <tbody>
                     {% for char in characters_added.characters %}
                         <tr>
+                            <td><img src="{{ char.portrait_url }}" class="img-circle" alt="{{ char }}"></td>
                             <td>{{ char }}</td>
                             {% for app, data in characters_added.apps.items %}
                                 {% with is_added=char|get_char_attr:app %}

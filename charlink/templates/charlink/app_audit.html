@@ -24,6 +24,7 @@
             <table class="table table-aa">
                 <thead>
                     <tr>
+                        <th></th>
                         <th class="text-center">Character</th>
                         <th scope="row" class="text-center">{{ app_data.field_label }}</th>
                         <th class="text-center">Main Character</th>
@@ -32,6 +33,7 @@
                 <tbody>
                     {% for char in characters %}
                         <tr>
+                            <td><img src="{{ char.portrait_url }}" class="img-circle" alt="{{ char }}"></td>
                             <td>{{ char }}</td>
                             {% with is_added=char|get_char_attr:app %}
                                 {% if is_added %}
