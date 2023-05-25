@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.db.models import Exists, OuterRef, Q
 from django.core.exceptions import PermissionDenied
+from django.http import Http404
 
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
@@ -64,7 +65,7 @@ def get_visible_corps(user: User):
     return corps
 
 
-def chars_annotate_linked_apps(characters, apps):
+def chars_annotate_linked_apps(characters, apps: dict):
     for app, data in apps.items():
         characters = characters.annotate(
             **{app: data['is_character_added_annotation']}
@@ -248,3 +249,43 @@ def audit_user(request, user_id):
     }
 
     return render(request, 'charlink/user_audit.html', context=context)
+
+
+@login_required
+@permissions_required([
+    'charlink.view_corp',
+    'charlink.view_alliance',
+    'charlink.view_state',
+])
+def audit_app(request, app):
+    imported_apps = import_apps()
+
+    if app not in imported_apps:
+        raise Http404()
+
+    app_data = imported_apps[app]
+
+    if not request.user.has_perms(app_data['permissions']):
+        raise PermissionDenied('You do not have permission to view the selected application statistics.')
+
+    corps = get_visible_corps(request.user)
+
+    visible_characters = EveCharacter.objects.filter(
+        Q(corporation_id__in=corps.values('corporation_id')) |
+        Q(character_ownership__user__profile__main_character__corporation_id__in=corps.values('corporation_id')),
+        character_ownership__isnull=False,
+    ).select_related('character_ownership__user__profile__main_character')
+
+    visible_characters = chars_annotate_linked_apps(
+        visible_characters,
+        {app: app_data}
+    ).order_by(app, 'character_name')
+
+    context = {
+        'characters': visible_characters,
+        'available': corps,
+        'app': app,
+        'app_data': app_data,
+    }
+
+    return render(request, 'charlink/app_audit.html', context=context)
