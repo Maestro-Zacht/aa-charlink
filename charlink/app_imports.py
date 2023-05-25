@@ -15,7 +15,7 @@ _supported_apps = {
         'scopes': ['publicData'],
         'permissions': [],
         'is_character_added': lambda character: CharacterOwnership.objects.filter(character=character).exists(),
-        'is_character_added_annotation': lambda: Exists(CharacterOwnership.objects.filter(character_id=OuterRef('pk')))
+        'is_character_added_annotation': Exists(CharacterOwnership.objects.filter(character_id=OuterRef('pk')))
     }
 }
 

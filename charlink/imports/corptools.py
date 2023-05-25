@@ -23,8 +23,7 @@ def is_character_added(character: EveCharacter):
     return CharacterAudit.objects.filter(character=character).exists()
 
 
-def is_character_added_annotation():
-    return Exists(
-        CharacterAudit.objects
-        .filter(character_id=OuterRef('pk'))
-    )
+is_character_added_annotation = Exists(
+    CharacterAudit.objects
+    .filter(character_id=OuterRef('pk'))
+)

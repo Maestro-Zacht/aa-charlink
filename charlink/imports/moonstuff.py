@@ -28,8 +28,7 @@ def is_character_added(character: EveCharacter):
     return TrackingCharacter.objects.filter(character=character).exists()
 
 
-def is_character_added_annotation():
-    return Exists(
-        TrackingCharacter.objects
-        .filter(character_id=OuterRef('pk'))
-    )
+is_character_added_annotation = Exists(
+    TrackingCharacter.objects
+    .filter(character_id=OuterRef('pk'))
+)

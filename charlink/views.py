@@ -64,21 +64,34 @@ def get_visible_corps(user: User):
     return corps
 
 
-def get_user_linked_chars(user: User):
+def chars_annotate_linked_apps(characters, apps):
+    for app, data in apps.items():
+        characters = characters.annotate(
+            **{app: data['is_character_added_annotation']}
+        )
+
+    return characters
+
+
+def get_user_available_apps(user: User):
     imported_apps = import_apps()
 
-    available_apps = {app: data for app, data in imported_apps.items() if app not in CHARLINK_IGNORE_APPS and user.has_perms(data['permissions'])}
+    return {
+        app: data
+        for app, data in imported_apps.items()
+        if app not in CHARLINK_IGNORE_APPS and user.has_perms(data['permissions'])
+    }
 
-    characters = EveCharacter.objects.filter(character_ownership__user=user)
 
-    for app, data in available_apps.items():
-        characters = characters.annotate(
-            **{app: data['is_character_added_annotation']()}
-        )
+def get_user_linked_chars(user: User):
+    available_apps = get_user_available_apps(user)
 
     return {
         'apps': available_apps,
-        'characters': characters,
+        'characters': chars_annotate_linked_apps(
+            EveCharacter.objects.filter(character_ownership__user=user),
+            available_apps
+        )
     }
 
 

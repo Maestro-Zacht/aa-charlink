@@ -117,8 +117,7 @@ def is_character_added(character: EveCharacter):
     ).exists()
 
 
-def is_character_added_annotation():
-    return Exists(
-        OwnerCharacter.objects
-        .filter(character_ownership__character_id=OuterRef('pk'))
-    )
+is_character_added_annotation = Exists(
+    OwnerCharacter.objects
+    .filter(character_ownership__character_id=OuterRef('pk'))
+)

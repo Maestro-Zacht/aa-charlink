@@ -35,8 +35,7 @@ def is_character_added(character: EveCharacter):
     )
 
 
-def is_character_added_annotation():
-    return Exists(
-        CorpStats.objects
-        .filter(token__character_id=OuterRef('character_id'))
-    )
+is_character_added_annotation = Exists(
+    CorpStats.objects
+    .filter(token__character_id=OuterRef('character_id'))
+)
