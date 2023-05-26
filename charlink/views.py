@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Permission
 from django.contrib import messages
 from django.db.models import Exists, OuterRef, Q
 from django.core.exceptions import PermissionDenied
@@ -10,6 +10,8 @@ from allianceauth.services.hooks import get_extension_logger
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from allianceauth.authentication.decorators import permissions_required
 from allianceauth.authentication.models import CharacterOwnership
+
+from app_utils.allianceauth import users_with_permission
 
 from .forms import LinkForm
 from .app_imports import import_apps
@@ -273,10 +275,26 @@ def audit_app(request, app):
 
     corps = get_visible_corps(request.user)
 
+    queries = []
+    for perm in app_data['permissions']:
+        app_label, codename = perm.split('.')
+        perm_obj = Permission.objects.get(content_type__app_label=app_label, codename=codename)
+
+        queries.append(Q(character_ownership__user__in=users_with_permission(perm_obj)))
+
+    if len(queries) == 0:
+        perm_query = Q(character_ownership__isnull=False)
+    else:
+        perm_query = queries.pop()
+        for query in queries:
+            perm_query |= query
+
     visible_characters = EveCharacter.objects.filter(
-        Q(corporation_id__in=corps.values('corporation_id')) |
-        Q(character_ownership__user__profile__main_character__corporation_id__in=corps.values('corporation_id')),
-        character_ownership__isnull=False,
+        (
+            Q(corporation_id__in=corps.values('corporation_id')) |
+            Q(character_ownership__user__profile__main_character__corporation_id__in=corps.values('corporation_id'))
+        ) &
+        perm_query,
     ).select_related('character_ownership__user__profile__main_character')
 
     visible_characters = chars_annotate_linked_apps(
