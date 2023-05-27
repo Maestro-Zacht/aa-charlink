@@ -275,19 +275,24 @@ def audit_app(request, app):
 
     corps = get_visible_corps(request.user)
 
-    queries = []
-    for perm in app_data['permissions']:
-        app_label, codename = perm.split('.')
-        perm_obj = Permission.objects.get(content_type__app_label=app_label, codename=codename)
+    users = [
+        users_with_permission(
+            Permission.objects.get(
+                content_type__app_label=perm.split('.')[0],
+                codename=perm.split('.')[1]
+            )
+        )
+        for perm in app_data['permissions']
+    ]
 
-        queries.append(Q(character_ownership__user__in=users_with_permission(perm_obj)))
-
-    if len(queries) == 0:
+    if len(app_data['permissions']) == 0:
         perm_query = Q(character_ownership__isnull=False)
     else:
-        perm_query = queries.pop()
-        for query in queries:
-            perm_query |= query
+        user_query = users.pop()
+        for query in users:
+            user_query &= query
+
+        perm_query = Q(character_ownership__user__in=user_query)
 
     visible_characters = EveCharacter.objects.filter(
         (
