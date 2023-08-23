@@ -1,8 +1,10 @@
-{% extends 'charlink/base_audit.html' %}
+{% extends 'charlink/base.html' %}
 
 {% block page_title %}Charlink Search{% endblock page_title %}
 
-{% block auditblock %}
+{% block charlink_page_header %}<h1 class="page-header text-center">Links Audit</h1>{% endblock charlink_page_header %}
+
+{% block charlink_content %}
     <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">Search results</h3>
@@ -40,4 +42,4 @@
             </div>
         </div>
     </div>
-{% endblock auditblock %}
+{% endblock charlink_content %}

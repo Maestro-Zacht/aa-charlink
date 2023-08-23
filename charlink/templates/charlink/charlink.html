@@ -1,4 +1,4 @@
-{% extends 'allianceauth/base.html' %}
+{% extends 'charlink/base.html' %}
 {% load bootstrap %}
 {% load charlinkutils %}
 
@@ -16,79 +16,81 @@
     </style>
 {% endblock extra_css %}
 
-{% block content %}
-    <div class="col-lg-12">
-        <h1 class="page-header text-center">Character Linking</h1>
-        {% if is_auditor %}
-            <div class="panel panel-warning text-center">
-                <div class="panel-heading">
-                    <h3 class="panel-title text-center">Admin Section</h3>
+{% block charlink_page_header %}<h1 class="page-header text-center">Character Linking</h1>{% endblock charlink_page_header %}
+
+{% block charlink_content %}
+    <ul class="nav nav-tabs">
+        <li class="active">
+            <a data-toggle="tab" href="#loginForm">
+                Login Form
+            </a>
+        </li>
+        <li>
+            <a data-toggle="tab" href="#linkedCharacters">
+                Linked Characters
+            </a>
+        </li>
+    </ul>
+    <div class="panel panel-default panel-tabs-aa">
+        <div class="panel-body">
+            <div class="tab-content">
+                <div id="loginForm" class="tab-pane fade in active text-center">
+                    <p>Select the apps you want to link from the list. You will be redirected to eveonline website to authenticate and provide the token with all the scopes needed.</p>
+                    <br>
+                    <form method="post">
+                        {% csrf_token %}
+                        {{ form|bootstrap }}
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </form>
                 </div>
-                <div class="panel-body">
-                    <a href="{% url 'charlink:audit' %}" class="btn btn-success">Auditing&nbsp;&nbsp;<i class="fas fa-external-link-alt fa-xs"></i></a>
+                <div id="linkedCharacters" class="tab-pane fade in text-center">
+                    <table class="table table-aa">
+                        <thead>
+                            <th class="text-center">Character</th>
+                            {% for app in characters_added.apps.values %}
+                                <th scope="row" class="text-center">{{ app.field_label }}</th>
+                            {% endfor %}
+                        </thead>
+                        <tbody>
+                            {% for char in characters_added.characters %}
+                                <tr>
+                                    <td>{{ char }}</td>
+                                    {% for app, data in characters_added.apps.items %}
+                                        {% with is_added=char|get_char_attr:app %}
+                                            {% if is_added %}
+                                                <td><span class="glyphicon glyphicon-ok"></span></td>
+                                            {% else %}
+                                                <td><span class="glyphicon glyphicon-remove"></span></td>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
-            </div>
-        {% endif %}
-        <div class="panel panel-primary text-center">
-            <div class="panel-heading">
-                <h3 class="panel-title text-center">Login Form</h3>
-            </div>
-            <div class="panel-body">
-                <p>Select the apps you want to link from the list. You will be redirected to eveonline website to authenticate and provide the token with all the scopes needed.</p>
-                <br>
-                <form method="post">
-                    {% csrf_token %}
-                    {{ form|bootstrap }}
-                    <button type="submit" class="btn btn-primary">Login</button>
-                </form>
             </div>
         </div>
-
-        <div class="panel panel-info text-center">
-            <div class="panel-heading">
-                <h3 class="panel-title text-center">Linked Characters</h3>
-            </div>
-            <div class="panel-body">
-                <table class="table table-aa">
-                    <thead>
-                        <th class="text-center">Character</th>
-                        {% for app in characters_added.apps.values %}
-                            <th scope="row" class="text-center">{{ app.field_label }}</th>
-                        {% endfor %}
-                    </thead>
-                    <tbody>
-                        {% for char in characters_added.characters %}
-                            <tr>
-                                <td>{{ char }}</td>
-                                {% for app, data in characters_added.apps.items %}
-                                    {% with is_added=char|get_char_attr:app %}
-                                        {% if is_added %}
-                                            <td><span class="glyphicon glyphicon-ok"></span></td>
-                                        {% else %}
-                                            <td><span class="glyphicon glyphicon-remove"></span></td>
-                                        {% endif %}
-                                    {% endwith %}
-                                {% endfor %}
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="panel panel-success text-center">
-            <div class="panel-heading">
-                <h3 class="panel-title text-center">Applications Info</h3>
-            </div>
-            <div class="panel-body">
-                {% for app in characters_added.apps.values %}
-                    <span>{{ app.field_label }}</span>
-                    <br><br>
-                    <span>Scopes:</span>
-                    {{ app.scopes|unordered_list|safe }}
-                    {% if not forloop.last %}<hr>{% endif %}
+    </div>
+    <ul class="nav nav-tabs">
+        {% for app_id, app in characters_added.apps.items %}
+            <li{% if forloop.first %} class="active"{% endif %}>
+                <a data-toggle="tab" href="#{{ app_id }}">
+                    {{ app.field_label }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+    <div class="panel panel-default panel-tabs-aa">
+        <div class="panel-body">
+            <div class="tab-content">
+                {% for app_id, app in characters_added.apps.items %}
+                    <div id="{{ app_id }}" class="tab-pane fade in{% if forloop.first %} active{% endif %}">
+                        Scopes required:
+                        {{ app.scopes|unordered_list|safe }}
+                    </div>
                 {% endfor %}
             </div>
         </div>
     </div>
-{% endblock content %}
+{% endblock charlink_content %}
