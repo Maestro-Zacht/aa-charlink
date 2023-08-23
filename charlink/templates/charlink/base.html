@@ -6,7 +6,8 @@
         <nav class="navbar navbar-default">
             <div class="container-fluid">
                 <ul class="nav navbar-nav">
-                    <li>
+                    {% url 'charlink:index' as index_url%}
+                    <li{% if request.path == index_url %} class="active"{% endif %}>
                         <a href="{% url 'charlink:index' %}">Charlink</a>
                     </li>
                 </ul>
