@@ -172,7 +172,6 @@ def login_view(request, token):
     'charlink.view_state',
 ])
 def audit(request, corp_id: int):
-    char = request.user.profile.main_character
     corp = get_object_or_404(EveCorporationInfo, corporation_id=corp_id)
     corps = get_visible_corps(request.user)
 
