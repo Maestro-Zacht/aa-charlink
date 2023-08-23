@@ -8,7 +8,7 @@
                 <ul class="nav navbar-nav">
                     {% url 'charlink:index' as index_url%}
                     <li{% if request.path == index_url %} class="active"{% endif %}>
-                        <a href="{% url 'charlink:index' %}">Charlink</a>
+                        <a href="{% url 'charlink:index' %}">CharLink</a>
                     </li>
                 </ul>
                 {% if is_auditor %}
