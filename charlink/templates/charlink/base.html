@@ -1,0 +1,46 @@
+{% extends 'allianceauth/base.html' %}
+
+{% block content %}
+    <div class="col-lg-12">
+        {% block charlink_page_header %}{% endblock charlink_page_header %}
+        <nav class="navbar navbar-default">
+            <div class="container-fluid">
+                <ul class="nav navbar-nav">
+                    <li>
+                        <a href="{% url 'charlink:index' %}">Charlink</a>
+                    </li>
+                </ul>
+                {% if is_auditor %}
+                    <form class="navbar-form navbar-right" role="search" action="{% url 'charlink:search' %}" method="GET">
+                        <div class="form-group">
+                            <input type="text" class="form-control" name="search_string" placeholder="{% if search_string %}{{ search_string }}{% else %}Search character...{% endif %}">
+                        </div>
+                    </form>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" id="dLabel" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="false" aria-expanded="false">Corporations<span class="caret"></span></a>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                                {% for corp in available %}
+                                    <li>
+                                        <a href="{% url 'charlink:audit_corp' corp.corporation_id %}">{{ corp.corporation_name }}</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" id="appDrop" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="false" aria-expanded="false">Apps<span class="caret"></span></a>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="appDrop">
+                                {% for app, data in available_apps.items %}
+                                    <li>
+                                        <a href="{% url 'charlink:audit_app' app %}">{{ data.field_label }}</a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </li>
+                    </ul>
+                {% endif %}
+            </div>
+        </nav>
+        {% block charlink_content %}{% endblock charlink_content %}
+    </div>
+{% endblock content %}

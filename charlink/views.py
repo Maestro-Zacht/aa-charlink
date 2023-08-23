@@ -98,6 +98,16 @@ def get_user_linked_chars(user: User):
     }
 
 
+def get_navbar_elements(user: User):
+    is_auditor = user.has_perm('charlink.view_state') or user.has_perm('charlink.view_corp') or user.has_perm('charlink.view_alliance')
+
+    return {
+        'is_auditor': is_auditor,
+        'available_apps': get_user_available_apps(user) if is_auditor else [],
+        'available': get_visible_corps(user) if is_auditor else [],
+    }
+
+
 @login_required
 def index(request):
     imported_apps = import_apps()
@@ -129,7 +139,7 @@ def index(request):
     context = {
         'form': form,
         'characters_added': get_user_linked_chars(request.user),
-        'is_auditor': request.user.has_perm('charlink.view_state') or request.user.has_perm('charlink.view_corp') or request.user.has_perm('charlink.view_alliance'),
+        **get_navbar_elements(request.user),
     }
 
     return render(request, 'charlink/charlink.html', context=context)
@@ -161,30 +171,17 @@ def login_view(request, token):
     'charlink.view_alliance',
     'charlink.view_state',
 ])
-def audit(request, corp_id=None):
+def audit(request, corp_id: int):
     char = request.user.profile.main_character
-    if corp_id:
-        corp = get_object_or_404(EveCorporationInfo, corporation_id=corp_id)
-    else:
-        corp = None
-
+    corp = get_object_or_404(EveCorporationInfo, corporation_id=corp_id)
     corps = get_visible_corps(request.user)
 
-    if corp_id and corp not in corps:
+    if corp not in corps:
         raise PermissionDenied('You do not have permission to view the selected corporation statistics.')
 
-    if not corp_id and corps.count() == 1:
-        corp = corps.first()
-    elif not corp_id and char:
-        try:
-            corp = corps.get(corporation_id=char.corporation_id)
-        except EveCorporationInfo.DoesNotExist:
-            pass
-
     context = {
-        'available': corps,
         'selected': corp,
-        'available_apps': get_user_available_apps(request.user),
+        **get_navbar_elements(request.user),
     }
 
     return render(request, 'charlink/audit.html', context=context)
@@ -216,8 +213,7 @@ def search(request):
     context = {
         'search_string': search_string,
         'characters': characters,
-        'available': corps,
-        'available_apps': get_user_available_apps(request.user),
+        **get_navbar_elements(request.user),
     }
 
     return render(request, 'charlink/search.html', context=context)
@@ -249,8 +245,8 @@ def audit_user(request, user_id):
 
     context = {
         'characters_added': get_user_linked_chars(user),
-        'available': corps,
-        'available_apps': get_user_available_apps(user),
+        **get_navbar_elements(request.user),
+
     }
 
     return render(request, 'charlink/user_audit.html', context=context)
@@ -309,10 +305,9 @@ def audit_app(request, app):
 
     context = {
         'characters': visible_characters,
-        'available': corps,
         'app': app,
         'app_data': app_data,
-        'available_apps': get_user_available_apps(request.user),
+        **get_navbar_elements(request.user),
     }
 
     return render(request, 'charlink/app_audit.html', context=context)
