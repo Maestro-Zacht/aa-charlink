@@ -1,5 +1,5 @@
 from django.db.models import Exists, OuterRef, Q
-from django.contrib.auth.models import User, Permission
+from django.contrib.auth.models import User
 
 
 from allianceauth.authentication.models import CharacterOwnership
