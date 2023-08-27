@@ -50,3 +50,11 @@ I've opened an [issue](https://github.com/Maestro-Zacht/aa-charlink/issues/1) to
 | `charlink.view_corp`     | Can view linked character of members of their corporation. |
 | `charlink.view_alliance` | Can view linked character of members of their alliance.    |
 | `charlink.view_state`    | Can view linked character of members of their auth state.  |
+
+## Login page url
+
+If you want to setup a template override to link the "Add character" button to the login page of this package, set the `a` element to:
+
+```html
+<a href="{% url 'charlink:index' %}" class="btn btn-block btn-info" title="Add Character">{% translate 'Add Character' %}</a>
+```
