@@ -265,6 +265,7 @@ INSTALLED_APPS += [
     'allianceauth.corputils',
     'corpstats',
     'corptools',
+    'eveuniverse',
     'memberaudit',
 ]
 
