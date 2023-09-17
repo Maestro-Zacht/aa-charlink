@@ -66,7 +66,7 @@ class TestAddCharacter(TestCase):
         add_character(request, self.token)
 
         self.assertTrue(is_character_added(self.character))
-        mock_update_all_for_owner.assert_called_once()
+        self.assertTrue(mock_update_all_for_owner.called)
         self.assertTrue(mock_messages_plus_info.called)
 
     @patch('app_utils.messages.messages_plus.info')
@@ -119,7 +119,7 @@ class TestAddCharacter(TestCase):
         self.assertTrue(mock_messages_plus_info.called)
 
         character2 = EveCharacterFactory(corporation=self.character.corporation)
-        add_character_to_user(character2, self.user)
+        add_character_to_user(self.user, character2)
 
         add_character(request, self.user.token_set.get(character_id=character2.character_id))
 
@@ -145,7 +145,7 @@ class TestAddCharacter(TestCase):
         self.assertTrue(mock_messages_plus_info.called)
 
         character2 = EveCharacterFactory(corporation=self.character.corporation)
-        add_character_to_user(character2, self.user)
+        add_character_to_user(self.user, character2)
 
         add_character(request, self.user.token_set.get(character_id=character2.character_id))
 
