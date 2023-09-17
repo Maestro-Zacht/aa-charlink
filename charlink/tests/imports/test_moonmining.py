@@ -56,9 +56,9 @@ class TestAddCharacter(TestCase):
 
     @patch('app_utils.messages.messages_plus.success')
     @patch('moonmining.tasks.update_owner.delay')
-    @patch('charlink.imports.moonmining.MOONMINING_ADMIN_NOTIFICATIONS_ENABLED', True)
+    @patch('charlink.imports.moonmining.MOONMINING_ADMIN_NOTIFICATIONS_ENABLED', False)
     @patch('charlink.imports.moonmining.notify_admins')
-    def test_admin_notification(self, mock_notify_admins, mock_update_owner, mock_messages_plus_success):
+    def test_no_admin_notification(self, mock_notify_admins, mock_update_owner, mock_messages_plus_success):
         mock_update_owner.return_value = None
         mock_notify_admins.return_value = None
         mock_messages_plus_success.return_value = None
@@ -70,7 +70,7 @@ class TestAddCharacter(TestCase):
         add_character(request, token)
 
         mock_messages_plus_success.assert_called_once()
-        mock_notify_admins.assert_called_once()
+        self.assertFalse(mock_notify_admins.called)
         mock_update_owner.assert_called_once()
         self.assertTrue(is_character_added(self.character))
 
