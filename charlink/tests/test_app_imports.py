@@ -3,6 +3,8 @@ from unittest.mock import patch
 
 from django.test import TestCase
 
+from app_utils.testdata_factories import UserMainFactory
+
 from charlink.app_imports import import_apps
 
 
@@ -29,3 +31,11 @@ class TestImportApps(TestCase):
         self.assertIn('allianceauth.corputils', imported_apps)
         self.assertNotIn('allianceauth', imported_apps)
         self.assertNotIn('allianceauth.authentication', imported_apps)
+
+    def test_supported_apps_default(self):
+        user = UserMainFactory()
+        main_char = user.profile.main_character
+
+        add_char = import_apps()['add_character']
+        self.assertIsNone(add_char['add_character'](None, None))
+        self.assertTrue(add_char['is_character_added'](main_char))
