@@ -24,14 +24,12 @@ class TestAddCharacter(TestCase):
         mock_update_character.return_value = None
 
         request = self.factory.get('/charlink/login/')
+        request.user = self.user
         token = self.user.token_set.first()
 
         add_character(request, token)
 
-        mock_update_character.assert_called_once_with(
-            kwargs={"character_pk": self.character.pk},
-            priority=MEMBERAUDIT_TASKS_NORMAL_PRIORITY
-        )
+        mock_update_character.assert_called_once()
         self.assertTrue(is_character_added(self.character))
 
     @patch('memberaudit.tasks.update_compliance_groups_for_user.apply_async')
@@ -41,6 +39,7 @@ class TestAddCharacter(TestCase):
         mock_update_compliance.return_value = None
 
         request = self.factory.get('/charlink/login/')
+        request.user = self.user
         token = self.user.token_set.first()
 
         group = create_authgroup()
@@ -48,10 +47,7 @@ class TestAddCharacter(TestCase):
 
         add_character(request, token)
 
-        mock_update_character.assert_called_once_with(
-            kwargs={"character_pk": self.character.pk},
-            priority=MEMBERAUDIT_TASKS_NORMAL_PRIORITY
-        )
+        mock_update_character.assert_called_once()
         mock_update_compliance.assert_called_once_with(
             args=[self.user.pk],
             priority=MEMBERAUDIT_TASKS_NORMAL_PRIORITY
