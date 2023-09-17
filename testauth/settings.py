@@ -264,6 +264,8 @@ INSTALLED_APPS += [
     'charlink',
     'allianceauth.corputils',
     'corpstats',
+    'corptools',
+    'memberaudit',
 ]
 
 # Register an application at https://developers.eveonline.com for Authentication
