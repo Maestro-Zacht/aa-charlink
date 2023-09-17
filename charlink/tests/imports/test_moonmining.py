@@ -18,9 +18,11 @@ class TestAddCharacter(TestCase):
         cls.character = cls.user.profile.main_character
         cls.factory = RequestFactory()
 
+    @patch('app_utils.messages.messages_plus.success')
     @patch('moonmining.tasks.update_owner.delay')
-    def test_ok(self, mock_update_owner):
+    def test_ok(self, mock_update_owner, mock_messages_plus_success):
         mock_update_owner.return_value = None
+        mock_messages_plus_success.return_value = None
 
         request = self.factory.get('/charlink/login/')
         request.user = self.user
@@ -28,14 +30,16 @@ class TestAddCharacter(TestCase):
 
         add_character(request, token)
 
+        mock_messages_plus_success.assert_called_once()
         mock_update_owner.assert_called_once()
         self.assertTrue(is_character_added(self.user.profile.main_character))
 
+    @patch('app_utils.messages.messages_plus.success')
     @patch('allianceauth.eveonline.managers.EveCorporationManager.create_corporation', wraps=lambda corp_id: EveCorporationInfoFactory(corporation_id=corp_id))
     @patch('moonmining.tasks.update_owner.delay')
-    def test_missing_corporation(self, mock_update_owner, mock_create_corporation):
+    def test_missing_corporation(self, mock_update_owner, mock_create_corporation, mock_messages_plus_success):
         mock_update_owner.return_value = None
-        mock_create_corporation.return_value = None
+        mock_messages_plus_success.return_value = None
 
         self.character.corporation.delete()
 
@@ -45,16 +49,19 @@ class TestAddCharacter(TestCase):
 
         add_character(request, token)
 
+        mock_messages_plus_success.assert_called_once()
         mock_update_owner.assert_not_called()
         mock_create_corporation.assert_called_once()
         self.assertFalse(is_character_added(self.user.profile.main_character))
 
+    @patch('app_utils.messages.messages_plus.success')
     @patch('moonmining.tasks.update_owner.delay')
     @patch('charlink.imports.moonmining.MOONMINING_ADMIN_NOTIFICATIONS_ENABLED', True)
     @patch('charlink.imports.moonmining.notify_admins')
-    def test_admin_notification(self, mock_notify_admins, mock_update_owner):
+    def test_admin_notification(self, mock_notify_admins, mock_update_owner, mock_messages_plus_success):
         mock_update_owner.return_value = None
         mock_notify_admins.return_value = None
+        mock_messages_plus_success.return_value = None
 
         request = self.factory.get('/charlink/login/')
         request.user = self.user
@@ -62,6 +69,7 @@ class TestAddCharacter(TestCase):
 
         add_character(request, token)
 
+        mock_messages_plus_success.assert_called_once()
         mock_notify_admins.assert_called_once()
         mock_update_owner.assert_called_once()
         self.assertTrue(is_character_added(self.user.profile.main_character))
