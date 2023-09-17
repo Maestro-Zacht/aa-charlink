@@ -27,6 +27,7 @@ class TestAddCharacter(TestCase):
         add_character(request, self.token)
 
         self.assertTrue(mock_update.called)
+        self.assertTrue(is_character_added(self.user.profile.main_character))
 
     @patch('allianceauth.eveonline.managers.EveCorporationManager.create_corporation', wraps=lambda corp_id: EveCorporationInfoFactory(corporation_id=corp_id))
     @patch('allianceauth.corputils.models.CorpStats.update')
@@ -41,6 +42,7 @@ class TestAddCharacter(TestCase):
 
         self.assertTrue(mock_update.called)
         self.assertTrue(mock_create_corporation.called)
+        self.assertTrue(is_character_added(self.user.profile.main_character))
 
 
 class TestIsCharacterAdded(TestCase):
