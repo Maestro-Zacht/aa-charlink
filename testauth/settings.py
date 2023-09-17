@@ -267,6 +267,7 @@ INSTALLED_APPS += [
     'corptools',
     'eveuniverse',
     'memberaudit',
+    'miningtaxes',
 ]
 
 # Register an application at https://developers.eveonline.com for Authentication
