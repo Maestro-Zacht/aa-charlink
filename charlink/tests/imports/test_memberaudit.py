@@ -53,3 +53,20 @@ class TestAddCharacter(TestCase):
             priority=MEMBERAUDIT_TASKS_NORMAL_PRIORITY
         )
         self.assertTrue(is_character_added(self.character))
+
+
+class TestIsCharacterAdded(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = UserMainFactory(permissions=["memberaudit.basic_access"])
+        cls.character = cls.user.profile.main_character
+        cls.factory = RequestFactory()
+
+    @patch('memberaudit.tasks.update_character.apply_async')
+    def test_ok(self, mock_update_character):
+        mock_update_character.return_value = None
+
+        self.assertFalse(is_character_added(self.character))
+        add_character(self.factory.get('/charlink/login/'), self.user.token_set.first())
+        self.assertTrue(is_character_added(self.character))
