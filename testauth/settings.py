@@ -269,6 +269,7 @@ INSTALLED_APPS += [
     'memberaudit',
     'miningtaxes',
     'moonmining',
+    'moonstuff',
 ]
 
 # Register an application at https://developers.eveonline.com for Authentication
