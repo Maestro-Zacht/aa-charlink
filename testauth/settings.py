@@ -263,6 +263,7 @@ DEBUG = False
 INSTALLED_APPS += [
     'charlink',
     'allianceauth.corputils',
+    'corpstats',
 ]
 
 # Register an application at https://developers.eveonline.com for Authentication
