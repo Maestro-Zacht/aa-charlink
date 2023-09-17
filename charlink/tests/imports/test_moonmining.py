@@ -32,7 +32,7 @@ class TestAddCharacter(TestCase):
 
         mock_messages_plus_success.assert_called_once()
         mock_update_owner.assert_called_once()
-        self.assertTrue(is_character_added(self.user.profile.main_character))
+        self.assertTrue(is_character_added(self.character))
 
     @patch('app_utils.messages.messages_plus.success')
     @patch('allianceauth.eveonline.managers.EveCorporationManager.create_corporation', wraps=lambda corp_id: EveCorporationInfoFactory(corporation_id=corp_id))
@@ -50,9 +50,9 @@ class TestAddCharacter(TestCase):
         add_character(request, token)
 
         mock_messages_plus_success.assert_called_once()
-        mock_update_owner.assert_not_called()
+        mock_update_owner.assert_called_once()
         mock_create_corporation.assert_called_once()
-        self.assertFalse(is_character_added(self.user.profile.main_character))
+        self.assertTrue(is_character_added(self.character))
 
     @patch('app_utils.messages.messages_plus.success')
     @patch('moonmining.tasks.update_owner.delay')
@@ -72,7 +72,7 @@ class TestAddCharacter(TestCase):
         mock_messages_plus_success.assert_called_once()
         mock_notify_admins.assert_called_once()
         mock_update_owner.assert_called_once()
-        self.assertTrue(is_character_added(self.user.profile.main_character))
+        self.assertTrue(is_character_added(self.character))
 
 
 class TestIsCharacterAdded(TestCase):
@@ -87,9 +87,11 @@ class TestIsCharacterAdded(TestCase):
         cls.token = cls.user.token_set.first()
         cls.factory = RequestFactory()
 
+    @patch('app_utils.messages.messages_plus.success')
     @patch('moonmining.tasks.update_owner.delay')
-    def test_ok(self, mock_update_owner):
+    def test_ok(self, mock_update_owner, mock_messages_plus_success):
         mock_update_owner.return_value = None
+        mock_messages_plus_success.return_value = None
 
         self.assertFalse(is_character_added(self.character))
         request = self.factory.get('/charlink/login/')
