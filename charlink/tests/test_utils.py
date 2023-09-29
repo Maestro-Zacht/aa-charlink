@@ -20,7 +20,6 @@ class TestGetVisibleCorps(TestCase):
         cls.corporation = cls.user.profile.main_character.corporation
         cls.alliance = cls.corporation.alliance
         cls.state = cls.user.profile.state
-        cls.state.member_alliances.add(cls.alliance)
 
         cls.corporation2 = EveCorporationInfoFactory(create_alliance=False)
         cls.corporation2.alliance = cls.alliance
@@ -78,6 +77,17 @@ class TestGetVisibleCorps(TestCase):
 
     def test_state_access(self):
         AuthUtils.add_permission_to_user_by_name('charlink.view_state', self.user)
+        corps = get_visible_corps(self.user)
+        self.assertQuerysetEqual(
+            corps,
+            [
+                self.corporation3,
+            ],
+            ordered=False
+        )
+
+    def test_state_and_alliance_access(self):
+        AuthUtils.add_permissions_to_user_by_name(['charlink.view_state', 'charlink.view_alliance'], self.user)
         corps = get_visible_corps(self.user)
         self.assertQuerysetEqual(
             corps,
