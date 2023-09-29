@@ -43,7 +43,7 @@ def get_visible_corps(user: User):
             )
             has_access = True
 
-        if not has_access:
+        if has_access:
             query = queries.pop()
             for q in queries:
                 query |= q
