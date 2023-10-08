@@ -68,9 +68,9 @@ def get_user_available_apps(user: User):
     imported_apps = import_apps()
 
     return {
-        app: data
-        for app, data in imported_apps.items()
-        if app not in CHARLINK_IGNORE_APPS and user.has_perms(data['permissions'])
+        app: imports.get_imports_with_perms(user)
+        for app, imports in imported_apps.items()
+        if app not in CHARLINK_IGNORE_APPS and imports.has_any_perms(user)
     }
 
 

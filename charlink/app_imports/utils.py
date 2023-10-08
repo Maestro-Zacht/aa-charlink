@@ -4,6 +4,7 @@ from typing import Callable
 from django.http import HttpRequest
 from django.db.models import Exists
 from django import forms
+from django.contrib.auth.models import User
 
 from allianceauth.eveonline.models import EveCharacter
 from esi.models import Token
@@ -35,3 +36,16 @@ class AppImport:
             for import_ in self.imports
             if user.has_perms(import_.permissions)
         }
+
+    def get_imports_with_perms(self, user: User):
+        return AppImport(
+            self.app_label,
+            [
+                import_
+                for import_ in self.imports
+                if user.has_perms(import_.permissions)
+            ]
+        )
+
+    def has_any_perms(self, user: User):
+        return any(user.has_perms(import_.permissions) for import_ in self.imports)
