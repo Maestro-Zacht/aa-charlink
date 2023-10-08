@@ -200,7 +200,7 @@ def audit_app(request, app):
         for perm in app_data['permissions']
     ]
 
-    if len(app_data['permissions']) == 0:
+    if len(users) == 0:
         perm_query = Q(character_ownership__isnull=False)
     else:
         user_query = users.pop()

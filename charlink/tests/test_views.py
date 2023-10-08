@@ -9,6 +9,7 @@ from app_utils.testdata_factories import UserMainFactory, EveCorporationInfoFact
 from charlink.views import get_navbar_elements
 from charlink.imports.memberaudit import scopes as memberaudit_scopes, permissions as memberaudit_permissions
 from charlink.imports.miningtaxes import scopes as miningtaxes_scopes
+from charlink.imports.moonmining import scopes as moonmining_scopes, permissions as moonmining_permissions
 
 
 class TestGetNavbarElements(TestCase):
@@ -268,14 +269,15 @@ class TestAuditApp(TestCase):
     def setUpTestData(cls):
         cls.user = UserMainFactory(permissions=[
             'charlink.view_corp',
-            *memberaudit_permissions
+            *memberaudit_permissions,
+            *moonmining_permissions,
         ])
         char2, char3 = EveCharacterFactory.create_batch(
             2,
             corporation=cls.user.profile.main_character.corporation
         )
         cls.user2 = UserMainFactory(
-            permissions=memberaudit_permissions,
+            permissions=memberaudit_permissions + moonmining_permissions,
             main_character__character=char2
         )
         cls.random_char = EveCharacterFactory(corporation=cls.user.profile.main_character.corporation)
@@ -319,3 +321,20 @@ class TestAuditApp(TestCase):
         res = self.client.get(reverse('charlink:audit_app', args=['memberaudit']))
 
         self.assertNotEqual(res.status_code, 200)
+
+    def test_multiple_app_perms(self):
+        self.client.force_login(self.user)
+
+        extra_char = EveCharacterFactory(corporation=self.user.profile.main_character.corporation)
+        UserMainFactory(
+            permissions=moonmining_permissions,
+            main_character__character=extra_char
+        )
+
+        res = self.client.get(reverse('charlink:audit_app', args=['moonmining']))
+
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('characters', res.context)
+        self.assertEqual(len(res.context['characters']), 3)
+        self.assertIn('app', res.context)
+        self.assertIn('app_data', res.context)
