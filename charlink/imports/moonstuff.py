@@ -6,7 +6,7 @@ from moonstuff.tasks import import_extraction_data
 
 from allianceauth.eveonline.models import EveCharacter
 
-from charlink.app_imports.utils import AppImport
+from charlink.app_imports.utils import LoginImport, AppImport
 
 
 def _add_character(request, token):
@@ -24,17 +24,16 @@ def _is_character_added(character: EveCharacter):
     return TrackingCharacter.objects.filter(character=character).exists()
 
 
-def import_app():
-    return [
-        AppImport(
-            field_label='Moon Tools',
-            add_character=_add_character,
-            scopes=ESI_CHARACTER_SCOPES,
-            permissions=['moonstuff.add_trackingcharacter'],
-            is_character_added=_is_character_added,
-            is_character_added_annotation=Exists(
-                TrackingCharacter.objects
-                .filter(character_id=OuterRef('pk'))
-            )
-        ),
-    ]
+import_app = AppImport('moonstuff', [
+    LoginImport(
+        field_label='Moon Tools',
+        add_character=_add_character,
+        scopes=ESI_CHARACTER_SCOPES,
+        permissions=['moonstuff.add_trackingcharacter'],
+        is_character_added=_is_character_added,
+        is_character_added_annotation=Exists(
+            TrackingCharacter.objects
+            .filter(character_id=OuterRef('pk'))
+        )
+    ),
+])

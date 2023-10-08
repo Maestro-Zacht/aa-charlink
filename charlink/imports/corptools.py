@@ -6,7 +6,7 @@ from corptools.app_settings import get_character_scopes, CORPTOOLS_APP_NAME
 
 from allianceauth.eveonline.models import EveCharacter
 
-from charlink.app_imports.utils import AppImport
+from charlink.app_imports.utils import LoginImport, AppImport
 
 
 def _add_character(request, token):
@@ -19,18 +19,17 @@ def _is_character_added(character: EveCharacter):
     return CharacterAudit.objects.filter(character=character).exists()
 
 
-def import_app():
-    return [
-        AppImport(
-            field_label=CORPTOOLS_APP_NAME,
-            add_character=_add_character,
-            scopes=get_character_scopes(),
-            permissions=[],
-            is_character_added=_is_character_added,
-            is_character_added_annotation=Exists(
-                CharacterAudit.objects
-                .filter(character_id=OuterRef('pk'))
-            )
-        ),
-        # TODO corp audit
-    ]
+import_app = AppImport('corptools', [
+    LoginImport(
+        field_label=CORPTOOLS_APP_NAME,
+        add_character=_add_character,
+        scopes=get_character_scopes(),
+        permissions=[],
+        is_character_added=_is_character_added,
+        is_character_added_annotation=Exists(
+            CharacterAudit.objects
+            .filter(character_id=OuterRef('pk'))
+        )
+    ),
+    # TODO corp audit
+])

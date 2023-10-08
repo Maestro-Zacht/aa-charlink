@@ -9,7 +9,7 @@ from app_utils.allianceauth import notify_admins
 
 from allianceauth.eveonline.models import EveCorporationInfo, EveCharacter
 
-from charlink.app_imports.utils import AppImport
+from charlink.app_imports.utils import LoginImport, AppImport
 
 
 def _add_character(request, token):
@@ -47,17 +47,16 @@ def _is_character_added(character: EveCharacter):
     ).exists()
 
 
-def import_app():
-    return [
-        AppImport(
-            field_label=__title__,
-            add_character=_add_character,
-            scopes=Owner.esi_scopes(),
-            permissions=["moonmining.add_refinery_owner", "moonmining.basic_access"],
-            is_character_added=_is_character_added,
-            is_character_added_annotation=Exists(
-                Owner.objects
-                .filter(character_ownership__character_id=OuterRef('pk'))
-            )
-        ),
-    ]
+import_app = AppImport('moonmining', [
+    LoginImport(
+        field_label=__title__,
+        add_character=_add_character,
+        scopes=Owner.esi_scopes(),
+        permissions=["moonmining.add_refinery_owner", "moonmining.basic_access"],
+        is_character_added=_is_character_added,
+        is_character_added_annotation=Exists(
+            Owner.objects
+            .filter(character_ownership__character_id=OuterRef('pk'))
+        )
+    ),
+])

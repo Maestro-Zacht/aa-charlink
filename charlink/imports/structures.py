@@ -17,7 +17,7 @@ from app_utils.messages import messages_plus
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from allianceauth.authentication.models import CharacterOwnership
 
-from charlink.app_imports.utils import AppImport
+from charlink.app_imports.utils import LoginImport, AppImport
 
 
 def _add_character(request, token):
@@ -113,17 +113,16 @@ def _is_character_added(character: EveCharacter):
     ).exists()
 
 
-def import_app():
-    return [
-        AppImport(
-            field_label=__title__,
-            add_character=_add_character,
-            scopes=Owner.get_esi_scopes(),
-            permissions=["structures.add_structure_owner"],
-            is_character_added=_is_character_added,
-            is_character_added_annotation=Exists(
-                OwnerCharacter.objects
-                .filter(character_ownership__character_id=OuterRef('pk'))
-            )
-        ),
-    ]
+import_app = AppImport('structures', [
+    LoginImport(
+        field_label=__title__,
+        add_character=_add_character,
+        scopes=Owner.get_esi_scopes(),
+        permissions=["structures.add_structure_owner"],
+        is_character_added=_is_character_added,
+        is_character_added_annotation=Exists(
+            OwnerCharacter.objects
+            .filter(character_ownership__character_id=OuterRef('pk'))
+        )
+    ),
+])
