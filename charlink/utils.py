@@ -59,7 +59,7 @@ def get_visible_corps(user: User):
 def chars_annotate_linked_apps(characters, imports: list[LoginImport]):
     for import_ in imports:
         characters = characters.annotate(
-            **{import_.unique_id: import_.is_character_added_annotation}
+            **{import_.get_query_id(): import_.is_character_added_annotation}
         )
 
     return characters

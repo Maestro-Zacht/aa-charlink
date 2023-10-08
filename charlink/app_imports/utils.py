@@ -21,6 +21,12 @@ class LoginImport:
     is_character_added: Callable[[EveCharacter], bool]
     is_character_added_annotation: Exists
 
+    def get_query_id(self):
+        return f"{self.app_label}_{self.unique_id}"
+
+    def __hash__(self) -> int:
+        return hash(self.get_query_id())
+
 
 @dataclass
 class AppImport:

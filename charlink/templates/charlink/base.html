@@ -31,9 +31,9 @@
                         <li class="dropdown">
                             <a href="#" id="appDrop" class="dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="false" aria-expanded="false">Apps<span class="caret"></span></a>
                             <ul class="dropdown-menu" role="menu" aria-labelledby="appDrop">
-                                {% for app, data in available_apps.items %}
+                                {% for app, import_data in available_apps.items %}
                                     <li>
-                                        <a href="{% url 'charlink:audit_app' app %}">{{ data.field_label }}</a>
+                                        <a href="{% url 'charlink:audit_app' app %}">{{ import_data.imports.0.field_label }}</a>
                                     </li>
                                 {% endfor %}
                             </ul>

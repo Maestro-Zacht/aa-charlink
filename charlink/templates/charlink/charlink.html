@@ -47,22 +47,26 @@
                     <table class="table table-aa">
                         <thead>
                             <th class="text-center">Character</th>
-                            {% for app in characters_added.apps.values %}
-                                <th scope="row" class="text-center">{{ app.field_label }}</th>
+                            {% for app_imports in characters_added.apps.values %}
+                                {% for login_import in app_imports.imports %}
+                                    <th scope="row" class="text-center">{{ login_import.field_label }}</th>
+                                {% endfor %}
                             {% endfor %}
                         </thead>
                         <tbody>
                             {% for char in characters_added.characters %}
                                 <tr>
                                     <td>{{ char }}</td>
-                                    {% for app, data in characters_added.apps.items %}
-                                        {% with is_added=char|get_char_attr:app %}
-                                            {% if is_added %}
-                                                <td><span class="glyphicon glyphicon-ok"></span></td>
-                                            {% else %}
-                                                <td><span class="glyphicon glyphicon-remove"></span></td>
-                                            {% endif %}
-                                        {% endwith %}
+                                    {% for imports in characters_added.apps.values %}
+                                        {% for login_data in imports.imports %}
+                                            {% with is_added=char|get_char_attr:login_data.get_query_id %}
+                                                {% if is_added %}
+                                                    <td><span class="glyphicon glyphicon-ok"></span></td>
+                                                {% else %}
+                                                    <td><span class="glyphicon glyphicon-remove"></span></td>
+                                                {% endif %}
+                                            {% endwith %}
+                                        {% endfor %}
                                     {% endfor %}
                                 </tr>
                             {% endfor %}
@@ -73,22 +77,26 @@
         </div>
     </div>
     <ul class="nav nav-tabs">
-        {% for app_id, app in characters_added.apps.items %}
-            <li{% if forloop.first %} class="active"{% endif %}>
-                <a data-toggle="tab" href="#{{ app_id }}">
-                    {{ app.field_label }}
-                </a>
-            </li>
+        {% for import_data in characters_added.apps.values %}
+            {% for login_data in import_data.imports %}
+                <li{% if forloop.parentloop.first and forloop.first %} class="active"{% endif %}>
+                    <a data-toggle="tab" href="#{{ import_data.app_label }}-{{ login_data.unique_id }}">
+                        {{ login_data.field_label }}
+                    </a>
+                </li>
+            {% endfor %}
         {% endfor %}
     </ul>
     <div class="panel panel-default panel-tabs-aa">
         <div class="panel-body">
             <div class="tab-content">
-                {% for app_id, app in characters_added.apps.items %}
-                    <div id="{{ app_id }}" class="tab-pane fade in{% if forloop.first %} active{% endif %}">
-                        Scopes required:
-                        {{ app.scopes|unordered_list|safe }}
-                    </div>
+                {% for import_data in characters_added.apps.values %}
+                    {% for login_data in import_data.imports %}
+                        <div id="{{ import_data.app_label }}-{{ login_data.unique_id }}" class="tab-pane fade in{% if forloop.parentloop.first and forloop.first %} active{% endif %}">
+                            Scopes required:
+                            {{ login_data.scopes|unordered_list|safe }}
+                        </div>
+                    {% endfor %}
                 {% endfor %}
             </div>
         </div>

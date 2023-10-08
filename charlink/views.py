@@ -26,7 +26,7 @@ def get_navbar_elements(user: User):
 
     return {
         'is_auditor': is_auditor,
-        'available_apps': get_user_available_apps(user) if is_auditor else [],  # TODO check template
+        'available_apps': get_user_available_apps(user) if is_auditor else [],
         'available': get_visible_corps(user) if is_auditor else [],
     }
 
@@ -61,7 +61,7 @@ def index(request):
 
     context = {
         'form': form,
-        'characters_added': get_user_linked_chars(request.user),  # TODO check template
+        'characters_added': get_user_linked_chars(request.user),
         **get_navbar_elements(request.user),
     }
 
@@ -164,7 +164,7 @@ def audit_user(request, user_id):
         raise PermissionDenied('You do not have permission to view the selected user statistics.')
 
     context = {
-        'characters_added': get_user_linked_chars(user),  # TODO check template
+        'characters_added': get_user_linked_chars(user),
         **get_navbar_elements(request.user),
     }
 
@@ -225,7 +225,7 @@ def audit_app(request, app):
         visible_characters = chars_annotate_linked_apps(
             visible_characters,
             [import_]
-        ).order_by(import_.unique_id, 'character_name')
+        ).order_by(import_.get_query_id(), 'character_name')
 
         logins[import_] = visible_characters
 
