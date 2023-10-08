@@ -108,6 +108,18 @@ class TestIndex(TestCase):
     #     self.assertIn('form', res.context)
     #     self.assertIn('characters_added', res.context)
 
+    # force form invalid
+    @patch('charlink.forms.LinkForm.is_valid')
+    def test_form_invalid(self, mock_is_valid):
+        mock_is_valid.return_value = False
+
+        self.client.force_login(self.user)
+        res = self.client.post(reverse('charlink:index'), self.form_data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('form', res.context)
+        self.assertIn('characters_added', res.context)
+
 
 class TestLoginView(TestCase):
 
