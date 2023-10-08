@@ -6,14 +6,10 @@ from moonstuff.tasks import import_extraction_data
 
 from allianceauth.eveonline.models import EveCharacter
 
-field_label = 'Moon Tools'
-
-scopes = ESI_CHARACTER_SCOPES
-
-permissions = ['moonstuff.add_trackingcharacter']
+from charlink.app_imports.utils import AppImport
 
 
-def add_character(request, token):
+def _add_character(request, token):
     eve_char = EveCharacter.objects.get(character_id=token.character_id)
 
     if not TrackingCharacter.objects.filter(character=eve_char).exists():
@@ -24,11 +20,21 @@ def add_character(request, token):
         import_extraction_data.delay()
 
 
-def is_character_added(character: EveCharacter):
+def _is_character_added(character: EveCharacter):
     return TrackingCharacter.objects.filter(character=character).exists()
 
 
-is_character_added_annotation = Exists(
-    TrackingCharacter.objects
-    .filter(character_id=OuterRef('pk'))
-)
+def import_app():
+    return [
+        AppImport(
+            field_label='Moon Tools',
+            add_character=_add_character,
+            scopes=ESI_CHARACTER_SCOPES,
+            permissions=['moonstuff.add_trackingcharacter'],
+            is_character_added=_is_character_added,
+            is_character_added_annotation=Exists(
+                TrackingCharacter.objects
+                .filter(character_id=OuterRef('pk'))
+            )
+        ),
+    ]

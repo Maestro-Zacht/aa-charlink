@@ -4,17 +4,10 @@ from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 
 from corpstats.models import CorpStat
 
-field_label = 'Corporation Stats'
-
-scopes = [
-    'esi-corporations.track_members.v1',
-    'esi-universe.read_structures.v1'
-]
-
-permissions = ['corpstats.add_corpstat']
+from charlink.app_imports.utils import AppImport
 
 
-def add_character(request, token):
+def _add_character(request, token):
     corp_id = EveCharacter.objects.get(character_id=token.character_id).corporation_id
     try:
         corp = EveCorporationInfo.objects.get(corporation_id=corp_id)
@@ -25,7 +18,7 @@ def add_character(request, token):
     assert cs.pk  # ensure update was successful
 
 
-def is_character_added(character: EveCharacter):
+def _is_character_added(character: EveCharacter):
     return (
         CorpStat.objects
         .filter(token__character_id=character.character_id)
@@ -33,7 +26,20 @@ def is_character_added(character: EveCharacter):
     )
 
 
-is_character_added_annotation = Exists(
-    CorpStat.objects
-    .filter(token__character_id=OuterRef('character_id'))
-)
+def import_app():
+    return [
+        AppImport(
+            field_label='Corporation Stats',
+            add_character=_add_character,
+            scopes=[
+                'esi-corporations.track_members.v1',
+                'esi-universe.read_structures.v1'
+            ],
+            permissions=['corpstats.add_corpstat'],
+            is_character_added=_is_character_added,
+            is_character_added_annotation=Exists(
+                CorpStat.objects
+                .filter(token__character_id=OuterRef('character_id'))
+            )
+        ),
+    ]
