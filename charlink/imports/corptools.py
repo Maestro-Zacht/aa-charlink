@@ -21,6 +21,7 @@ def _is_character_added(character: EveCharacter):
 
 import_app = AppImport('corptools', [
     LoginImport(
+        app_label='corptools',
         field_label=CORPTOOLS_APP_NAME,
         add_character=_add_character,
         scopes=get_character_scopes(),

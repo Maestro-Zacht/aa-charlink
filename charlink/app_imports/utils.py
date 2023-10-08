@@ -12,6 +12,7 @@ from esi.models import Token
 
 @dataclass
 class LoginImport:
+    app_label: str
     unique_id: str
     field_label: str
     add_character: Callable[[HttpRequest, Token], None]
@@ -49,3 +50,13 @@ class AppImport:
 
     def has_any_perms(self, user: User):
         return any(user.has_perms(import_.permissions) for import_ in self.imports)
+
+    def get(self, unique_id: str, default=None) -> LoginImport:
+        for import_ in self.imports:
+            if import_.unique_id == unique_id:
+                return import_
+
+        if default is not None:
+            return default
+
+        raise KeyError(f"Import with unique_id {unique_id} not found")

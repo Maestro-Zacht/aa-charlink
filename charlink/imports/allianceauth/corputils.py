@@ -27,6 +27,7 @@ def _is_character_added(character: EveCharacter):
 
 import_app = AppImport('corputils', [
     LoginImport(
+        app_label='allianceauth.corputils',
         field_label='Corporation Stats',
         add_character=_add_character,
         scopes=['esi-corporations.read_corporation_membership.v1'],

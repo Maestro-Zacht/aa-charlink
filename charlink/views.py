@@ -42,14 +42,16 @@ def index(request):
             scopes = set()
             selected_apps = []
 
-            for app, to_import in form.cleaned_data.items():
+            for import_code, to_import in form.cleaned_data.items():
                 if to_import:
-                    scopes.update(imported_apps[app].get('scopes', []))
-                    selected_apps.append(app)
+                    app, unique_id = import_code.split('-')
+                    app_import = imported_apps[app].get(unique_id)
+                    scopes.update(app_import.scopes)
+                    selected_apps.append(app_import)
 
             request.session['charlink'] = {
                 'scopes': list(scopes),
-                'apps': selected_apps,
+                'imports': selected_apps,
             }
 
             return redirect('charlink:login')
@@ -69,19 +71,17 @@ def index(request):
 @login_required
 @charlink
 def login_view(request, token):
-    imported_apps = import_apps()
-
     charlink_data = request.session.pop('charlink')
 
-    for app in charlink_data['apps']:
-        if app != 'add_character' and app not in CHARLINK_IGNORE_APPS and request.user.has_perms(imported_apps[app]['permissions']):
+    for import_ in charlink_data['imports']:
+        if import_.app_label != 'add_character' and import_.app_label not in CHARLINK_IGNORE_APPS and request.user.has_perms(import_.permissions):
             try:
-                imported_apps[app]['add_character'](request, token)
+                import_.add_character(request, token)
             except Exception as e:
                 logger.exception(e)
-                messages.error(request, f"Failed to add character to {imported_apps[app]['field_label']}")
+                messages.error(request, f"Failed to add character to {import_.field_label}")
             else:
-                messages.success(request, f"Character successfully added to {imported_apps[app]['field_label']}")
+                messages.success(request, f"Character successfully added to {import_.field_label}")
 
     return redirect('charlink:index')
 

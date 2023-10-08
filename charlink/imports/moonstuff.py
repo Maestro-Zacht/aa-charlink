@@ -26,6 +26,7 @@ def _is_character_added(character: EveCharacter):
 
 import_app = AppImport('moonstuff', [
     LoginImport(
+        app_label='moonstuff',
         field_label='Moon Tools',
         add_character=_add_character,
         scopes=ESI_CHARACTER_SCOPES,
