@@ -7,6 +7,7 @@ from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 
 from .app_settings import CHARLINK_IGNORE_APPS
 from .app_imports import import_apps
+from app_imports.utils import LoginImport
 
 
 def get_visible_corps(user: User):
@@ -55,10 +56,10 @@ def get_visible_corps(user: User):
     return corps
 
 
-def chars_annotate_linked_apps(characters, apps: dict):
-    for app, data in apps.items():
+def chars_annotate_linked_apps(characters, imports: list[LoginImport]):
+    for import_ in imports:
         characters = characters.annotate(
-            **{app: data['is_character_added_annotation']}
+            **{import_.unique_id: import_.is_character_added_annotation}
         )
 
     return characters
@@ -81,6 +82,10 @@ def get_user_linked_chars(user: User):
         'apps': available_apps,
         'characters': chars_annotate_linked_apps(
             EveCharacter.objects.filter(character_ownership__user=user),
-            available_apps
+            [
+                import_
+                for imports in available_apps.values()
+                for import_ in imports.imports
+            ]
         )
     }

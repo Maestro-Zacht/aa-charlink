@@ -26,7 +26,7 @@ def get_navbar_elements(user: User):
 
     return {
         'is_auditor': is_auditor,
-        'available_apps': get_user_available_apps(user) if is_auditor else [],
+        'available_apps': get_user_available_apps(user) if is_auditor else [],  # TODO check template
         'available': get_visible_corps(user) if is_auditor else [],
     }
 
@@ -61,7 +61,7 @@ def index(request):
 
     context = {
         'form': form,
-        'characters_added': get_user_linked_chars(request.user),
+        'characters_added': get_user_linked_chars(request.user),  # TODO check template
         **get_navbar_elements(request.user),
     }
 
@@ -164,7 +164,7 @@ def audit_user(request, user_id):
         raise PermissionDenied('You do not have permission to view the selected user statistics.')
 
     context = {
-        'characters_added': get_user_linked_chars(user),
+        'characters_added': get_user_linked_chars(user),  # TODO check template
         **get_navbar_elements(request.user),
     }
 
@@ -183,49 +183,55 @@ def audit_app(request, app):
     if app not in imported_apps:
         raise Http404()
 
-    app_data = imported_apps[app]
+    app_imports = imported_apps[app]
 
-    if not request.user.has_perms(app_data['permissions']):
+    if not app_imports.has_any_perms(request.user):
         raise PermissionDenied('You do not have permission to view the selected application statistics.')
+
+    app_imports = app_imports.get_imports_with_perms(request.user)
 
     corps = get_visible_corps(request.user)
 
-    users = [
-        users_with_permission(
-            Permission.objects.get(
-                content_type__app_label=perm.split('.')[0],
-                codename=perm.split('.')[1]
+    logins = {}
+
+    for import_ in app_imports.imports:
+        users = [
+            users_with_permission(
+                Permission.objects.get(
+                    content_type__app_label=perm.split('.')[0],
+                    codename=perm.split('.')[1]
+                )
             )
-        )
-        for perm in app_data['permissions']
-    ]
+            for perm in import_.permissions
+        ]
 
-    if len(users) == 0:
-        perm_query = Q(character_ownership__isnull=False)
-    else:
-        user_query = users.pop()
-        for query in users:
-            user_query &= query
+        if len(users) == 0:
+            perm_query = Q(character_ownership__isnull=False)
+        else:
+            user_query = users.pop()
+            for query in users:
+                user_query &= query
 
-        perm_query = Q(character_ownership__user__in=user_query)
+            perm_query = Q(character_ownership__user__in=user_query)
 
-    visible_characters = EveCharacter.objects.filter(
-        (
-            Q(corporation_id__in=corps.values('corporation_id')) |
-            Q(character_ownership__user__profile__main_character__corporation_id__in=corps.values('corporation_id'))
-        ) &
-        perm_query,
-    ).select_related('character_ownership__user__profile__main_character')
+        visible_characters = EveCharacter.objects.filter(
+            (
+                Q(corporation_id__in=corps.values('corporation_id')) |
+                Q(character_ownership__user__profile__main_character__corporation_id__in=corps.values('corporation_id'))
+            ) &
+            perm_query,
+        ).select_related('character_ownership__user__profile__main_character')
 
-    visible_characters = chars_annotate_linked_apps(
-        visible_characters,
-        {app: app_data}
-    ).order_by(app, 'character_name')
+        visible_characters = chars_annotate_linked_apps(
+            visible_characters,
+            [import_]
+        ).order_by(import_.unique_id, 'character_name')
+
+        logins[import_] = visible_characters
 
     context = {
-        'characters': visible_characters,
+        'logins': logins,
         'app': app,
-        'app_data': app_data,
         **get_navbar_elements(request.user),
     }
 
