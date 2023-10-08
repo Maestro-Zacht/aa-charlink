@@ -7,7 +7,7 @@ from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 
 from .app_settings import CHARLINK_IGNORE_APPS
 from .app_imports import import_apps
-from app_imports.utils import LoginImport
+from .app_imports.utils import LoginImport
 
 
 def get_visible_corps(user: User):

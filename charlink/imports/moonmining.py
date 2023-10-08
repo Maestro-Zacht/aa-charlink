@@ -50,6 +50,7 @@ def _is_character_added(character: EveCharacter):
 import_app = AppImport('moonmining', [
     LoginImport(
         app_label='moonmining',
+        unique_id='default',
         field_label=__title__,
         add_character=_add_character,
         scopes=Owner.esi_scopes(),

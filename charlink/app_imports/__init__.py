@@ -13,6 +13,8 @@ logger = get_extension_logger(__name__)
 _supported_apps = {
     'add_character': AppImport('add_character', [
         LoginImport(
+            app_label='add_character',
+            unique_id='default',
             field_label='Add Character (default)',
             add_character=lambda request, token: None,
             scopes=['publicData'],

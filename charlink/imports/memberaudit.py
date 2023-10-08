@@ -33,6 +33,7 @@ def _is_character_added(character: EveCharacter):
 import_app = AppImport('memberaudit', [
     LoginImport(
         app_label='memberaudit',
+        unique_id='default',
         field_label=MEMBERAUDIT_APP_NAME,
         add_character=_add_character,
         scopes=Character.get_esi_scopes(),

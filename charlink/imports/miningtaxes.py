@@ -23,6 +23,7 @@ def _is_character_added(character: EveCharacter):
 import_app = AppImport('miningtaxes', [
     LoginImport(
         app_label='miningtaxes',
+        unique_id='default',
         field_label="Mining Taxes",
         add_character=_add_character,
         scopes=Character.get_esi_scopes(),

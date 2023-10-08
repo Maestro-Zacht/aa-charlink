@@ -116,6 +116,7 @@ def _is_character_added(character: EveCharacter):
 import_app = AppImport('structures', [
     LoginImport(
         app_label='structures',
+        unique_id='default',
         field_label=__title__,
         add_character=_add_character,
         scopes=Owner.get_esi_scopes(),
