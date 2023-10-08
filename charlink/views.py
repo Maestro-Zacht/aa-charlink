@@ -10,7 +10,6 @@ from allianceauth.services.hooks import get_extension_logger
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from allianceauth.authentication.decorators import permissions_required
 
-
 from app_utils.allianceauth import users_with_permission
 
 from .forms import LinkForm
@@ -47,8 +46,6 @@ def index(request):
                 if to_import:
                     scopes.update(imported_apps[app].get('scopes', []))
                     selected_apps.append(app)
-
-            logger.debug(f"Scopes: {scopes}")
 
             request.session['charlink'] = {
                 'scopes': list(scopes),
@@ -99,7 +96,7 @@ def audit(request, corp_id: int):
     corp = get_object_or_404(EveCorporationInfo, corporation_id=corp_id)
     corps = get_visible_corps(request.user)
 
-    if corp not in corps:
+    if not corps.filter(corporation_id=corp_id).exists():
         raise PermissionDenied('You do not have permission to view the selected corporation statistics.')
 
     context = {
@@ -169,7 +166,6 @@ def audit_user(request, user_id):
     context = {
         'characters_added': get_user_linked_chars(user),
         **get_navbar_elements(request.user),
-
     }
 
     return render(request, 'charlink/user_audit.html', context=context)
@@ -204,7 +200,7 @@ def audit_app(request, app):
         for perm in app_data['permissions']
     ]
 
-    if len(app_data['permissions']) == 0:
+    if len(users) == 0:
         perm_query = Q(character_ownership__isnull=False)
     else:
         user_query = users.pop()

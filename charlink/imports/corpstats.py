@@ -15,12 +15,7 @@ permissions = ['corpstats.add_corpstat']
 
 
 def add_character(request, token):
-    if EveCharacter.objects.filter(character_id=token.character_id).exists():
-        corp_id = EveCharacter.objects.get(character_id=token.character_id).corporation_id
-    else:
-        corp_id = \
-            token.get_esi_client().Character.get_characters_character_id(
-                character_id=token.character_id).result()['corporation_id']
+    corp_id = EveCharacter.objects.get(character_id=token.character_id).corporation_id
     try:
         corp = EveCorporationInfo.objects.get(corporation_id=corp_id)
     except EveCorporationInfo.DoesNotExist:
