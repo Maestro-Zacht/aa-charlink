@@ -5,7 +5,7 @@ from .app_settings import CHARLINK_IGNORE_APPS
 
 
 class LinkForm(forms.Form):
-    add_character = forms.BooleanField(
+    add_character_default = forms.BooleanField(
         required=False,
         initial=True,
         disabled=True,

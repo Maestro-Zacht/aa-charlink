@@ -25,7 +25,7 @@ def _is_character_added(character: EveCharacter):
     )
 
 
-import_app = AppImport('corputils', [
+import_app = AppImport('allianceauth.corputils', [
     LoginImport(
         app_label='allianceauth.corputils',
         unique_id='default',

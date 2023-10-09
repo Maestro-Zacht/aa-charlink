@@ -1,3 +1,5 @@
+import re
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Permission
@@ -42,12 +44,18 @@ def index(request):
             scopes = set()
             selected_apps = []
 
+            form_field_pattern = re.compile(r'^(?P<app>[\w\d\.]+)_(?P<unique_id>[a-zA-Z0-9]+)$')
+
             for import_code, to_import in form.cleaned_data.items():
                 if to_import:
-                    app, unique_id = import_code.split('-')
+                    match = form_field_pattern.match(import_code)
+
+                    app = match.group('app')
+                    unique_id = match.group('unique_id')
+
                     app_import = imported_apps[app].get(unique_id)
                     scopes.update(app_import.scopes)
-                    selected_apps.append(app_import)
+                    selected_apps.append((app, unique_id))
 
             request.session['charlink'] = {
                 'scopes': list(scopes),
@@ -71,10 +79,13 @@ def index(request):
 @login_required
 @charlink
 def login_view(request, token):
+    imported_apps = import_apps()
+
     charlink_data = request.session.pop('charlink')
 
-    for import_ in charlink_data['imports']:
-        if import_.app_label != 'add_character' and import_.app_label not in CHARLINK_IGNORE_APPS and request.user.has_perms(import_.permissions):
+    for app, unique_id in charlink_data['imports']:
+        import_ = imported_apps[app].get(unique_id)
+        if app != 'add_character' and app not in CHARLINK_IGNORE_APPS and request.user.has_perms(import_.permissions):
             try:
                 import_.add_character(request, token)
             except Exception as e:

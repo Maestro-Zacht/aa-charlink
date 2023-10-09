@@ -35,7 +35,7 @@ class AppImport:
 
     def get_form_fields(self, user):
         return {
-            f"{self.app_label}-{import_.unique_id}": forms.BooleanField(
+            f"{self.app_label}_{import_.unique_id}": forms.BooleanField(
                 required=False,
                 initial=True,
                 label=import_.field_label
