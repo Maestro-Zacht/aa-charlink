@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, List
 
 from django.http import HttpRequest
 from django.db.models import Exists
@@ -16,8 +16,8 @@ class LoginImport:
     unique_id: str
     field_label: str
     add_character: Callable[[HttpRequest, Token], None]
-    scopes: list[str]
-    permissions: list[str]
+    scopes: List[str]
+    permissions: List[str]
     is_character_added: Callable[[EveCharacter], bool]
     is_character_added_annotation: Exists
 
@@ -31,7 +31,7 @@ class LoginImport:
 @dataclass
 class AppImport:
     app_label: str
-    imports: list[LoginImport]
+    imports: List[LoginImport]
 
     def get_form_fields(self, user):
         return {
