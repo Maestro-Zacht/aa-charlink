@@ -5,7 +5,7 @@ from django.test import TestCase, RequestFactory
 from app_utils.testdata_factories import UserMainFactory, EveCorporationInfoFactory, EveCharacterFactory
 from app_utils.testing import add_character_to_user
 
-from charlink.imports.structures import add_character, is_character_added
+from charlink.imports.structures import _add_character, _is_character_added
 
 from structures.models import Webhook, Owner
 
@@ -28,9 +28,9 @@ class TestAddCharacter(TestCase):
         request = self.factory.get("/charlink/login/")
         request.user = self.user
 
-        add_character(request, self.token)
+        _add_character(request, self.token)
 
-        self.assertTrue(is_character_added(self.character))
+        self.assertTrue(_is_character_added(self.character))
         mock_update_all_for_owner.assert_called_once()
         self.assertTrue(mock_messages_plus_info.called)
 
@@ -46,9 +46,9 @@ class TestAddCharacter(TestCase):
 
         self.character.corporation.delete()
 
-        add_character(request, self.token)
+        _add_character(request, self.token)
 
-        self.assertTrue(is_character_added(self.character))
+        self.assertTrue(_is_character_added(self.character))
         self.assertTrue(mock_update_all_for_owner.called)
         self.assertTrue(mock_messages_plus_info.called)
         self.assertTrue(mock_create_corporation.called)
@@ -62,10 +62,10 @@ class TestAddCharacter(TestCase):
         request = self.factory.get("/charlink/login/")
         request.user = self.user
 
-        add_character(request, self.token)
-        add_character(request, self.token)
+        _add_character(request, self.token)
+        _add_character(request, self.token)
 
-        self.assertTrue(is_character_added(self.character))
+        self.assertTrue(_is_character_added(self.character))
         self.assertTrue(mock_update_all_for_owner.called)
         self.assertTrue(mock_messages_plus_info.called)
 
@@ -80,9 +80,9 @@ class TestAddCharacter(TestCase):
 
         Webhook.objects.create(is_default=True, name="test", url="https://discordapp.com/api/webhooks/123456/abcdef")
 
-        add_character(request, self.token)
+        _add_character(request, self.token)
 
-        self.assertTrue(is_character_added(self.character))
+        self.assertTrue(_is_character_added(self.character))
         mock_update_all_for_owner.assert_called_once()
         self.assertTrue(mock_messages_plus_info.called)
         self.assertEqual(Owner.objects.first().webhooks.count(), 1)
@@ -97,9 +97,9 @@ class TestAddCharacter(TestCase):
         request = self.factory.get("/charlink/login/")
         request.user = self.user
 
-        add_character(request, self.token)
+        _add_character(request, self.token)
 
-        self.assertTrue(is_character_added(self.character))
+        self.assertTrue(_is_character_added(self.character))
         mock_update_all_for_owner.assert_called_once()
         self.assertTrue(mock_messages_plus_info.called)
 
@@ -112,18 +112,18 @@ class TestAddCharacter(TestCase):
         request = self.factory.get("/charlink/login/")
         request.user = self.user
 
-        add_character(request, self.token)
+        _add_character(request, self.token)
 
-        self.assertTrue(is_character_added(self.character))
+        self.assertTrue(_is_character_added(self.character))
         mock_update_all_for_owner.assert_called_once()
         self.assertTrue(mock_messages_plus_info.called)
 
         character2 = EveCharacterFactory(corporation=self.character.corporation)
         add_character_to_user(self.user, character2)
 
-        add_character(request, self.user.token_set.get(character_id=character2.character_id))
+        _add_character(request, self.user.token_set.get(character_id=character2.character_id))
 
-        self.assertTrue(is_character_added(character2))
+        self.assertTrue(_is_character_added(character2))
         self.assertEqual(Owner.objects.first().characters_count(), 2)
         mock_update_all_for_owner.assert_called_once()
         self.assertTrue(mock_messages_plus_info.called)
@@ -138,18 +138,18 @@ class TestAddCharacter(TestCase):
         request = self.factory.get("/charlink/login/")
         request.user = self.user
 
-        add_character(request, self.token)
+        _add_character(request, self.token)
 
-        self.assertTrue(is_character_added(self.character))
+        self.assertTrue(_is_character_added(self.character))
         mock_update_all_for_owner.assert_called_once()
         self.assertTrue(mock_messages_plus_info.called)
 
         character2 = EveCharacterFactory(corporation=self.character.corporation)
         add_character_to_user(self.user, character2)
 
-        add_character(request, self.user.token_set.get(character_id=character2.character_id))
+        _add_character(request, self.user.token_set.get(character_id=character2.character_id))
 
-        self.assertTrue(is_character_added(character2))
+        self.assertTrue(_is_character_added(character2))
         self.assertEqual(Owner.objects.first().characters_count(), 2)
         mock_update_all_for_owner.assert_called_once()
         self.assertTrue(mock_messages_plus_info.called)
@@ -173,8 +173,8 @@ class TestIsCharacterAdded(TestCase):
         request = self.factory.get("/charlink/login/")
         request.user = self.user
 
-        self.assertFalse(is_character_added(self.character))
+        self.assertFalse(_is_character_added(self.character))
 
-        add_character(request, self.token)
+        _add_character(request, self.token)
 
-        self.assertTrue(is_character_added(self.character))
+        self.assertTrue(_is_character_added(self.character))

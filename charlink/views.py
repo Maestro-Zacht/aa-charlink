@@ -188,7 +188,7 @@ def audit_user(request, user_id):
     'charlink.view_alliance',
     'charlink.view_state',
 ])
-def audit_app(request, app):
+def audit_app(request, app):  # TODO test view with multiple imports
     imported_apps = import_apps()
 
     if app not in imported_apps:

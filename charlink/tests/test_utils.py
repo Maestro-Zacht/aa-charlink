@@ -1,11 +1,14 @@
 from django.test import TestCase
 
+from allianceauth.eveonline.models import EveCharacter
 from allianceauth.tests.auth_utils import AuthUtils
 
 from app_utils.testdata_factories import UserMainFactory, EveCorporationInfoFactory, EveCharacterFactory
 from app_utils.testing import create_state
 
-from charlink.utils import get_visible_corps
+from charlink.utils import get_visible_corps, chars_annotate_linked_apps, get_user_available_apps, get_user_linked_chars
+from charlink.app_imports import import_apps
+from charlink.imports.memberaudit import import_app as import_memberaudit
 
 
 class TestGetVisibleCorps(TestCase):
@@ -106,3 +109,48 @@ class TestGetVisibleCorps(TestCase):
             [],
             ordered=False
         )
+
+
+class TestCharsAnnotateLinkedApps(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        EveCharacterFactory.create_batch(10)
+
+    def test_ok(self):
+        chars = EveCharacter.objects.all()
+        imported_apps = import_apps()
+
+        res = chars_annotate_linked_apps(chars, [imported_apps['add_character'].imports[0]])
+
+        self.assertEqual(len(res), 10)
+        for char in res:
+            self.assertTrue(hasattr(char, 'add_character_default'))
+
+
+class TestGetUserAvailableApps(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = UserMainFactory(permissions=import_memberaudit.imports[0].permissions)
+
+    def test_ok(self):
+        res = get_user_available_apps(self.user)
+        self.assertSetEqual(
+            set(res.keys()),
+            {'memberaudit', 'add_character', 'corptools'}
+        )
+        # TODO test corptools multiple imports
+
+
+class TestGetUserLinkedChars(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = UserMainFactory()
+
+    def test_ok(self):
+        res = get_user_linked_chars(self.user)
+
+        self.assertIn('apps', res)
+        self.assertIn('characters', res)

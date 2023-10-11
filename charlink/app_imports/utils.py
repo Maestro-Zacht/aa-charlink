@@ -35,7 +35,7 @@ class AppImport:
 
     def get_form_fields(self, user):
         return {
-            f"{self.app_label}_{import_.unique_id}": forms.BooleanField(
+            import_.get_query_id(): forms.BooleanField(
                 required=False,
                 initial=True,
                 label=import_.field_label
@@ -57,12 +57,9 @@ class AppImport:
     def has_any_perms(self, user: User):
         return any(user.has_perms(import_.permissions) for import_ in self.imports)
 
-    def get(self, unique_id: str, default=None) -> LoginImport:
+    def get(self, unique_id: str) -> LoginImport:
         for import_ in self.imports:
             if import_.unique_id == unique_id:
                 return import_
-
-        if default is not None:
-            return default
 
         raise KeyError(f"Import with unique_id {unique_id} not found")

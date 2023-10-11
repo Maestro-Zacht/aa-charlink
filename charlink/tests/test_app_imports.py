@@ -39,3 +39,47 @@ class TestImportApps(TestCase):
         add_char = import_apps()['add_character']
         self.assertIsNone(add_char['add_character'](None, None))
         self.assertTrue(add_char['is_character_added'](main_char))
+
+
+class TestLoginImport(TestCase):
+
+    def test_get_query_id(self):
+        login_import = import_apps()['add_character'].get('default')
+        self.assertEqual(login_import.get_query_id(), 'add_character_default')
+
+    def test_hash(self):
+        login_import = import_apps()['add_character'].get('default')
+        self.assertEqual(hash(login_import), hash('add_character_default'))
+
+
+class TestAppImport(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = UserMainFactory()
+
+    def test_get_form_fields(self):
+        app_import = import_apps()['add_character']
+        form_fields = app_import.get_form_fields(self.user)
+        self.assertEqual(len(form_fields), 1)
+        self.assertIn('add_character_default', form_fields)
+
+    def test_get_imports_with_perms(self):
+        # TODO: test with multiple login imports
+        app_import = import_apps()['add_character']
+        imports = app_import.get_imports_with_perms(self.user)
+        self.assertEqual(len(imports.imports), 1)
+
+    def test_has_any_perms(self):
+        app_import = import_apps()['add_character']
+        self.assertTrue(app_import.has_any_perms(self.user))
+
+    def test_get_ok(self):
+        app_import = import_apps()['add_character']
+        login_import = app_import.get('default')
+        self.assertEqual(login_import.unique_id, 'default')
+
+    def test_get_not_found(self):
+        app_import = import_apps()['add_character']
+        with self.assertRaises(KeyError):
+            app_import.get('not_found')

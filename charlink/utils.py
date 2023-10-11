@@ -85,7 +85,7 @@ def get_user_linked_chars(user: User):
             [
                 import_
                 for imports in available_apps.values()
-                for import_ in imports.imports
+                for import_ in imports.get_imports_with_perms(user).imports
             ]
         )
     }
