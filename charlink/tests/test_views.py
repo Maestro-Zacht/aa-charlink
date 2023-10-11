@@ -94,12 +94,12 @@ class TestIndex(TestCase):
         self.assertIn('charlink', session)
         self.assertIn('scopes', session['charlink'])
         self.assertIn('imports', session['charlink'])
-        self.assertIn('add_character', session['charlink']['imports'])
-        self.assertIn('allianceauth.corputils_default', session['charlink']['imports'])
-        self.assertIn('memberaudit_default', session['charlink']['imports'])
-        self.assertIn('miningtaxes_default', session['charlink']['imports'])
-        self.assertIn('moonmining_default', session['charlink']['imports'])
-        self.assertIn('corpstats_default', session['charlink']['imports'])
+        self.assertIn(('add_character', 'default'), session['charlink']['imports'])
+        self.assertIn(('allianceauth.corputils', 'default'), session['charlink']['imports'])
+        self.assertIn(('memberaudit', 'default'), session['charlink']['imports'])
+        self.assertIn(('miningtaxes', 'default'), session['charlink']['imports'])
+        self.assertIn(('moonmining', 'default'), session['charlink']['imports'])
+        self.assertIn(('corpstats', 'default'), session['charlink']['imports'])
         self.assertEqual(len(session['charlink']['imports']), 6)
 
     # form always valid
@@ -147,7 +147,7 @@ class TestLoginView(TestCase):
         session = self.client.session
         session['charlink'] = {
             'scopes': self.scopes,
-            'apps': [
+            'imports': [
                 ('memberaudit', 'default'),
                 ('miningtaxes', 'default'),
                 ('add_character', 'default'),
@@ -163,8 +163,30 @@ class TestLoginView(TestCase):
         mock_token_required.return_value = fake_decorator
 
         mock_import_apps.return_value = {
-            'memberaudit': memberaudit_import,
-            'miningtaxes': miningtaxes_import,
+            'memberaudit': AppImport('memberaudit', [
+                LoginImport(
+                    app_label='memberaudit',
+                    unique_id='default',
+                    field_label='Member Audit',
+                    add_character=lambda request, token: None,
+                    scopes=memberaudit_import.imports[0].scopes,
+                    permissions=memberaudit_import.imports[0].permissions,
+                    is_character_added=memberaudit_import.imports[0].is_character_added,
+                    is_character_added_annotation=memberaudit_import.imports[0].is_character_added_annotation
+                )
+            ]),
+            'miningtaxes': AppImport('miningtaxes', [
+                LoginImport(
+                    app_label='miningtaxes',
+                    unique_id='default',
+                    field_label='Mining Taxes',
+                    add_character=Mock(side_effect=Exception('test')),
+                    scopes=miningtaxes_import.imports[0].scopes,
+                    permissions=miningtaxes_import.imports[0].permissions,
+                    is_character_added=miningtaxes_import.imports[0].is_character_added,
+                    is_character_added_annotation=miningtaxes_import.imports[0].is_character_added_annotation
+                )
+            ]),
             'add_character': AppImport('add_character', [
                 LoginImport(
                     app_label='add_character',
@@ -317,7 +339,7 @@ class TestAuditApp(TestCase):
         self.assertIn('app', res.context)
         self.assertIn('logins', res.context)
         self.assertEqual(len(res.context['logins']), 1)
-        self.assertEqual(len(res.context['logins'].values()[0]), 2)
+        self.assertEqual(len(list(res.context['logins'].values())[0]), 2)
 
     def test_app_empty_perms(self):
         self.client.force_login(self.user)
@@ -327,7 +349,7 @@ class TestAuditApp(TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertIn('logins', res.context)
         self.assertEqual(len(res.context['logins']), 1)
-        self.assertEqual(len(res.context['logins'].values()[0]), 3)
+        self.assertEqual(len(list(res.context['logins'].values())[0]), 3)
         self.assertIn('app', res.context)
 
     def test_missing_app(self):
@@ -357,6 +379,6 @@ class TestAuditApp(TestCase):
 
         self.assertEqual(res.status_code, 200)
         self.assertIn('logins', res.context)
-        self.assertEqual(len(res.context['characters']), 1)
-        self.assertEqual(len(res.context['characters'].values()[0]), 3)
+        self.assertEqual(len(res.context['logins']), 1)
+        self.assertEqual(len(list(res.context['logins'].values())[0]), 3)
         self.assertIn('app', res.context)
