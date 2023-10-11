@@ -94,12 +94,15 @@ class TestIndex(TestCase):
         self.assertIn('charlink', session)
         self.assertIn('scopes', session['charlink'])
         self.assertIn('imports', session['charlink'])
-        self.assertIn(('add_character', 'default'), session['charlink']['imports'])
-        self.assertIn(('allianceauth.corputils', 'default'), session['charlink']['imports'])
-        self.assertIn(('memberaudit', 'default'), session['charlink']['imports'])
-        self.assertIn(('miningtaxes', 'default'), session['charlink']['imports'])
-        self.assertIn(('moonmining', 'default'), session['charlink']['imports'])
-        self.assertIn(('corpstats', 'default'), session['charlink']['imports'])
+
+        converted_imports = [list(x) for x in session['charlink']['imports']]
+
+        self.assertIn(['add_character', 'default'], converted_imports)
+        self.assertIn(['allianceauth.corputils', 'default'], converted_imports)
+        self.assertIn(['memberaudit', 'default'], converted_imports)
+        self.assertIn(['miningtaxes', 'default'], converted_imports)
+        self.assertIn(['moonmining', 'default'], converted_imports)
+        self.assertIn(['corpstats', 'default'], converted_imports)
         self.assertEqual(len(session['charlink']['imports']), 6)
 
     # form always valid

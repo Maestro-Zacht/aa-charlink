@@ -38,7 +38,7 @@ class TestImportApps(TestCase):
 
         add_char = import_apps()['add_character']
         self.assertIsNone(add_char.imports[0].add_character(None, None))
-        self.assertTrue(add_char['is_character_added'](main_char))
+        self.assertTrue(add_char.imports[0].is_character_added(main_char))
 
 
 class TestLoginImport(TestCase):
