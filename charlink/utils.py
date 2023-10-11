@@ -1,6 +1,7 @@
+from typing import List
+
 from django.db.models import Exists, OuterRef, Q
 from django.contrib.auth.models import User
-
 
 from allianceauth.authentication.models import CharacterOwnership
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
@@ -56,7 +57,7 @@ def get_visible_corps(user: User):
     return corps
 
 
-def chars_annotate_linked_apps(characters, imports: list[LoginImport]):
+def chars_annotate_linked_apps(characters, imports: List[LoginImport]):
     for import_ in imports:
         characters = characters.annotate(
             **{import_.get_query_id(): import_.is_character_added_annotation}
