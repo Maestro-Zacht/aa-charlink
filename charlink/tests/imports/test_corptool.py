@@ -4,7 +4,7 @@ from django.test import TestCase, RequestFactory
 
 from app_utils.testdata_factories import UserMainFactory
 
-from charlink.imports.corptools import add_character, is_character_added
+from charlink.imports.corptools import _add_character, _is_character_added
 
 
 class TestAddCharacter(TestCase):
@@ -21,10 +21,10 @@ class TestAddCharacter(TestCase):
         request = self.factory.get('/charlink/login/')
         token = self.user.token_set.first()
 
-        add_character(request, token)
+        _add_character(request, token)
 
         mock_update_character.assert_called_once_with(args=[token.character_id], priority=6)
-        self.assertTrue(is_character_added(self.user.profile.main_character))
+        self.assertTrue(_is_character_added(self.user.profile.main_character))
 
 
 class TestIsCharacterAdded(TestCase):
@@ -39,6 +39,6 @@ class TestIsCharacterAdded(TestCase):
     def test_ok(self, mock_update_character):
         mock_update_character.return_value = None
 
-        self.assertFalse(is_character_added(self.character))
-        add_character(self.factory.get('/charlink/login/'), self.user.token_set.first())
-        self.assertTrue(is_character_added(self.character))
+        self.assertFalse(_is_character_added(self.character))
+        _add_character(self.factory.get('/charlink/login/'), self.user.token_set.first())
+        self.assertTrue(_is_character_added(self.character))

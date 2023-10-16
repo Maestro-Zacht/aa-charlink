@@ -1,12 +1,14 @@
+from typing import List
+
 from django.db.models import Exists, OuterRef, Q
 from django.contrib.auth.models import User
-
 
 from allianceauth.authentication.models import CharacterOwnership
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 
 from .app_settings import CHARLINK_IGNORE_APPS
 from .app_imports import import_apps
+from .app_imports.utils import LoginImport
 
 
 def get_visible_corps(user: User):
@@ -55,10 +57,10 @@ def get_visible_corps(user: User):
     return corps
 
 
-def chars_annotate_linked_apps(characters, apps: dict):
-    for app, data in apps.items():
+def chars_annotate_linked_apps(characters, imports: List[LoginImport]):
+    for import_ in imports:
         characters = characters.annotate(
-            **{app: data['is_character_added_annotation']}
+            **{import_.get_query_id(): import_.is_character_added_annotation}
         )
 
     return characters
@@ -68,9 +70,9 @@ def get_user_available_apps(user: User):
     imported_apps = import_apps()
 
     return {
-        app: data
-        for app, data in imported_apps.items()
-        if app not in CHARLINK_IGNORE_APPS and user.has_perms(data['permissions'])
+        app: imports.get_imports_with_perms(user)
+        for app, imports in imported_apps.items()
+        if app not in CHARLINK_IGNORE_APPS and imports.has_any_perms(user)
     }
 
 
@@ -81,6 +83,10 @@ def get_user_linked_chars(user: User):
         'apps': available_apps,
         'characters': chars_annotate_linked_apps(
             EveCharacter.objects.filter(character_ownership__user=user),
-            available_apps
+            [
+                import_
+                for imports in available_apps.values()
+                for import_ in imports.get_imports_with_perms(user).imports
+            ]
         )
     }

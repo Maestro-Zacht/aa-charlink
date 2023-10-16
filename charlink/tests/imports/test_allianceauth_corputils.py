@@ -7,7 +7,7 @@ from allianceauth.corputils.models import CorpStats
 from app_utils.testdata_factories import UserMainFactory, EveCorporationInfoFactory, EveCharacterFactory
 from app_utils.testing import add_character_to_user
 
-from charlink.imports.allianceauth.corputils import add_character, is_character_added
+from charlink.imports.allianceauth.corputils import _add_character, _is_character_added
 
 
 class TestAddCharacter(TestCase):
@@ -24,10 +24,10 @@ class TestAddCharacter(TestCase):
 
         request = self.factory.get('/charlink/login/')
 
-        add_character(request, self.token)
+        _add_character(request, self.token)
 
         self.assertTrue(mock_update.called)
-        self.assertTrue(is_character_added(self.user.profile.main_character))
+        self.assertTrue(_is_character_added(self.user.profile.main_character))
 
     @patch('allianceauth.eveonline.managers.EveCorporationManager.create_corporation', wraps=lambda corp_id: EveCorporationInfoFactory(corporation_id=corp_id))
     @patch('allianceauth.corputils.models.CorpStats.update')
@@ -38,11 +38,11 @@ class TestAddCharacter(TestCase):
         request = self.factory.get('/charlink/login/')
         character.corporation.delete()
 
-        add_character(request, self.token)
+        _add_character(request, self.token)
 
         self.assertTrue(mock_update.called)
         self.assertTrue(mock_create_corporation.called)
-        self.assertTrue(is_character_added(self.user.profile.main_character))
+        self.assertTrue(_is_character_added(self.user.profile.main_character))
 
 
 class TestIsCharacterAdded(TestCase):
@@ -55,9 +55,9 @@ class TestIsCharacterAdded(TestCase):
         CorpStats.objects.create(token=cls.token, corp=cls.character.corporation)
 
     def test_ok(self):
-        self.assertTrue(is_character_added(self.character))
+        self.assertTrue(_is_character_added(self.character))
 
         newchar = EveCharacterFactory()
         add_character_to_user(self.user, newchar)
 
-        self.assertFalse(is_character_added(newchar))
+        self.assertFalse(_is_character_added(newchar))

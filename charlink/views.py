@@ -1,3 +1,5 @@
+import re
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User, Permission
@@ -42,14 +44,22 @@ def index(request):
             scopes = set()
             selected_apps = []
 
-            for app, to_import in form.cleaned_data.items():
+            form_field_pattern = re.compile(r'^(?P<app>[\w\d\.]+)_(?P<unique_id>[a-zA-Z0-9]+)$')
+
+            for import_code, to_import in form.cleaned_data.items():
                 if to_import:
-                    scopes.update(imported_apps[app].get('scopes', []))
-                    selected_apps.append(app)
+                    match = form_field_pattern.match(import_code)
+
+                    app = match.group('app')
+                    unique_id = match.group('unique_id')
+
+                    app_import = imported_apps[app].get(unique_id)
+                    scopes.update(app_import.scopes)
+                    selected_apps.append((app, unique_id))
 
             request.session['charlink'] = {
                 'scopes': list(scopes),
-                'apps': selected_apps,
+                'imports': selected_apps,
             }
 
             return redirect('charlink:login')
@@ -73,15 +83,16 @@ def login_view(request, token):
 
     charlink_data = request.session.pop('charlink')
 
-    for app in charlink_data['apps']:
-        if app != 'add_character' and app not in CHARLINK_IGNORE_APPS and request.user.has_perms(imported_apps[app]['permissions']):
+    for app, unique_id in charlink_data['imports']:
+        import_ = imported_apps[app].get(unique_id)
+        if app != 'add_character' and app not in CHARLINK_IGNORE_APPS and request.user.has_perms(import_.permissions):
             try:
-                imported_apps[app]['add_character'](request, token)
+                import_.add_character(request, token)
             except Exception as e:
                 logger.exception(e)
-                messages.error(request, f"Failed to add character to {imported_apps[app]['field_label']}")
+                messages.error(request, f"Failed to add character to {import_.field_label}")
             else:
-                messages.success(request, f"Character successfully added to {imported_apps[app]['field_label']}")
+                messages.success(request, f"Character successfully added to {import_.field_label}")
 
     return redirect('charlink:index')
 
@@ -177,55 +188,61 @@ def audit_user(request, user_id):
     'charlink.view_alliance',
     'charlink.view_state',
 ])
-def audit_app(request, app):
+def audit_app(request, app):  # TODO test view with multiple imports
     imported_apps = import_apps()
 
     if app not in imported_apps:
         raise Http404()
 
-    app_data = imported_apps[app]
+    app_imports = imported_apps[app]
 
-    if not request.user.has_perms(app_data['permissions']):
+    if not app_imports.has_any_perms(request.user):
         raise PermissionDenied('You do not have permission to view the selected application statistics.')
+
+    app_imports = app_imports.get_imports_with_perms(request.user)
 
     corps = get_visible_corps(request.user)
 
-    users = [
-        users_with_permission(
-            Permission.objects.get(
-                content_type__app_label=perm.split('.')[0],
-                codename=perm.split('.')[1]
+    logins = {}
+
+    for import_ in app_imports.imports:
+        users = [
+            users_with_permission(
+                Permission.objects.get(
+                    content_type__app_label=perm.split('.')[0],
+                    codename=perm.split('.')[1]
+                )
             )
-        )
-        for perm in app_data['permissions']
-    ]
+            for perm in import_.permissions
+        ]
 
-    if len(users) == 0:
-        perm_query = Q(character_ownership__isnull=False)
-    else:
-        user_query = users.pop()
-        for query in users:
-            user_query &= query
+        if len(users) == 0:
+            perm_query = Q(character_ownership__isnull=False)
+        else:
+            user_query = users.pop()
+            for query in users:
+                user_query &= query
 
-        perm_query = Q(character_ownership__user__in=user_query)
+            perm_query = Q(character_ownership__user__in=user_query)
 
-    visible_characters = EveCharacter.objects.filter(
-        (
-            Q(corporation_id__in=corps.values('corporation_id')) |
-            Q(character_ownership__user__profile__main_character__corporation_id__in=corps.values('corporation_id'))
-        ) &
-        perm_query,
-    ).select_related('character_ownership__user__profile__main_character')
+        visible_characters = EveCharacter.objects.filter(
+            (
+                Q(corporation_id__in=corps.values('corporation_id')) |
+                Q(character_ownership__user__profile__main_character__corporation_id__in=corps.values('corporation_id'))
+            ) &
+            perm_query,
+        ).select_related('character_ownership__user__profile__main_character')
 
-    visible_characters = chars_annotate_linked_apps(
-        visible_characters,
-        {app: app_data}
-    ).order_by(app, 'character_name')
+        visible_characters = chars_annotate_linked_apps(
+            visible_characters,
+            [import_]
+        ).order_by(import_.get_query_id(), 'character_name')
+
+        logins[import_] = visible_characters
 
     context = {
-        'characters': visible_characters,
+        'logins': logins,
         'app': app,
-        'app_data': app_data,
         **get_navbar_elements(request.user),
     }
 

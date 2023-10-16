@@ -17,14 +17,10 @@ from app_utils.messages import messages_plus
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from allianceauth.authentication.models import CharacterOwnership
 
-field_label = __title__
-
-scopes = Owner.get_esi_scopes()
-
-permissions = ["structures.add_structure_owner"]
+from charlink.app_imports.utils import LoginImport, AppImport
 
 
-def add_character(request, token):
+def _add_character(request, token):
     token_char = EveCharacter.objects.get(character_id=token.character_id)
     character_ownership = CharacterOwnership.objects.get(
         user=request.user, character=token_char
@@ -111,13 +107,24 @@ def add_character(request, token):
                 )
 
 
-def is_character_added(character: EveCharacter):
+def _is_character_added(character: EveCharacter):
     return OwnerCharacter.objects.filter(
         character_ownership__character=character
     ).exists()
 
 
-is_character_added_annotation = Exists(
-    OwnerCharacter.objects
-    .filter(character_ownership__character_id=OuterRef('pk'))
-)
+import_app = AppImport('structures', [
+    LoginImport(
+        app_label='structures',
+        unique_id='default',
+        field_label=__title__,
+        add_character=_add_character,
+        scopes=Owner.get_esi_scopes(),
+        permissions=["structures.add_structure_owner"],
+        is_character_added=_is_character_added,
+        is_character_added_annotation=Exists(
+            OwnerCharacter.objects
+            .filter(character_ownership__character_id=OuterRef('pk'))
+        )
+    ),
+])

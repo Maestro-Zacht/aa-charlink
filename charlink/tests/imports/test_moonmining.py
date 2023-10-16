@@ -4,7 +4,7 @@ from django.test import TestCase, RequestFactory
 
 from app_utils.testdata_factories import UserMainFactory, EveCorporationInfoFactory
 
-from charlink.imports.moonmining import add_character, is_character_added
+from charlink.imports.moonmining import _add_character, _is_character_added
 
 
 class TestAddCharacter(TestCase):
@@ -28,11 +28,11 @@ class TestAddCharacter(TestCase):
         request.user = self.user
         token = self.user.token_set.first()
 
-        add_character(request, token)
+        _add_character(request, token)
 
         mock_messages_plus_success.assert_called_once()
         mock_update_owner.assert_called_once()
-        self.assertTrue(is_character_added(self.character))
+        self.assertTrue(_is_character_added(self.character))
 
     @patch('app_utils.messages.messages_plus.success')
     @patch('allianceauth.eveonline.managers.EveCorporationManager.create_corporation', wraps=lambda corp_id: EveCorporationInfoFactory(corporation_id=corp_id))
@@ -47,12 +47,12 @@ class TestAddCharacter(TestCase):
         request.user = self.user
         token = self.user.token_set.first()
 
-        add_character(request, token)
+        _add_character(request, token)
 
         mock_messages_plus_success.assert_called_once()
         mock_update_owner.assert_called_once()
         mock_create_corporation.assert_called_once()
-        self.assertTrue(is_character_added(self.character))
+        self.assertTrue(_is_character_added(self.character))
 
     @patch('app_utils.messages.messages_plus.success')
     @patch('moonmining.tasks.update_owner.delay')
@@ -67,12 +67,12 @@ class TestAddCharacter(TestCase):
         request.user = self.user
         token = self.user.token_set.first()
 
-        add_character(request, token)
+        _add_character(request, token)
 
         mock_messages_plus_success.assert_called_once()
         self.assertFalse(mock_notify_admins.called)
         mock_update_owner.assert_called_once()
-        self.assertTrue(is_character_added(self.character))
+        self.assertTrue(_is_character_added(self.character))
 
 
 class TestIsCharacterAdded(TestCase):
@@ -93,8 +93,8 @@ class TestIsCharacterAdded(TestCase):
         mock_update_owner.return_value = None
         mock_messages_plus_success.return_value = None
 
-        self.assertFalse(is_character_added(self.character))
+        self.assertFalse(_is_character_added(self.character))
         request = self.factory.get('/charlink/login/')
         request.user = self.user
-        add_character(request, self.token)
-        self.assertTrue(is_character_added(self.character))
+        _add_character(request, self.token)
+        self.assertTrue(_is_character_added(self.character))

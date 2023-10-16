@@ -5,7 +5,7 @@ from .app_settings import CHARLINK_IGNORE_APPS
 
 
 class LinkForm(forms.Form):
-    add_character = forms.BooleanField(
+    add_character_default = forms.BooleanField(
         required=False,
         initial=True,
         disabled=True,
@@ -14,10 +14,6 @@ class LinkForm(forms.Form):
 
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        for app, data in import_apps().items():
-            if app != 'add_character' and app not in CHARLINK_IGNORE_APPS and user.has_perms(data['permissions']):
-                self.fields[app] = forms.BooleanField(
-                    required=False,
-                    initial=True,
-                    label=data.get('field_label', app)
-                )
+        for app, imports in import_apps().items():
+            if app != 'add_character' and app not in CHARLINK_IGNORE_APPS:
+                self.fields.update(imports.get_form_fields(user))

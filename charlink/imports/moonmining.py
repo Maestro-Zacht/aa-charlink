@@ -9,14 +9,10 @@ from app_utils.allianceauth import notify_admins
 
 from allianceauth.eveonline.models import EveCorporationInfo, EveCharacter
 
-field_label = __title__
-
-scopes = Owner.esi_scopes()
-
-permissions = ["moonmining.add_refinery_owner", "moonmining.basic_access"]
+from charlink.app_imports.utils import LoginImport, AppImport
 
 
-def add_character(request, token):
+def _add_character(request, token):
     character_ownership = request.user.character_ownerships.select_related(
         "character"
     ).get(character__character_id=token.character_id)
@@ -45,13 +41,24 @@ def add_character(request, token):
         )
 
 
-def is_character_added(character: EveCharacter):
+def _is_character_added(character: EveCharacter):
     return Owner.objects.filter(
         character_ownership__character=character
     ).exists()
 
 
-is_character_added_annotation = Exists(
-    Owner.objects
-    .filter(character_ownership__character_id=OuterRef('pk'))
-)
+import_app = AppImport('moonmining', [
+    LoginImport(
+        app_label='moonmining',
+        unique_id='default',
+        field_label=__title__,
+        add_character=_add_character,
+        scopes=Owner.esi_scopes(),
+        permissions=["moonmining.add_refinery_owner", "moonmining.basic_access"],
+        is_character_added=_is_character_added,
+        is_character_added_annotation=Exists(
+            Owner.objects
+            .filter(character_ownership__character_id=OuterRef('pk'))
+        )
+    ),
+])

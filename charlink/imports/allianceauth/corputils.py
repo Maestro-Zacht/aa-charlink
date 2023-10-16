@@ -3,14 +3,10 @@ from django.db.models import Exists, OuterRef
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from allianceauth.corputils.models import CorpStats
 
-field_label = 'Corporation Stats'
-
-scopes = ['esi-corporations.read_corporation_membership.v1']
-
-permissions = ['corputils.add_corpstats']
+from charlink.app_imports.utils import LoginImport, AppImport
 
 
-def add_character(request, token):
+def _add_character(request, token):
     corp_id = EveCharacter.objects.get(character_id=token.character_id).corporation_id
     try:
         corp = EveCorporationInfo.objects.get(corporation_id=corp_id)
@@ -21,7 +17,7 @@ def add_character(request, token):
     assert cs.pk  # ensure update was successful
 
 
-def is_character_added(character: EveCharacter):
+def _is_character_added(character: EveCharacter):
     return (
         CorpStats.objects
         .filter(token__character_id=character.character_id)
@@ -29,7 +25,18 @@ def is_character_added(character: EveCharacter):
     )
 
 
-is_character_added_annotation = Exists(
-    CorpStats.objects
-    .filter(token__character_id=OuterRef('character_id'))
-)
+import_app = AppImport('allianceauth.corputils', [
+    LoginImport(
+        app_label='allianceauth.corputils',
+        unique_id='default',
+        field_label='Corporation Stats',
+        add_character=_add_character,
+        scopes=['esi-corporations.read_corporation_membership.v1'],
+        permissions=['corputils.add_corpstats'],
+        is_character_added=_is_character_added,
+        is_character_added_annotation=Exists(
+            CorpStats.objects
+            .filter(token__character_id=OuterRef('character_id'))
+        )
+    ),
+])

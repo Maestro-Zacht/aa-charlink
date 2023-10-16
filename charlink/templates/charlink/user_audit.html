@@ -28,8 +28,10 @@
                     <tr>
                         <th></th>
                         <th class="text-center">Character</th>
-                        {% for app in characters_added.apps.values %}
-                            <th scope="row" class="text-center">{{ app.field_label }}</th>
+                        {% for import_data in characters_added.apps.values %}
+                            {% for login_data in import_data.imports %}
+                                <th scope="row" class="text-center">{{ login_data.field_label }}</th>
+                            {% endfor %}
                         {% endfor %}
                     </tr>
                 </thead>
@@ -38,14 +40,16 @@
                         <tr>
                             <td><img src="{{ char.portrait_url }}" class="img-circle" alt="{{ char }}"></td>
                             <td>{{ char }}</td>
-                            {% for app, data in characters_added.apps.items %}
-                                {% with is_added=char|get_char_attr:app %}
-                                    {% if is_added %}
-                                        <td><span class="glyphicon glyphicon-ok"></span></td>
-                                    {% else %}
-                                        <td><span class="glyphicon glyphicon-remove"></span></td>
-                                    {% endif %}
-                                {% endwith %}
+                            {% for import_data in characters_added.apps.values %}
+                                {% for login_data in import_data.imports %}
+                                    {% with is_added=char|get_char_attr:login_data.get_query_id %}
+                                        {% if is_added %}
+                                            <td><span class="glyphicon glyphicon-ok"></span></td>
+                                        {% else %}
+                                            <td><span class="glyphicon glyphicon-remove"></span></td>
+                                        {% endif %}
+                                    {% endwith %}
+                                {% endfor %}
                             {% endfor %}
                         </tr>
                     {% endfor %}

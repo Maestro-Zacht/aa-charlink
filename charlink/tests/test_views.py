@@ -3,13 +3,17 @@ from unittest.mock import patch, Mock
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.messages import get_messages, DEFAULT_LEVELS
+from django.db.models import OuterRef, Exists
+
+from allianceauth.authentication.models import CharacterOwnership
 
 from app_utils.testdata_factories import UserMainFactory, EveCorporationInfoFactory, EveCharacterFactory
 
 from charlink.views import get_navbar_elements
-from charlink.imports.memberaudit import scopes as memberaudit_scopes, permissions as memberaudit_permissions
-from charlink.imports.miningtaxes import scopes as miningtaxes_scopes
-from charlink.imports.moonmining import scopes as moonmining_scopes, permissions as moonmining_permissions
+from charlink.imports.memberaudit import import_app as memberaudit_import
+from charlink.imports.miningtaxes import import_app as miningtaxes_import
+from charlink.imports.moonmining import import_app as moonmining_import
+from charlink.app_imports.utils import AppImport, LoginImport
 
 
 class TestGetNavbarElements(TestCase):
@@ -58,11 +62,11 @@ class TestIndex(TestCase):
         ])
 
         cls.form_data = {
-            'allianceauth.corputils': ['on'],
-            'memberaudit': ['on'],
-            'miningtaxes': ['on'],
-            'moonmining': ['on'],
-            'corpstats': ['on'],
+            'allianceauth.corputils_default': ['on'],
+            'memberaudit_default': ['on'],
+            'miningtaxes_default': ['on'],
+            'moonmining_default': ['on'],
+            'corpstats_default': ['on'],
         }
 
     def test_get(self):
@@ -89,14 +93,17 @@ class TestIndex(TestCase):
 
         self.assertIn('charlink', session)
         self.assertIn('scopes', session['charlink'])
-        self.assertIn('apps', session['charlink'])
-        self.assertIn('add_character', session['charlink']['apps'])
-        self.assertIn('allianceauth.corputils', session['charlink']['apps'])
-        self.assertIn('memberaudit', session['charlink']['apps'])
-        self.assertIn('miningtaxes', session['charlink']['apps'])
-        self.assertIn('moonmining', session['charlink']['apps'])
-        self.assertIn('corpstats', session['charlink']['apps'])
-        self.assertEqual(len(session['charlink']['apps']), 6)
+        self.assertIn('imports', session['charlink'])
+
+        converted_imports = [list(x) for x in session['charlink']['imports']]
+
+        self.assertIn(['add_character', 'default'], converted_imports)
+        self.assertIn(['allianceauth.corputils', 'default'], converted_imports)
+        self.assertIn(['memberaudit', 'default'], converted_imports)
+        self.assertIn(['miningtaxes', 'default'], converted_imports)
+        self.assertIn(['moonmining', 'default'], converted_imports)
+        self.assertIn(['corpstats', 'default'], converted_imports)
+        self.assertEqual(len(session['charlink']['imports']), 6)
 
     # form always valid
     # def test_post_wrong_data(self):
@@ -125,22 +132,29 @@ class TestLoginView(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        cls.scopes = list(set(memberaudit_import.imports[0].scopes + miningtaxes_import.imports[0].scopes))
         cls.user = UserMainFactory(
             permissions=[
                 'memberaudit.basic_access',
                 'miningtaxes.basic_access',
             ],
-            main_character__scopes=list(set(memberaudit_scopes + miningtaxes_scopes))
+            main_character__scopes=cls.scopes
         )
         cls.token = cls.user.token_set.first()
 
+    @patch('charlink.imports.miningtaxes._add_character')
+    @patch('charlink.imports.memberaudit._add_character')
     @patch('charlink.views.import_apps')
     @patch('charlink.decorators.token_required')
-    def test_ok(self, mock_token_required, mock_import_apps):
+    def test_ok(self, mock_token_required, mock_import_apps, mock_memberaudit_add_character, mock_miningtaxes_add_character):
         session = self.client.session
         session['charlink'] = {
-            'scopes': list(set(memberaudit_scopes + miningtaxes_scopes)),
-            'apps': ['memberaudit', 'miningtaxes', 'add_character'],
+            'scopes': self.scopes,
+            'imports': [
+                ('memberaudit', 'default'),
+                ('miningtaxes', 'default'),
+                ('add_character', 'default'),
+            ],
         }
         session.save()
 
@@ -152,25 +166,46 @@ class TestLoginView(TestCase):
         mock_token_required.return_value = fake_decorator
 
         mock_import_apps.return_value = {
-            'memberaudit': {
-                'field_label': 'Member Audit',
-                'add_character': lambda request, token: None,
-                'permissions': ['memberaudit.basic_access'],
-                'scopes': memberaudit_scopes,
-            },
-            'miningtaxes': {
-                'field_label': 'Mining Taxes',
-                'add_character': Mock(side_effect=Exception('test')),
-                'permissions': ['miningtaxes.basic_access'],
-                'scopes': miningtaxes_scopes,
-            },
-            'add_character': {
-                'field_label': 'Add Character',
-                'add_character': lambda request, token: None,
-                'permissions': [],
-                'scopes': [],
-            },
+            'memberaudit': AppImport('memberaudit', [
+                LoginImport(
+                    app_label='memberaudit',
+                    unique_id='default',
+                    field_label='Member Audit',
+                    add_character=lambda request, token: None,
+                    scopes=memberaudit_import.imports[0].scopes,
+                    permissions=memberaudit_import.imports[0].permissions,
+                    is_character_added=memberaudit_import.imports[0].is_character_added,
+                    is_character_added_annotation=memberaudit_import.imports[0].is_character_added_annotation
+                )
+            ]),
+            'miningtaxes': AppImport('miningtaxes', [
+                LoginImport(
+                    app_label='miningtaxes',
+                    unique_id='default',
+                    field_label='Mining Taxes',
+                    add_character=Mock(side_effect=Exception('test')),
+                    scopes=miningtaxes_import.imports[0].scopes,
+                    permissions=miningtaxes_import.imports[0].permissions,
+                    is_character_added=miningtaxes_import.imports[0].is_character_added,
+                    is_character_added_annotation=miningtaxes_import.imports[0].is_character_added_annotation
+                )
+            ]),
+            'add_character': AppImport('add_character', [
+                LoginImport(
+                    app_label='add_character',
+                    unique_id='default',
+                    field_label='Add Character (default)',
+                    add_character=lambda request, token: None,
+                    scopes=['publicData'],
+                    permissions=[],
+                    is_character_added=lambda character: CharacterOwnership.objects.filter(character=character).exists(),
+                    is_character_added_annotation=Exists(CharacterOwnership.objects.filter(character_id=OuterRef('pk')))
+                )
+            ]),
         }
+
+        mock_memberaudit_add_character.return_value = None
+        mock_miningtaxes_add_character.side_effect = Exception('test')
 
         self.client.force_login(self.user)
         res = self.client.get(reverse('charlink:login'))
@@ -279,17 +314,17 @@ class TestAuditApp(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        permissions = memberaudit_import.imports[0].permissions + moonmining_import.imports[0].permissions
         cls.user = UserMainFactory(permissions=[
             'charlink.view_corp',
-            *memberaudit_permissions,
-            *moonmining_permissions,
+            *permissions,
         ])
         char2, char3 = EveCharacterFactory.create_batch(
             2,
             corporation=cls.user.profile.main_character.corporation
         )
         cls.user2 = UserMainFactory(
-            permissions=memberaudit_permissions + moonmining_permissions,
+            permissions=permissions,
             main_character__character=char2
         )
         cls.random_char = EveCharacterFactory(corporation=cls.user.profile.main_character.corporation)
@@ -304,10 +339,10 @@ class TestAuditApp(TestCase):
         res = self.client.get(reverse('charlink:audit_app', args=['memberaudit']))
 
         self.assertEqual(res.status_code, 200)
-        self.assertIn('characters', res.context)
-        self.assertEqual(len(res.context['characters']), 2)
         self.assertIn('app', res.context)
-        self.assertIn('app_data', res.context)
+        self.assertIn('logins', res.context)
+        self.assertEqual(len(res.context['logins']), 1)
+        self.assertEqual(len(list(res.context['logins'].values())[0]), 2)
 
     def test_app_empty_perms(self):
         self.client.force_login(self.user)
@@ -315,10 +350,10 @@ class TestAuditApp(TestCase):
         res = self.client.get(reverse('charlink:audit_app', args=['corptools']))
 
         self.assertEqual(res.status_code, 200)
-        self.assertIn('characters', res.context)
-        self.assertEqual(len(res.context['characters']), 3)
+        self.assertIn('logins', res.context)
+        self.assertEqual(len(res.context['logins']), 1)
+        self.assertEqual(len(list(res.context['logins'].values())[0]), 3)
         self.assertIn('app', res.context)
-        self.assertIn('app_data', res.context)
 
     def test_missing_app(self):
         self.client.force_login(self.user)
@@ -339,14 +374,14 @@ class TestAuditApp(TestCase):
 
         extra_char = EveCharacterFactory(corporation=self.user.profile.main_character.corporation)
         UserMainFactory(
-            permissions=moonmining_permissions,
+            permissions=moonmining_import.imports[0].permissions,
             main_character__character=extra_char
         )
 
         res = self.client.get(reverse('charlink:audit_app', args=['moonmining']))
 
         self.assertEqual(res.status_code, 200)
-        self.assertIn('characters', res.context)
-        self.assertEqual(len(res.context['characters']), 3)
+        self.assertIn('logins', res.context)
+        self.assertEqual(len(res.context['logins']), 1)
+        self.assertEqual(len(list(res.context['logins'].values())[0]), 3)
         self.assertIn('app', res.context)
-        self.assertIn('app_data', res.context)

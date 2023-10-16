@@ -4,7 +4,7 @@ from django.test import TestCase, RequestFactory
 
 from app_utils.testdata_factories import UserMainFactory
 
-from charlink.imports.moonstuff import add_character, is_character_added
+from charlink.imports.moonstuff import _add_character, _is_character_added
 
 
 class TestAddCharacter(TestCase):
@@ -21,14 +21,14 @@ class TestAddCharacter(TestCase):
         request = self.factory.get('/charlink/login/')
         token = self.user.token_set.first()
 
-        add_character(request, token)
+        _add_character(request, token)
 
-        self.assertTrue(is_character_added(self.user.profile.main_character))
+        self.assertTrue(_is_character_added(self.user.profile.main_character))
 
-        add_character(request, token)
+        _add_character(request, token)
 
         mock_import_extraction_data.assert_called_once()
-        self.assertTrue(is_character_added(self.user.profile.main_character))
+        self.assertTrue(_is_character_added(self.user.profile.main_character))
 
 
 class TestIsCharacterAdded(TestCase):
@@ -43,11 +43,11 @@ class TestIsCharacterAdded(TestCase):
     def test_ok(self, mock_import_extraction_data):
         mock_import_extraction_data.return_value = None
 
-        self.assertFalse(is_character_added(self.character))
+        self.assertFalse(_is_character_added(self.character))
 
         request = self.factory.get('/charlink/login/')
         token = self.user.token_set.first()
 
-        add_character(request, token)
+        _add_character(request, token)
 
-        self.assertTrue(is_character_added(self.character))
+        self.assertTrue(_is_character_added(self.character))
