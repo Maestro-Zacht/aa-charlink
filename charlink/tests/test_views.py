@@ -175,7 +175,8 @@ class TestLoginView(TestCase):
                     scopes=memberaudit_import.imports[0].scopes,
                     check_permissions=memberaudit_import.imports[0].check_permissions,
                     is_character_added=memberaudit_import.imports[0].is_character_added,
-                    is_character_added_annotation=memberaudit_import.imports[0].is_character_added_annotation
+                    is_character_added_annotation=memberaudit_import.imports[0].is_character_added_annotation,
+                    get_users_with_perms=memberaudit_import.imports[0].get_users_with_perms,
                 )
             ]),
             'miningtaxes': AppImport('miningtaxes', [
@@ -187,7 +188,8 @@ class TestLoginView(TestCase):
                     scopes=miningtaxes_import.imports[0].scopes,
                     check_permissions=miningtaxes_import.imports[0].check_permissions,
                     is_character_added=miningtaxes_import.imports[0].is_character_added,
-                    is_character_added_annotation=miningtaxes_import.imports[0].is_character_added_annotation
+                    is_character_added_annotation=miningtaxes_import.imports[0].is_character_added_annotation,
+                    get_users_with_perms=miningtaxes_import.imports[0].get_users_with_perms,
                 )
             ]),
             'add_character': AppImport('add_character', [
@@ -199,7 +201,8 @@ class TestLoginView(TestCase):
                     scopes=['publicData'],
                     check_permissions=lambda user: True,
                     is_character_added=lambda character: CharacterOwnership.objects.filter(character=character).exists(),
-                    is_character_added_annotation=Exists(CharacterOwnership.objects.filter(character_id=OuterRef('pk')))
+                    is_character_added_annotation=Exists(CharacterOwnership.objects.filter(character_id=OuterRef('pk'))),
+                    get_users_with_perms=lambda: None,
                 )
             ]),
         }
