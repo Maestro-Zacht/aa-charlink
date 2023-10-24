@@ -1,5 +1,6 @@
 from django.db import transaction
 from django.db.models import Exists, OuterRef
+from django.contrib.auth.models import Permission
 
 from memberaudit.models import Character, ComplianceGroupDesignation
 from memberaudit.app_settings import MEMBERAUDIT_APP_NAME, MEMBERAUDIT_TASKS_NORMAL_PRIORITY
@@ -8,6 +9,8 @@ from memberaudit import tasks
 from allianceauth.eveonline.models import EveCharacter
 
 from charlink.app_imports.utils import LoginImport, AppImport
+
+from app_utils.allianceauth import users_with_permission
 
 
 def _add_character(request, token):
@@ -30,6 +33,15 @@ def _is_character_added(character: EveCharacter):
     return Character.objects.filter(eve_character=character).exists()
 
 
+def _users_with_perms():
+    return users_with_permission(
+        Permission.objects.get(
+            content_type__app_label='memberaudit',
+            codename='basic_access'
+        )
+    )
+
+
 import_app = AppImport('memberaudit', [
     LoginImport(
         app_label='memberaudit',
@@ -37,11 +49,12 @@ import_app = AppImport('memberaudit', [
         field_label=MEMBERAUDIT_APP_NAME,
         add_character=_add_character,
         scopes=Character.get_esi_scopes(),
-        permissions=["memberaudit.basic_access"],
+        check_permissions=lambda user: user.has_perm("memberaudit.basic_access"),
         is_character_added=_is_character_added,
         is_character_added_annotation=Exists(
             Character.objects
             .filter(eve_character_id=OuterRef('pk'))
-        )
+        ),
+        get_users_with_perms=_users_with_perms,
     ),
 ])

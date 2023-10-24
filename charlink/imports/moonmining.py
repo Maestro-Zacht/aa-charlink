@@ -1,4 +1,5 @@
 from django.db.models import Exists, OuterRef
+from django.contrib.auth.models import Permission
 
 from moonmining.models import Owner
 from moonmining import __title__, tasks
@@ -10,6 +11,8 @@ from app_utils.allianceauth import notify_admins
 from allianceauth.eveonline.models import EveCorporationInfo, EveCharacter
 
 from charlink.app_imports.utils import LoginImport, AppImport
+
+from app_utils.allianceauth import users_with_permission
 
 
 def _add_character(request, token):
@@ -47,6 +50,20 @@ def _is_character_added(character: EveCharacter):
     ).exists()
 
 
+def _users_with_perms():
+    return users_with_permission(
+        Permission.objects.get(
+            content_type__app_label='moonmining',
+            codename='add_refinery_owner'
+        )
+    ) & users_with_permission(
+        Permission.objects.get(
+            content_type__app_label='moonmining',
+            codename='basic_access'
+        )
+    )
+
+
 import_app = AppImport('moonmining', [
     LoginImport(
         app_label='moonmining',
@@ -54,11 +71,12 @@ import_app = AppImport('moonmining', [
         field_label=__title__,
         add_character=_add_character,
         scopes=Owner.esi_scopes(),
-        permissions=["moonmining.add_refinery_owner", "moonmining.basic_access"],
+        check_permissions=lambda user: user.has_perms(["moonmining.add_refinery_owner", "moonmining.basic_access"]),
         is_character_added=_is_character_added,
         is_character_added_annotation=Exists(
             Owner.objects
             .filter(character_ownership__character_id=OuterRef('pk'))
-        )
+        ),
+        get_users_with_perms=_users_with_perms,
     ),
 ])
