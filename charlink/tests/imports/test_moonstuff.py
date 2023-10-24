@@ -5,6 +5,7 @@ from django.test import TestCase, RequestFactory
 from app_utils.testdata_factories import UserMainFactory
 
 from charlink.imports.moonstuff import _add_character, _is_character_added
+from charlink.app_imports import import_apps
 
 
 class TestAddCharacter(TestCase):
@@ -51,3 +52,32 @@ class TestIsCharacterAdded(TestCase):
         _add_character(request, token)
 
         self.assertTrue(_is_character_added(self.character))
+
+
+class TestCheckPermissions(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.no_perm_user = UserMainFactory()
+        cls.perm_user = UserMainFactory(permissions=["moonstuff.add_trackingcharacter"])
+
+    def test_ok(self):
+        login_import = import_apps()['moonstuff'].get('default')
+
+        self.assertTrue(login_import.check_permissions(self.perm_user))
+        self.assertFalse(login_import.check_permissions(self.no_perm_user))
+
+
+class TestGetUsersWithPerms(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.no_perm_user = UserMainFactory()
+        cls.perm_user = UserMainFactory(permissions=["moonstuff.add_trackingcharacter"])
+
+    def test_ok(self):
+        login_import = import_apps()['moonstuff'].get('default')
+
+        users = login_import.get_users_with_perms()
+        self.assertEqual(users.count(), 1)
+        self.assertEqual(users.first(), self.perm_user)

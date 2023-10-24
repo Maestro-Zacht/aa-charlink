@@ -6,6 +6,7 @@ from app_utils.testdata_factories import UserMainFactory, EveCorporationInfoFact
 from app_utils.testing import add_character_to_user
 
 from charlink.imports.structures import _add_character, _is_character_added
+from charlink.app_imports import import_apps
 
 from structures.models import Webhook, Owner
 
@@ -178,3 +179,32 @@ class TestIsCharacterAdded(TestCase):
         _add_character(request, self.token)
 
         self.assertTrue(_is_character_added(self.character))
+
+
+class TestCheckPermissions(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.no_perm_user = UserMainFactory()
+        cls.perm_user = UserMainFactory(permissions=["structures.add_structure_owner"])
+
+    def test_ok(self):
+        login_import = import_apps()['structures'].get('default')
+
+        self.assertTrue(login_import.check_permissions(self.perm_user))
+        self.assertFalse(login_import.check_permissions(self.no_perm_user))
+
+
+class TestGetUsersWithPerms(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.no_perm_user = UserMainFactory()
+        cls.perm_user = UserMainFactory(permissions=["structures.add_structure_owner"])
+
+    def test_ok(self):
+        login_import = import_apps()['structures'].get('default')
+
+        users = login_import.get_users_with_perms()
+        self.assertEqual(users.count(), 1)
+        self.assertEqual(users.first(), self.perm_user)

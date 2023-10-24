@@ -132,7 +132,7 @@ class TestGetUserAvailableApps(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory(permissions=import_memberaudit.imports[0].permissions)
+        cls.user = UserMainFactory(permissions=["memberaudit.basic_access"])
 
     def test_ok(self):
         res = get_user_available_apps(self.user)
