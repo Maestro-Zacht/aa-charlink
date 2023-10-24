@@ -271,6 +271,7 @@ INSTALLED_APPS += [
     'moonmining',
     'moonstuff',
     'structures',
+    'afat',
 ]
 
 # Register an application at https://developers.eveonline.com for Authentication
