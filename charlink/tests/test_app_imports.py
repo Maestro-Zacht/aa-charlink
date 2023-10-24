@@ -39,6 +39,8 @@ class TestImportApps(TestCase):
         add_char = import_apps()['add_character']
         self.assertIsNone(add_char.imports[0].add_character(None, None))
         self.assertTrue(add_char.imports[0].is_character_added(main_char))
+        self.assertTrue(add_char.imports[0].check_permissions(user))
+        self.assertEqual(add_char.imports[0].get_users_with_perms().count(), 1)
 
 
 class TestLoginImport(TestCase):

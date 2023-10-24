@@ -5,6 +5,7 @@ from django.test import TestCase, RequestFactory
 from app_utils.testdata_factories import UserMainFactory
 
 from charlink.imports.corptools import _add_character, _is_character_added
+from charlink.app_imports import import_apps
 
 
 class TestAddCharacter(TestCase):
@@ -42,3 +43,28 @@ class TestIsCharacterAdded(TestCase):
         self.assertFalse(_is_character_added(self.character))
         _add_character(self.factory.get('/charlink/login/'), self.user.token_set.first())
         self.assertTrue(_is_character_added(self.character))
+
+
+class TestCheckPermissions(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = UserMainFactory()
+
+    def test_ok(self):
+        login_import = import_apps()['corptools'].get('default')
+
+        self.assertTrue(login_import.check_permissions(self.user))
+
+
+class TestGetUsersWithPerms(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        UserMainFactory.create_batch(3)
+
+    def test_ok(self):
+        login_import = import_apps()['corptools'].get('default')
+
+        users = login_import.get_users_with_perms()
+        self.assertEqual(users.count(), 3)

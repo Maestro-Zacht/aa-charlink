@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Callable, List
 
 from django.http import HttpRequest
-from django.db.models import Exists
+from django.db.models import Exists, QuerySet
 from django import forms
 from django.contrib.auth.models import User
 
@@ -17,9 +17,10 @@ class LoginImport:
     field_label: str
     add_character: Callable[[HttpRequest, Token], None]
     scopes: List[str]
-    permissions: List[str]
+    check_permissions: Callable[[User], bool]
     is_character_added: Callable[[EveCharacter], bool]
     is_character_added_annotation: Exists
+    get_users_with_perms: Callable[[], QuerySet[User]]
 
     def get_query_id(self):
         return f"{self.app_label}_{self.unique_id}"
@@ -41,7 +42,7 @@ class AppImport:
                 label=import_.field_label
             )
             for import_ in self.imports
-            if user.has_perms(import_.permissions)
+            if import_.check_permissions(user)
         }
 
     def get_imports_with_perms(self, user: User):
@@ -50,12 +51,12 @@ class AppImport:
             [
                 import_
                 for import_ in self.imports
-                if user.has_perms(import_.permissions)
+                if import_.check_permissions(user)
             ]
         )
 
     def has_any_perms(self, user: User):
-        return any(user.has_perms(import_.permissions) for import_ in self.imports)
+        return any(import_.check_permissions(user) for import_ in self.imports)
 
     def get(self, unique_id: str) -> LoginImport:
         for import_ in self.imports:

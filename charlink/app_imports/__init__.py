@@ -1,6 +1,7 @@
 from importlib import import_module
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.db.models import Exists, OuterRef
 
 from allianceauth.services.hooks import get_extension_logger
@@ -18,9 +19,12 @@ _supported_apps = {
             field_label='Add Character (default)',
             add_character=lambda request, token: None,
             scopes=['publicData'],
-            permissions=[],
+            check_permissions=lambda user: True,
             is_character_added=lambda character: CharacterOwnership.objects.filter(character=character).exists(),
-            is_character_added_annotation=Exists(CharacterOwnership.objects.filter(character_id=OuterRef('pk')))
+            is_character_added_annotation=Exists(CharacterOwnership.objects.filter(character_id=OuterRef('pk'))),
+            get_users_with_perms=lambda: User.objects.filter(
+                Exists(CharacterOwnership.objects.filter(user_id=OuterRef('pk')))
+            ),
         )
     ])
 }

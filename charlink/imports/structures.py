@@ -1,4 +1,5 @@
 from django.db.models import Exists, OuterRef
+from django.contrib.auth.models import Permission
 
 from django.utils import translation
 from django.utils.translation import gettext as _
@@ -13,6 +14,7 @@ from structures.app_settings import (
 
 from app_utils.allianceauth import notify_admins
 from app_utils.messages import messages_plus
+from app_utils.allianceauth import users_with_permission
 
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from allianceauth.authentication.models import CharacterOwnership
@@ -113,6 +115,15 @@ def _is_character_added(character: EveCharacter):
     ).exists()
 
 
+def _users_with_perms():
+    return users_with_permission(
+        Permission.objects.get(
+            content_type__app_label='structures',
+            codename='add_structure_owner'
+        )
+    )
+
+
 import_app = AppImport('structures', [
     LoginImport(
         app_label='structures',
@@ -120,11 +131,12 @@ import_app = AppImport('structures', [
         field_label=__title__,
         add_character=_add_character,
         scopes=Owner.get_esi_scopes(),
-        permissions=["structures.add_structure_owner"],
+        check_permissions=lambda user: user.has_perm("structures.add_structure_owner"),
         is_character_added=_is_character_added,
         is_character_added_annotation=Exists(
             OwnerCharacter.objects
             .filter(character_ownership__character_id=OuterRef('pk'))
-        )
+        ),
+        get_users_with_perms=_users_with_perms,
     ),
 ])

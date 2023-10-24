@@ -85,7 +85,7 @@ def login_view(request, token):
 
     for app, unique_id in charlink_data['imports']:
         import_ = imported_apps[app].get(unique_id)
-        if app != 'add_character' and app not in CHARLINK_IGNORE_APPS and request.user.has_perms(import_.permissions):
+        if app != 'add_character' and app not in CHARLINK_IGNORE_APPS and import_.check_permissions(request.user):
             try:
                 import_.add_character(request, token)
             except Exception as e:
@@ -206,31 +206,12 @@ def audit_app(request, app):  # TODO test view with multiple imports
     logins = {}
 
     for import_ in app_imports.imports:
-        users = [
-            users_with_permission(
-                Permission.objects.get(
-                    content_type__app_label=perm.split('.')[0],
-                    codename=perm.split('.')[1]
-                )
-            )
-            for perm in import_.permissions
-        ]
-
-        if len(users) == 0:
-            perm_query = Q(character_ownership__isnull=False)
-        else:
-            user_query = users.pop()
-            for query in users:
-                user_query &= query
-
-            perm_query = Q(character_ownership__user__in=user_query)
-
         visible_characters = EveCharacter.objects.filter(
             (
                 Q(corporation_id__in=corps.values('corporation_id')) |
                 Q(character_ownership__user__profile__main_character__corporation_id__in=corps.values('corporation_id'))
             ) &
-            perm_query,
+            Q(character_ownership__user__in=import_.get_users_with_perms()),
         ).select_related('character_ownership__user__profile__main_character')
 
         visible_characters = chars_annotate_linked_apps(

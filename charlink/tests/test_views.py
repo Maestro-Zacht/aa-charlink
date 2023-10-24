@@ -173,9 +173,10 @@ class TestLoginView(TestCase):
                     field_label='Member Audit',
                     add_character=lambda request, token: None,
                     scopes=memberaudit_import.imports[0].scopes,
-                    permissions=memberaudit_import.imports[0].permissions,
+                    check_permissions=memberaudit_import.imports[0].check_permissions,
                     is_character_added=memberaudit_import.imports[0].is_character_added,
-                    is_character_added_annotation=memberaudit_import.imports[0].is_character_added_annotation
+                    is_character_added_annotation=memberaudit_import.imports[0].is_character_added_annotation,
+                    get_users_with_perms=memberaudit_import.imports[0].get_users_with_perms,
                 )
             ]),
             'miningtaxes': AppImport('miningtaxes', [
@@ -185,9 +186,10 @@ class TestLoginView(TestCase):
                     field_label='Mining Taxes',
                     add_character=Mock(side_effect=Exception('test')),
                     scopes=miningtaxes_import.imports[0].scopes,
-                    permissions=miningtaxes_import.imports[0].permissions,
+                    check_permissions=miningtaxes_import.imports[0].check_permissions,
                     is_character_added=miningtaxes_import.imports[0].is_character_added,
-                    is_character_added_annotation=miningtaxes_import.imports[0].is_character_added_annotation
+                    is_character_added_annotation=miningtaxes_import.imports[0].is_character_added_annotation,
+                    get_users_with_perms=miningtaxes_import.imports[0].get_users_with_perms,
                 )
             ]),
             'add_character': AppImport('add_character', [
@@ -197,9 +199,10 @@ class TestLoginView(TestCase):
                     field_label='Add Character (default)',
                     add_character=lambda request, token: None,
                     scopes=['publicData'],
-                    permissions=[],
+                    check_permissions=lambda user: True,
                     is_character_added=lambda character: CharacterOwnership.objects.filter(character=character).exists(),
-                    is_character_added_annotation=Exists(CharacterOwnership.objects.filter(character_id=OuterRef('pk')))
+                    is_character_added_annotation=Exists(CharacterOwnership.objects.filter(character_id=OuterRef('pk'))),
+                    get_users_with_perms=lambda: None,
                 )
             ]),
         }
@@ -314,7 +317,7 @@ class TestAuditApp(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        permissions = memberaudit_import.imports[0].permissions + moonmining_import.imports[0].permissions
+        permissions = ["memberaudit.basic_access", "moonmining.add_refinery_owner", "moonmining.basic_access"]
         cls.user = UserMainFactory(permissions=[
             'charlink.view_corp',
             *permissions,
@@ -374,7 +377,7 @@ class TestAuditApp(TestCase):
 
         extra_char = EveCharacterFactory(corporation=self.user.profile.main_character.corporation)
         UserMainFactory(
-            permissions=moonmining_import.imports[0].permissions,
+            permissions=["moonmining.add_refinery_owner", "moonmining.basic_access"],
             main_character__character=extra_char
         )
 
