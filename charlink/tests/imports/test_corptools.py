@@ -4,7 +4,7 @@ from django.test import TestCase, RequestFactory
 
 from app_utils.testdata_factories import UserMainFactory
 
-from charlink.imports.corptools import _add_character, _is_character_added
+from charlink.imports.corptools import _add_character_charaudit, _is_character_added_charaudit
 from charlink.app_imports import import_apps
 
 
@@ -22,10 +22,10 @@ class TestAddCharacter(TestCase):
         request = self.factory.get('/charlink/login/')
         token = self.user.token_set.first()
 
-        _add_character(request, token)
+        _add_character_charaudit(request, token)
 
         mock_update_character.assert_called_once_with(args=[token.character_id], priority=6)
-        self.assertTrue(_is_character_added(self.user.profile.main_character))
+        self.assertTrue(_is_character_added_charaudit(self.user.profile.main_character))
 
 
 class TestIsCharacterAdded(TestCase):
@@ -40,9 +40,9 @@ class TestIsCharacterAdded(TestCase):
     def test_ok(self, mock_update_character):
         mock_update_character.return_value = None
 
-        self.assertFalse(_is_character_added(self.character))
-        _add_character(self.factory.get('/charlink/login/'), self.user.token_set.first())
-        self.assertTrue(_is_character_added(self.character))
+        self.assertFalse(_is_character_added_charaudit(self.character))
+        _add_character_charaudit(self.factory.get('/charlink/login/'), self.user.token_set.first())
+        self.assertTrue(_is_character_added_charaudit(self.character))
 
 
 class TestCheckPermissions(TestCase):
