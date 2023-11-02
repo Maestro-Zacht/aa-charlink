@@ -80,10 +80,18 @@ jobs:
           AA_REDIS: "localhost:6379"
         run: tox -v
 
+      - name: Create report name
+        env:
+          COVERAGE_REPORT_NAME: "coverage-${{ matrix.python-version }}-${{ matrix.database }}"
+        run: |
+          COVERAGE_REPORT_NAME=${COVERAGE_REPORT_NAME//:/_}
+          echo "COVERAGE_REPORT_NAME=${COVERAGE_REPORT_NAME}" >> $GITHUB_ENV
+          echo "COVERAGE_REPORT_NAME=${COVERAGE_REPORT_NAME}"
+
       - name: Upload Coverage Artifact
         uses: actions/upload-artifact@v3
         with:
-          name: coverage-${{ matrix.python-version }}-${{ matrix.database }}
+          name: ${{ env.COVERAGE_REPORT_NAME }}
           path: coverage.xml
           if-no-files-found: ignore
 
