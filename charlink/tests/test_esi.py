@@ -1,10 +1,13 @@
 from django.test import TestCase
+from django.db.models import Exists, OuterRef
 
 from esi.models import Token
 from esi.managers import _process_scopes
 
 from app_utils.testdata_factories import UserFactory, EveCharacterFactory
 from app_utils.testing import add_character_to_user
+
+from allianceauth.eveonline.models import EveCharacter
 
 
 class TestScope(TestCase):
@@ -27,3 +30,16 @@ class TestScope(TestCase):
         from esi.models import Scope
         scope_pks = Scope.objects.filter(name__in=scopes).values_list('pk', flat=True)
         self.assertEqual(len(processed_scopes), len(scope_pks))
+
+    def test_annotation(self):
+        scopes = ["esi-location.read_location.v1", "esi-location.read_ship_type.v1", "esi-location.read_online.v1"]
+        add_character_to_user(self.user, self.character, scopes=scopes)
+        annotation = Exists(
+            Token.objects.all()
+            .filter(character_id=OuterRef('character_id'))
+            .require_scopes(scopes)
+        )
+        chars = EveCharacter.objects.annotate(has_scopes=annotation)
+        self.assertEqual(chars.count(), 1)
+        char = chars.first()
+        self.assertTrue(char.has_scopes)
