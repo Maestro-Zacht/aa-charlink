@@ -104,7 +104,7 @@ import_app = AppImport('corptools', [
         is_character_added=_is_character_added_corp,
         is_character_added_annotation=Exists(
             CorporationAudit.objects
-            .filter(corporation_corporation_id=OuterRef('corporation_id'))
+            .filter(corporation__corporation_id=OuterRef('corporation_id'))
         ),
         get_users_with_perms=_users_with_perms_corp,
     )
