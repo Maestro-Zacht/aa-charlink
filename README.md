@@ -58,3 +58,7 @@ If you want to setup a template override to link the "Add character" button to t
 ```html
 <a href="{% url 'charlink:index' %}" class="btn btn-block btn-info" title="Add Character">{% translate 'Add Character' %}</a>
 ```
+
+## Known issues
+
+- For AFAT is not possible to check if the added character has a token which is still valid, it only checks if the character has ever added a token with the required scopes.
