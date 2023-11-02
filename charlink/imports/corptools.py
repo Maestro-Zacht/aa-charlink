@@ -69,12 +69,12 @@ def _users_with_perms_corp():
         )
     )
     for perm_str in _corp_perms[1:]:
-        users = users.union(users_with_permission(
+        users |= users_with_permission(
             Permission.objects.get(
                 content_type__app_label=perm_str.split('.')[0],
                 codename=perm_str.split('.')[1]
             )
-        ))
+        )
 
     return users
 

@@ -6,6 +6,7 @@ from django.test import TestCase
 from app_utils.testdata_factories import UserMainFactory
 
 from charlink.app_imports import import_apps
+from charlink.imports.corptools import _corp_perms
 
 
 class TestImportApps(TestCase):
@@ -67,10 +68,26 @@ class TestAppImport(TestCase):
         self.assertIn('add_character_default', form_fields)
 
     def test_get_imports_with_perms(self):
-        # TODO: test with multiple login imports
         app_import = import_apps()['add_character']
         imports = app_import.get_imports_with_perms(self.user)
         self.assertEqual(len(imports.imports), 1)
+
+        user_corp = UserMainFactory(permissions=_corp_perms)
+        user_charaudit = UserMainFactory(permissions=['corptools.view_characteraudit'])
+        user_both = UserMainFactory(permissions=['corptools.view_characteraudit', *_corp_perms])
+
+        corptools_import = import_apps()['corptools']
+
+        imports_corp = corptools_import.get_imports_with_perms(user_corp)
+        self.assertEqual(len(imports_corp.imports), 1)
+        self.assertEqual(imports_corp.imports[0].unique_id, 'structures')
+
+        imports_charaudit = corptools_import.get_imports_with_perms(user_charaudit)
+        self.assertEqual(len(imports_charaudit.imports), 1)
+        self.assertEqual(imports_charaudit.imports[0].unique_id, 'default')
+
+        imports_both = corptools_import.get_imports_with_perms(user_both)
+        self.assertEqual(len(imports_both.imports), 2)
 
     def test_has_any_perms(self):
         app_import = import_apps()['add_character']

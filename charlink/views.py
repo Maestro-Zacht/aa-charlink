@@ -188,7 +188,7 @@ def audit_user(request, user_id):
     'charlink.view_alliance',
     'charlink.view_state',
 ])
-def audit_app(request, app):  # TODO test view with multiple imports
+def audit_app(request, app):
     imported_apps = import_apps()
 
     if app not in imported_apps:
@@ -201,15 +201,15 @@ def audit_app(request, app):  # TODO test view with multiple imports
 
     app_imports = app_imports.get_imports_with_perms(request.user)
 
-    corps = get_visible_corps(request.user)
+    corp_ids = get_visible_corps(request.user).values('corporation_id')
 
     logins = {}
 
     for import_ in app_imports.imports:
         visible_characters = EveCharacter.objects.filter(
             (
-                Q(corporation_id__in=corps.values('corporation_id')) |
-                Q(character_ownership__user__profile__main_character__corporation_id__in=corps.values('corporation_id'))
+                Q(corporation_id__in=corp_ids) |
+                Q(character_ownership__user__profile__main_character__corporation_id__in=corp_ids)
             ) &
             Q(character_ownership__user__in=import_.get_users_with_perms()),
         ).select_related('character_ownership__user__profile__main_character')
