@@ -63,7 +63,6 @@ class TestIndex(TestCase):
 
         cls.form_data = {
             'allianceauth.corputils_default': ['on'],
-            'memberaudit_default': ['on'],
             'miningtaxes_default': ['on'],
             'moonmining_default': ['on'],
             'corpstats_default': ['on'],
@@ -99,7 +98,7 @@ class TestIndex(TestCase):
 
         self.assertIn(['add_character', 'default'], converted_imports)
         self.assertIn(['allianceauth.corputils', 'default'], converted_imports)
-        self.assertIn(['memberaudit', 'default'], converted_imports)
+        self.assertNotIn(['memberaudit', 'default'], converted_imports)
         self.assertIn(['miningtaxes', 'default'], converted_imports)
         self.assertIn(['moonmining', 'default'], converted_imports)
         self.assertIn(['corpstats', 'default'], converted_imports)
