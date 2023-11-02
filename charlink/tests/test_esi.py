@@ -15,6 +15,6 @@ class TestScope(TestCase):
 
     def test_token(self):
         add_character_to_user(self.user, self.character, scopes=['esi-fleets.read_fleet.v1'])
-        token = Token.objects.get(character=self.character)
+        token = Token.objects.get(character_id=self.character.character_id)
         self.assertEqual(token.scopes.count(), 1)
         self.assertEqual(len(token.scopes), 1)
