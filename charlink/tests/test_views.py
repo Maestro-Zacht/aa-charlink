@@ -102,7 +102,7 @@ class TestIndex(TestCase):
         self.assertIn(['miningtaxes', 'default'], converted_imports)
         self.assertIn(['moonmining', 'default'], converted_imports)
         self.assertIn(['corpstats', 'default'], converted_imports)
-        self.assertEqual(len(session['charlink']['imports']), 6)
+        self.assertEqual(len(session['charlink']['imports']), 5)
 
     # form always valid
     # def test_post_wrong_data(self):
