@@ -12,7 +12,7 @@ from app_utils.testdata_factories import UserMainFactory, EveCorporationInfoFact
 from charlink.views import get_navbar_elements
 from charlink.imports.memberaudit import import_app as memberaudit_import
 from charlink.imports.miningtaxes import import_app as miningtaxes_import
-from charlink.imports.moonmining import import_app as moonmining_import
+from charlink.imports.corptools import _corp_perms
 from charlink.app_imports.utils import AppImport, LoginImport
 
 
@@ -63,7 +63,6 @@ class TestIndex(TestCase):
 
         cls.form_data = {
             'allianceauth.corputils_default': ['on'],
-            'memberaudit_default': ['on'],
             'miningtaxes_default': ['on'],
             'moonmining_default': ['on'],
             'corpstats_default': ['on'],
@@ -99,11 +98,11 @@ class TestIndex(TestCase):
 
         self.assertIn(['add_character', 'default'], converted_imports)
         self.assertIn(['allianceauth.corputils', 'default'], converted_imports)
-        self.assertIn(['memberaudit', 'default'], converted_imports)
+        self.assertNotIn(['memberaudit', 'default'], converted_imports)
         self.assertIn(['miningtaxes', 'default'], converted_imports)
         self.assertIn(['moonmining', 'default'], converted_imports)
         self.assertIn(['corpstats', 'default'], converted_imports)
-        self.assertEqual(len(session['charlink']['imports']), 6)
+        self.assertEqual(len(session['charlink']['imports']), 5)
 
     # form always valid
     # def test_post_wrong_data(self):
@@ -320,7 +319,9 @@ class TestAuditApp(TestCase):
         permissions = ["memberaudit.basic_access", "moonmining.add_refinery_owner", "moonmining.basic_access"]
         cls.user = UserMainFactory(permissions=[
             'charlink.view_corp',
+            'corptools.view_characteraudit',
             *permissions,
+            *_corp_perms,
         ])
         char2, char3 = EveCharacterFactory.create_batch(
             2,
@@ -350,7 +351,7 @@ class TestAuditApp(TestCase):
     def test_app_empty_perms(self):
         self.client.force_login(self.user)
 
-        res = self.client.get(reverse('charlink:audit_app', args=['corptools']))
+        res = self.client.get(reverse('charlink:audit_app', args=['add_character']))
 
         self.assertEqual(res.status_code, 200)
         self.assertIn('logins', res.context)
@@ -388,3 +389,12 @@ class TestAuditApp(TestCase):
         self.assertEqual(len(res.context['logins']), 1)
         self.assertEqual(len(list(res.context['logins'].values())[0]), 3)
         self.assertIn('app', res.context)
+
+    def test_app_with_multiple_logins(self):
+        self.client.force_login(self.user)
+
+        res = self.client.get(reverse('charlink:audit_app', args=['corptools']))
+
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('logins', res.context)
+        self.assertEqual(len(res.context['logins']), 2)

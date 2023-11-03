@@ -8,7 +8,7 @@ from app_utils.testing import create_state
 
 from charlink.utils import get_visible_corps, chars_annotate_linked_apps, get_user_available_apps, get_user_linked_chars
 from charlink.app_imports import import_apps
-from charlink.imports.memberaudit import import_app as import_memberaudit
+from charlink.imports.corptools import _corp_perms
 
 
 class TestGetVisibleCorps(TestCase):
@@ -133,14 +133,27 @@ class TestGetUserAvailableApps(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.user = UserMainFactory(permissions=["memberaudit.basic_access"])
+        cls.corptools_user_corp = UserMainFactory(permissions=_corp_perms)
+        cls.corptools_user_charaudit = UserMainFactory(permissions=["corptools.view_characteraudit"])
 
     def test_ok(self):
         res = get_user_available_apps(self.user)
         self.assertSetEqual(
             set(res.keys()),
-            {'memberaudit', 'add_character', 'corptools'}
+            {'memberaudit', 'add_character'}
         )
-        # TODO test corptools multiple imports
+
+        res2 = get_user_available_apps(self.corptools_user_corp)
+        self.assertSetEqual(
+            set(res2.keys()),
+            {'add_character', 'corptools'}
+        )
+
+        res3 = get_user_available_apps(self.corptools_user_charaudit)
+        self.assertSetEqual(
+            set(res3.keys()),
+            {'add_character', 'corptools'}
+        )
 
 
 class TestGetUserLinkedChars(TestCase):
