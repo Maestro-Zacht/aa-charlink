@@ -47,6 +47,7 @@ jobs:
           - "3.9"
           - "3.10"
           - "3.11"
+          - "3.12"
         database:
           # https://endoflife.date/mysql
           - mysql:8.0     # [LTS] Maintained until: 30 Apr 2026
