@@ -23,12 +23,12 @@
         <div class="card-header">
             <ul class="nav nav-tabs card-header-tabs">
                 <li class="nav-item">
-                    <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#loginForm" type="button" role="tab" aria-controls="login-tab-pane" aria-selected="true">
+                    <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#loginForm" type="button" role="tab" aria-controls="loginForm" aria-selected="true">
                         Login Form
                     </button>
                 </li>
                 <li class="nav-item">
-                    <button class="nav-link" id="characters-tab" data-bs-toggle="tab" data-bs-target="#linkedCharacters" type="button" role="tab" aria-controls="characters-tab-pane" aria-selected="false">
+                    <button class="nav-link" id="characters-tab" data-bs-toggle="tab" data-bs-target="#linkedCharacters" type="button" role="tab" aria-controls="linkedCharacters" aria-selected="false">
                         Linked Characters
                     </button>
                 </li>
@@ -92,7 +92,7 @@
                 {% for import_data in characters_added.apps.values %}
                     {% for login_data in import_data.imports %}
                         <li class="nav-item">
-                            <button class="nav-link{% if forloop.parentloop.first and forloop.first %} active{% endif %}" id="{{ import_data.app_label }}-{{ login_data.unique_id }}-tab" data-bs-toggle="tab" data-bs-target="#{{ import_data.app_label }}-{{ login_data.unique_id }}" type="button" role="tab" aria-controls="login-tab-pane" aria-selected="{% if forloop.parentloop.first and forloop.first %}true{% else %}false{% endif %}">
+                            <button class="nav-link{% if forloop.parentloop.first and forloop.first %} active{% endif %}" id="{{ import_data.app_label }}-{{ login_data.unique_id }}-tab" data-bs-toggle="tab" data-bs-target="#{{ import_data.app_label }}-{{ login_data.unique_id }}" type="button" role="tab" aria-controls="{{ import_data.app_label }}-{{ login_data.unique_id }}" aria-selected="{% if forloop.parentloop.first and forloop.first %}true{% else %}false{% endif %}">
                                 {{ login_data.field_label }}
                             </button>
                         </li>
@@ -104,7 +104,7 @@
             <div class="tab-content">
                 {% for import_data in characters_added.apps.values %}
                     {% for login_data in import_data.imports %}
-                        <div class="tab-pane fade {% if forloop.parentloop.first and forloop.first %}show active {% endif %}text-center" id="{{ import_data.app_label }}-{{ login_data.unique_id }}">
+                        <div class="tab-pane fade {% if forloop.parentloop.first and forloop.first %}show active {% endif %}text-center" id="{{ import_data.app_label }}-{{ login_data.unique_id }}" role="tabpanel" aria-labelledby="{{ import_data.app_label }}-{{ login_data.unique_id }}-tab" tabindex="0">
                             Scopes required:
                             {{ login_data.scopes|unordered_list|safe }}
                         </div>
