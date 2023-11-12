@@ -1,16 +1,16 @@
 {% extends 'charlink/base.html' %}
-{% load bootstrap %}
+{% load django_bootstrap5 %}
 {% load charlinkutils %}
 
 {% block page_title %}Charlink{% endblock page_title %}
 
 {% block extra_css %}
     <style>
-        .glyphicon-ok {
+        .fa-check {
             color: green;
         }
 
-        .glyphicon-remove {
+        .fa-times {
             color: red;
         }
     </style>
@@ -19,80 +19,92 @@
 {% block charlink_page_header %}<h1 class="page-header text-center">Character Linking</h1>{% endblock charlink_page_header %}
 
 {% block charlink_content %}
-    <ul class="nav nav-tabs">
-        <li class="active">
-            <a data-toggle="tab" href="#loginForm">
-                Login Form
-            </a>
-        </li>
-        <li>
-            <a data-toggle="tab" href="#linkedCharacters">
-                Linked Characters
-            </a>
-        </li>
-    </ul>
-    <div class="panel panel-default panel-tabs-aa">
-        <div class="panel-body">
+    <div class="card my-3">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs">
+                <li class="nav-item">
+                    <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#loginForm" type="button" role="tab" aria-controls="login-tab-pane" aria-selected="true">
+                        Login Form
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="characters-tab" data-bs-toggle="tab" data-bs-target="#linkedCharacters" type="button" role="tab" aria-controls="characters-tab-pane" aria-selected="false">
+                        Linked Characters
+                    </button>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
             <div class="tab-content">
-                <div id="loginForm" class="tab-pane fade in active text-center">
-                    <p>Select the apps you want to link from the list. You will be redirected to eveonline website to authenticate and provide the token with all the scopes needed.</p>
-                    <br>
-                    <form method="post">
-                        {% csrf_token %}
-                        {{ form|bootstrap }}
-                        <button type="submit" class="btn btn-primary">Login</button>
-                    </form>
+                <div class="tab-pane fade text-center container-fluid show active" id="loginForm" role="tabpanel" aria-labelledby="login-tab" tabindex="0">
+                    <div class="row justify-content-center">
+                        <div class="col-12 my-3">
+                            <p>Select the apps you want to link from the list. You will be redirected to eveonline website to authenticate and provide the token with all the scopes needed.</p>
+                        </div>
+                        <div class="col-lg-4">
+                            <form method="post">
+                                {% csrf_token %}
+                                {% bootstrap_form form %}
+                                <button type="submit" class="btn btn-primary mt-3">Login</button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
-                <div id="linkedCharacters" class="tab-pane fade in text-center">
-                    <table class="table table-aa">
-                        <thead>
-                            <th class="text-center">Character</th>
-                            {% for app_imports in characters_added.apps.values %}
-                                {% for login_import in app_imports.imports %}
-                                    <th scope="row" class="text-center">{{ login_import.field_label }}</th>
-                                {% endfor %}
-                            {% endfor %}
-                        </thead>
-                        <tbody>
-                            {% for char in characters_added.characters %}
-                                <tr>
-                                    <td>{{ char }}</td>
-                                    {% for imports in characters_added.apps.values %}
-                                        {% for login_data in imports.imports %}
-                                            {% with is_added=char|get_char_attr:login_data.get_query_id %}
-                                                {% if is_added %}
-                                                    <td><span class="glyphicon glyphicon-ok"></span></td>
-                                                {% else %}
-                                                    <td><span class="glyphicon glyphicon-remove"></span></td>
-                                                {% endif %}
-                                            {% endwith %}
-                                        {% endfor %}
+                <div class="tab-pane fade text-center" id="linkedCharacters" role="tabpanel" aria-labelledby="characters-tab" tabindex="0">
+                    <div class="table-responsive">
+                        <table class="table table-aa align-middle">
+                            <thead>
+                                <th>Character</th>
+                                {% for app_imports in characters_added.apps.values %}
+                                    {% for login_import in app_imports.imports %}
+                                        <th scope="col">{{ login_import.field_label }}</th>
                                     {% endfor %}
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                                {% endfor %}
+                            </thead>
+                            <tbody>
+                                {% for char in characters_added.characters %}
+                                    <tr>
+                                        <td scope="row">{{ char }}</td>
+                                        {% for imports in characters_added.apps.values %}
+                                            {% for login_data in imports.imports %}
+                                                {% with is_added=char|get_char_attr:login_data.get_query_id %}
+                                                    {% if is_added %}
+                                                        <td><i class="fas fa-check fa-lg"></i></td>
+                                                    {% else %}
+                                                        <td><i class="fas fa-times fa-lg"></i></td>
+                                                    {% endif %}
+                                                {% endwith %}
+                                            {% endfor %}
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <ul class="nav nav-tabs">
-        {% for import_data in characters_added.apps.values %}
-            {% for login_data in import_data.imports %}
-                <li{% if forloop.parentloop.first and forloop.first %} class="active"{% endif %}>
-                    <a data-toggle="tab" href="#{{ import_data.app_label }}-{{ login_data.unique_id }}">
-                        {{ login_data.field_label }}
-                    </a>
-                </li>
-            {% endfor %}
-        {% endfor %}
-    </ul>
-    <div class="panel panel-default panel-tabs-aa">
-        <div class="panel-body">
+
+    <div class="card">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs">
+                {% for import_data in characters_added.apps.values %}
+                    {% for login_data in import_data.imports %}
+                        <li class="nav-item">
+                            <button class="nav-link{% if forloop.parentloop.first and forloop.first %} active{% endif %}" id="{{ import_data.app_label }}-{{ login_data.unique_id }}-tab" data-bs-toggle="tab" data-bs-target="#{{ import_data.app_label }}-{{ login_data.unique_id }}" type="button" role="tab" aria-controls="login-tab-pane" aria-selected="{% if forloop.parentloop.first and forloop.first %}true{% else %}false{% endif %}">
+                                {{ login_data.field_label }}
+                            </button>
+                        </li>
+                    {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="card-body">
             <div class="tab-content">
                 {% for import_data in characters_added.apps.values %}
                     {% for login_data in import_data.imports %}
-                        <div id="{{ import_data.app_label }}-{{ login_data.unique_id }}" class="tab-pane fade in{% if forloop.parentloop.first and forloop.first %} active{% endif %}">
+                        <div class="tab-pane fade {% if forloop.parentloop.first and forloop.first %}show active {% endif %}text-center" id="{{ import_data.app_label }}-{{ login_data.unique_id }}">
                             Scopes required:
                             {{ login_data.scopes|unordered_list|safe }}
                         </div>
