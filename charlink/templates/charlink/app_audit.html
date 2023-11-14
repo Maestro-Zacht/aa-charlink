@@ -4,62 +4,58 @@
 {% block page_title %}Charlink App Audit{% endblock page_title %}
 
 {% block extra_css %}
-    <style>
-        .glyphicon-ok {
-            color: green;
-        }
-
-        .glyphicon-remove {
-            color: red;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="{% allianceauth_pve_static 'charlink/css/added-icons.css' %}">
 {% endblock extra_css %}
 
 {% block charlink_page_header %}<h1 class="page-header text-center">Links Audit</h1>{% endblock charlink_page_header %}
 
 {% block charlink_content %}
-    <ul class="nav nav-tabs">   
-        {% for login_data in logins.keys %}
-            <li{% if forloop.first %} class="active"{% endif %}>
-                <a data-toggle="tab" href="#{{ login_data.app_label }}-{{ login_data.unique_id }}">
-                    {{ login_data.field_label }}
-                </a>
-            </li>
-        {% endfor %}
-    </ul>
-    <div class="panel panel-default panel-tabs-aa">
-        <div class="panel-body">
+    <div class="card mt-3">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs">
+                {% for login_data in logins.keys %}
+                    <li class="nav-item">
+                        <button class="nav-link{% if forloop.first %} active{% endif %}" id="{{ login_data.app_label }}-{{ login_data.unique_id }}-tab" data-bs-toggle="tab" data-bs-target="#{{ login_data.app_label }}-{{ login_data.unique_id }}" type="button" role="tab" aria-controls="{{ login_data.app_label }}-{{ login_data.unique_id }}" aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                            {{ login_data.field_label }}
+                        </button>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="card-body">
             <div class="tab-content">
                 {% for login_data, characters in logins.items %}
-                    <div id="{{ login_data.app_label }}-{{ login_data.unique_id }}" class="tab-pane fade in{% if forloop.first %} active{% endif %} text-center">
-                        <table class="table table-aa">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th class="text-center">Character</th>
-                                    <th scope="row" class="text-center">{{ login_data.field_label }}</th>
-                                    <th class="text-center">Main Character</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for char in characters %}
+                    <div class="tab-pane fade{% if forloop.first %} show active{% endif %} text-center" id="{{ login_data.app_label }}-{{ login_data.unique_id }}" role="tabpanel" aria-labelledby="{{ login_data.app_label }}-{{ login_data.unique_id }}-tab" tabindex="0">
+                        <div class="table-reponsive">
+                            <table class="table table-aa">
+                                <thead>
                                     <tr>
-                                        <td><img src="{{ char.portrait_url }}" class="img-circle" alt="{{ char }}"></td>
-                                        <td>{{ char }}</td>
-                                        {% with is_added=char|get_char_attr:login_data.get_query_id %}
-                                            {% if is_added %}
-                                                <td><span class="glyphicon glyphicon-ok"></span></td>
-                                            {% else %}
-                                                <td><span class="glyphicon glyphicon-remove"></span></td>
-                                            {% endif %}
-                                        {% endwith %}
-                                        <td>
-                                            <a href="{% url 'charlink:audit_user' char.character_ownership.user_id %}">{{ char.character_ownership.user.profile.main_character }} <i class="fas fa-external-link-alt fa-xs"></i></a>
-                                        </td>
+                                        <th></th>
+                                        <th class="text-center">Character</th>
+                                        <th scope="col" class="text-center">{{ login_data.field_label }}</th>
+                                        <th class="text-center">Main Character</th>
                                     </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    {% for char in characters %}
+                                        <tr>
+                                            <td><img src="{{ char.portrait_url }}" class="rounded" alt="{{ char }}"></td>
+                                            <td>{{ char }}</td>
+                                            {% with is_added=char|get_char_attr:login_data.get_query_id %}
+                                                {% if is_added %}
+                                                    <td><i class="fas fa-check fa-lg"></td>
+                                                {% else %}
+                                                    <td><i class="fas fa-times fa-lg"></td>
+                                                {% endif %}
+                                            {% endwith %}
+                                            <td>
+                                                <a href="{% url 'charlink:audit_user' char.character_ownership.user_id %}">{{ char.character_ownership.user.profile.main_character }} <i class="fas fa-external-link-alt fa-xs"></i></a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 {% endfor %}
             </div>
