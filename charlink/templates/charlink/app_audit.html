@@ -5,6 +5,7 @@
 
 {% block extra_css %}
     <link rel="stylesheet" type="text/css" href="{% allianceauth_pve_static 'charlink/css/added-icons.css' %}">
+    {% include "bundles/datatables-css-bs5.html" %}
 {% endblock extra_css %}
 
 {% block charlink_page_header %}<h1 class="page-header text-center">Links Audit</h1>{% endblock charlink_page_header %}
@@ -25,9 +26,9 @@
         <div class="card-body">
             <div class="tab-content">
                 {% for login_data, characters in logins.items %}
-                    <div class="tab-pane fade{% if forloop.first %} show active{% endif %} text-center" id="{{ login_data.app_label }}-{{ login_data.unique_id }}" role="tabpanel" aria-labelledby="{{ login_data.app_label }}-{{ login_data.unique_id }}-tab" tabindex="0">
+                    <div class="tab-pane fade{% if forloop.first %} show active{% endif %}" id="{{ login_data.app_label }}-{{ login_data.unique_id }}" role="tabpanel" aria-labelledby="{{ login_data.app_label }}-{{ login_data.unique_id }}-tab" tabindex="0">
                         <div class="table-reponsive">
-                            <table class="table table-aa">
+                            <table class="table table-aa charlink-table text-center">
                                 <thead>
                                     <tr>
                                         <th></th>
@@ -43,9 +44,9 @@
                                             <td>{{ char }}</td>
                                             {% with is_added=char|get_char_attr:login_data.get_query_id %}
                                                 {% if is_added %}
-                                                    <td><i class="fas fa-check fa-lg"></td>
+                                                    <td><i class="fas fa-check fa-lg"><span class="d-none">A</span></td>
                                                 {% else %}
-                                                    <td><i class="fas fa-times fa-lg"></td>
+                                                    <td><i class="fas fa-times fa-lg"><span class="d-none">B</span></td>
                                                 {% endif %}
                                             {% endwith %}
                                             <td>
@@ -62,3 +63,18 @@
         </div>
     </div>
 {% endblock charlink_content %}
+
+{% block extra_javascript %}
+    {% include "bundles/datatables-js-bs5.html" %}
+{% endblock extra_javascript %}
+
+{% block extra_script %}
+    $(document).ready(function() {
+        $('.charlink-table').DataTable({
+            columnDefs: [
+                { orderable: false, targets: 0 },
+            ],
+            order: [],
+        });
+    });
+{% endblock extra_script %}
