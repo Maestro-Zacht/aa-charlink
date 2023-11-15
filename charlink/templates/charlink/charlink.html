@@ -1,11 +1,12 @@
 {% extends 'charlink/base.html' %}
 {% load django_bootstrap5 %}
 {% load charlinkutils %}
+{% load static %}
 
 {% block page_title %}Charlink{% endblock page_title %}
 
 {% block extra_css %}
-    <link rel="stylesheet" type="text/css" href="{% allianceauth_pve_static 'charlink/css/added-icons.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'charlink/css/added-icons.css' %}">
 {% endblock extra_css %}
 
 {% block charlink_page_header %}<h1 class="page-header text-center">Character Linking</h1>{% endblock charlink_page_header %}
