@@ -4,51 +4,21 @@
     CharLink
 {% endblock header_nav_brand %}
 
+{% block header_nav_collapse_left %}
+    {% if is_auditor %}
+        {% include "charlink/menu-left.html" %}
+    {% endif %}
+{% endblock header_nav_collapse_left %}
+
+{% block header_nav_collapse_right %}
+    {% if is_auditor %}
+        {% include "charlink/menu-right.html" %}
+    {% endif %}
+{% endblock header_nav_collapse_right %}
+
 {% block content %}
     <div class="col-lg-12">
         {% block charlink_page_header %}{% endblock charlink_page_header %}
-        {% if is_auditor %}
-            <nav class="navbar navbar-expand-lg bg-primary rounded" data-bs-theme="dark">
-                <div class="container-fluid">
-                    <a class="navbar-brand ms-2" href="{% url "charlink:index" %}">CharLink</a>
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Corporations
-                                </a>
-                                <ul class="dropdown-menu">
-                                    {% for corp in available %}
-                                        <li>
-                                            <a class="dropdown-item" href="{% url 'charlink:audit_corp' corp.corporation_id %}">{{ corp.corporation_name }}</a>
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Apps
-                                </a>
-                                <ul class="dropdown-menu">
-                                    {% for app, import_data in available_apps.items %}
-                                        <li>
-                                            <a class="dropdown-item" href="{% url 'charlink:audit_app' app %}">{{ import_data.imports.0.field_label }}</a>
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-                            </li>
-                        </ul>
-                        <form class="d-flex" role="search" action="{% url 'charlink:search' %}" method="GET">
-                            <input class="form-control me-2" type="search" name="search_string" placeholder="{% if search_string %}{{ search_string }}{% else %}Search character...{% endif %}" aria-label="{% if search_string %}{{ search_string }}{% else %}Search character...{% endif %}">
-                            <button class="btn btn-outline-success" type="submit">Search</button>
-                        </form>
-                    </div>
-                </div>
-            </nav>
-        {% endif %}
         <div class="container-fluid mt-3 px-0">
             {% block charlink_content %}{% endblock charlink_content %}
         </div>

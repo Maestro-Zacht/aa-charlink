@@ -1,0 +1,4 @@
+<form class="d-flex" role="search" action="{% url 'charlink:search' %}" method="GET">
+    <input class="form-control me-2" type="search" name="search_string" placeholder="{% if search_string %}{{ search_string }}{% else %}Search character...{% endif %}" aria-label="{% if search_string %}{{ search_string }}{% else %}Search character...{% endif %}">
+    <button class="btn btn-outline-success" type="submit">Search</button>
+</form>
