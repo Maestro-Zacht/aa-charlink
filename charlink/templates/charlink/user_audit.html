@@ -1,60 +1,71 @@
 {% extends 'charlink/base.html' %}
 {% load charlinkutils %}
+{% load static %}
 
 {% block page_title %}Charlink User Audit{% endblock page_title %}
 
 {% block extra_css %}
-    <style>
-        .glyphicon-ok {
-            color: green;
-        }
-
-        .glyphicon-remove {
-            color: red;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="{% static 'charlink/css/added-icons.css' %}">
+    {% include "bundles/datatables-css-bs5.html" %}
 {% endblock extra_css %}
 
 {% block charlink_page_header %}<h1 class="page-header text-center">Links Audit</h1>{% endblock charlink_page_header %}
 
 {% block charlink_content %}
-    <div class="panel panel-default text-center">
-        <div class="panel-heading">
-            <h3 class="panel-title text-center">Linked Characters</h3>
+    <div class="card">
+        <div class="card-header text-center">
+            <h3 class="card-title">Linked Characters</h3>
         </div>
-        <div class="panel-body">
-            <table class="table table-aa">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th class="text-center">Character</th>
-                        {% for import_data in characters_added.apps.values %}
-                            {% for login_data in import_data.imports %}
-                                <th scope="row" class="text-center">{{ login_data.field_label }}</th>
-                            {% endfor %}
-                        {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for char in characters_added.characters %}
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-aa text-center" id="tableCharacters">
+                    <thead>
                         <tr>
-                            <td><img src="{{ char.portrait_url }}" class="img-circle" alt="{{ char }}"></td>
-                            <td>{{ char }}</td>
+                            <th></th>
+                            <th>Character</th>
                             {% for import_data in characters_added.apps.values %}
                                 {% for login_data in import_data.imports %}
-                                    {% with is_added=char|get_char_attr:login_data.get_query_id %}
-                                        {% if is_added %}
-                                            <td><span class="glyphicon glyphicon-ok"></span></td>
-                                        {% else %}
-                                            <td><span class="glyphicon glyphicon-remove"></span></td>
-                                        {% endif %}
-                                    {% endwith %}
+                                    <th>{{ login_data.field_label }}</th>
                                 {% endfor %}
                             {% endfor %}
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% for char in characters_added.characters %}
+                            <tr>
+                                <td><img src="{{ char.portrait_url }}" class="rounded" alt="{{ char }}"></td>
+                                <td>{{ char }}</td>
+                                {% for import_data in characters_added.apps.values %}
+                                    {% for login_data in import_data.imports %}
+                                        {% with is_added=char|get_char_attr:login_data.get_query_id %}
+                                            {% if is_added %}
+                                                <td><i class="fas fa-check fa-lg"><span class="d-none">A</span></td>
+                                            {% else %}
+                                                <td><i class="fas fa-times fa-lg"><span class="d-none">B</span></td>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% endfor %}
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 {% endblock charlink_content %}
+
+{% block extra_javascript %}
+    {% include "bundles/datatables-js-bs5.html" %}
+{% endblock extra_javascript %}
+
+{% block extra_script %}
+    $(document).ready(function() {
+        $('#tableCharacters').DataTable({
+            columnDefs: [
+                { orderable: false, targets: 0 },
+            ],
+            order: [],
+        });
+    });
+{% endblock extra_script %}

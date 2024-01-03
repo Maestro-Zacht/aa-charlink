@@ -5,65 +5,81 @@
 
 {% block charlink_page_header %}<h1 class="page-header text-center">Links Audit</h1>{% endblock charlink_page_header %}
 
+{% block extra_css %}
+    {% include "bundles/datatables-css-bs5.html" %}
+{% endblock %}
+
 {% block charlink_content %}
-    <div class="row col-lg-12">
-        <div class="text-center">
-            <table class="table">
-                    <tr>
-                        <td class="text-center col-lg-6 {% if selected.alliance %}{% else %}col-lg-offset-3{% endif %}">
-                                <img class="ra-avatar" src="{{ selected.logo_url_64 }}" alt="{{ selected.corporation_name }}">
-                            </td>
-                        {% if selected.alliance %}
-                            <td class="text-center col-lg-6">
-                                <img class="ra-avatar" src="{{ selected.alliance.logo_url_64 }}" alt="{{ selected.alliance.alliance_name }}">
-                            </td>
-                        {% endif %}
-                    </tr>
-                    <tr>
-                        <td class="text-center"><h4>{{ selected.corporation_name }}</h4></td>
-                        {% if selected.alliance %}
-                            <td class="text-center"><h4>{{ selected.alliance.alliance_name }}</h4></td>
-                        {% endif %}
-                    </tr>
-            </table>
+    <div class="row justify-content-center text-center">
+        <div class="col-lg-6">
+            <img class="rounded" src="{{ selected.logo_url_64 }}" alt="{{ selected.corporation_name }}">
+            <h4 class="my-3">{{ selected.corporation_name }}</h4>
         </div>
-    </div>
-    <div class="row col-lg-12">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <ul class="nav nav-pills pull-left">
-                    <li class="active"><a href="#characters" data-toggle="pill">Characters</a></li>
-                </ul>
-                <div class="clearfix"></div>
+        {% if selected.alliance %}
+            <div class="col-lg-6">
+                <img class="rounded" src="{{ selected.alliance.logo_url_64 }}" alt="{{ selected.alliance.alliance_name }}">
+                <h4 class="my-3">{{ selected.alliance.alliance_name }}</h4>
             </div>
-            <div class="panel-body">
-                <div class="tab-pane" id="characters">
-                    <div class="table-responsive">
-                        <table class="table table-aa table-hover">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th class="text-center">Character</th>
-                                    <th class="text-center">Main Character</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for character in selected|get_corp_members %}
-                                    <tr>
-                                        <td><img src="{{ character.portrait_url }}" class="img-circle" alt="{{ character }}"></td>
-                                        <td class="text-center">{{ character }}</td>
-                                        <td class="text-center">
-                                            {% if character.character_ownership.user.profile.main_character %}
-                                                <a href="{% url 'charlink:audit_user' character.character_ownership.user_id %}">{{ character.character_ownership.user.profile.main_character }} <i class="fas fa-external-link-alt fa-xs"></i></a>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
+        {% endif %}
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <ul class="nav nav-pills">
+                        <li class="nav-item">
+                            <button class="nav-link active" id="characters-tab" data-bs-toggle="tab" data-bs-target="#characters-tab-pane" type="button" role="tab" aria-controls="characters-tab-pane" aria-selected="true">
+                                Characters
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="characters-tab-pane"  role="tabpanel" aria-labelledby="characters-tab" tabindex="0">
+                            <div class="table-responsive">
+                                <table class="table table-aa table-hover" id="tableMembers">
+                                    <thead>
+                                        <tr>
+                                            <th></th>
+                                            <th class="text-center">Character</th>
+                                            <th class="text-center">Main Character</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for character in selected|get_corp_members %}
+                                            <tr>
+                                                <td><img src="{{ character.portrait_url }}" class="rounded" alt="{{ character }}"></td>
+                                                <td class="text-center">{{ character }}</td>
+                                                <td class="text-center">
+                                                    {% if character.character_ownership.user.profile.main_character %}
+                                                        <a href="{% url 'charlink:audit_user' character.character_ownership.user_id %}">{{ character.character_ownership.user.profile.main_character }} <i class="fas fa-external-link-alt fa-xs"></i></a>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 {% endblock charlink_content %}
+
+{% block extra_javascript %}
+    {% include "bundles/datatables-js-bs5.html" %}
+{% endblock extra_javascript %}
+
+{% block extra_script %}
+    $(document).ready(function() {
+        $('#tableMembers').DataTable({
+            columnDefs: [
+                { orderable: false, targets: 0 },
+            ],
+            order: [],
+        });
+    });
+{% endblock extra_script %}

@@ -16,7 +16,7 @@ Docked dev env is very simple to setup. Assuming you have followed the custom im
 2. In the `docker-compose.yml` file, add the following lines in the `volumes` section of the `allianceauth` container:
 
     ```yaml
-    - ./aa-charlink/charlink:/myauth/charlink
+    - ./aa-charlink/charlink:/home/allianceauth/myauth/charlink
     - ./aa-charlink:/code/charlink
     ```
 

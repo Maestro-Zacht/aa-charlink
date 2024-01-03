@@ -1,0 +1,25 @@
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Corporations
+    </a>
+    <ul class="dropdown-menu">
+        {% for corp in available %}
+            <li>
+                <a class="dropdown-item" href="{% url 'charlink:audit_corp' corp.corporation_id %}">{{ corp.corporation_name }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+</li>
+
+<li class="nav-item dropdown ms-3">
+    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        Apps
+    </a>
+    <ul class="dropdown-menu">
+        {% for app, import_data in available_apps.items %}
+            <li>
+                <a class="dropdown-item" href="{% url 'charlink:audit_app' app %}">{{ import_data.imports.0.field_label }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+</li>
