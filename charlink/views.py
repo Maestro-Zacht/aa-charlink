@@ -2,17 +2,16 @@ import re
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User, Permission
+from django.contrib.auth.models import User
 from django.contrib import messages
 from django.db.models import Q
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
+from django.template.loader import render_to_string
 
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from allianceauth.authentication.decorators import permissions_required
-
-from app_utils.allianceauth import users_with_permission
 
 from .forms import LinkForm
 from .app_imports import import_apps
@@ -33,6 +32,51 @@ def get_navbar_elements(user: User):
     }
 
 
+def dashboard_login(request):
+    form = LinkForm(request.user, prefix='charlink')
+    context = {
+        'form': form,
+    }
+    return render_to_string('charlink/dashboard_login.html', context=context, request=request)
+
+
+@login_required
+def dashboard_post(request):
+    if request.method != 'POST':
+        messages.error(request, 'Invalid request')
+        return redirect('charlink:index')
+
+    imported_apps = import_apps()
+
+    form = LinkForm(request.user, request.POST, prefix='charlink')
+    if not form.is_valid():
+        messages.error(request, 'Invalid form data')
+        return redirect('authentication:dashboard')
+
+    scopes = set()
+    selected_apps = []
+
+    form_field_pattern = re.compile(r'^(?P<app>[\w\d\.]+)_(?P<unique_id>[a-zA-Z0-9]+)$')
+
+    for import_code, to_import in form.cleaned_data.items():
+        if to_import:
+            match = form_field_pattern.match(import_code)
+
+            app = match.group('app')
+            unique_id = match.group('unique_id')
+
+            app_import = imported_apps[app].get(unique_id)
+            scopes.update(app_import.scopes)
+            selected_apps.append((app, unique_id))
+
+    request.session['charlink'] = {
+        'scopes': list(scopes),
+        'imports': selected_apps,
+    }
+
+    return redirect('charlink:login')
+
+
 @login_required
 def index(request):
     imported_apps = import_apps()
@@ -40,7 +84,6 @@ def index(request):
     if request.method == 'POST':
         form = LinkForm(request.user, request.POST)
         if form.is_valid():
-
             scopes = set()
             selected_apps = []
 

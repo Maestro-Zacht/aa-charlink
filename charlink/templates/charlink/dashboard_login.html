@@ -1,0 +1,13 @@
+{% load django_bootstrap5 %}
+<div class="col-12 col-xl-4 align-self-stretch p-2 ps-0 pe-0 ps-xl-0 pe-xl-2">
+    <div class="card h-100 px-2">
+        <div class="card-body text-center">
+            <h4 class="card-title mb-3">CharLink</h4>
+            <form method="post" action="{% url "charlink:dashboard_post" %}">
+                {% csrf_token %}
+                {% bootstrap_form form %}
+                <button type="submit" class="btn btn-outline-info mt-2">Login</button>
+            </form>
+        </div>
+    </div>
+</div>
