@@ -1,6 +1,6 @@
 from unittest.mock import patch, Mock
 
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
 from django.urls import reverse
 from django.contrib.messages import get_messages, DEFAULT_LEVELS
 from django.db.models import OuterRef, Exists
@@ -9,7 +9,7 @@ from allianceauth.authentication.models import CharacterOwnership
 
 from app_utils.testdata_factories import UserMainFactory, EveCorporationInfoFactory, EveCharacterFactory
 
-from charlink.views import get_navbar_elements
+from charlink.views import get_navbar_elements, dashboard_login
 from charlink.imports.memberaudit import import_app as memberaudit_import
 from charlink.imports.miningtaxes import import_app as miningtaxes_import
 from charlink.imports.corptools import _corp_perms
@@ -48,18 +48,147 @@ class TestGetNavbarElements(TestCase):
         self.assertEqual(len(res['available_apps']), 0)
 
 
+class TestDashboardLogin(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = UserMainFactory(
+            permissions=[
+                'memberaudit.basic_access',
+                'miningtaxes.basic_access',
+            ]
+        )
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        request_factory = RequestFactory()
+        cls.request = request_factory.get('/fake')
+        cls.request.user = cls.user
+
+        cls.form_content = '''
+            <div class="mb-3">
+                <div class="form-check">
+                    <input type="checkbox" name="charlink-add_character_default" class="form-check-input" disabled id="id_charlink-add_character_default" checked>
+                    <label class="form-check-label" for="id_charlink-add_character_default">Add Character (default)</label>
+                </div>
+            </div>
+            <div class="mb-3">
+                <div class="form-check">
+                    <input type="checkbox" name="charlink-memberaudit_default" class="form-check-input" id="id_charlink-memberaudit_default" checked>
+                    <label class="form-check-label" for="id_charlink-memberaudit_default">Member Audit</label>
+                </div>
+            </div>
+            <div class="mb-3">
+                <div class="form-check">
+                    <input type="checkbox" name="charlink-miningtaxes_default" class="form-check-input" id="id_charlink-miningtaxes_default" checked>
+                    <label class="form-check-label" for="id_charlink-miningtaxes_default">Mining Taxes</label>
+                </div>
+            </div>
+        '''
+
+    def test_ok(self):
+        res = dashboard_login(self.request)
+        self.assertInHTML('<h4 class="card-title mb-3">CharLink</h4>', res)
+        self.assertInHTML(self.form_content, res)
+
+
+class TestDashboardPost(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = UserMainFactory(
+            permissions=[
+                'corputils.add_corpstats',
+                'memberaudit.basic_access',
+                'miningtaxes.basic_access',
+                'moonmining.add_refinery_owner',
+                'moonmining.basic_access',
+                'corpstats.add_corpstat',
+            ]
+        )
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.form_data = {
+            'charlink-allianceauth.corputils_default': ['on'],
+            'charlink-miningtaxes_default': ['on'],
+            'charlink-moonmining_default': ['on'],
+            'charlink-corpstats_default': ['on'],
+        }
+
+    def test_post_ok(self):
+        self.client.force_login(self.user)
+
+        res = self.client.post(reverse('charlink:dashboard_post'), self.form_data)
+
+        self.assertRedirects(
+            res,
+            reverse('charlink:login'),
+            fetch_redirect_response=False
+        )
+
+        session = self.client.session
+
+        self.assertIn('charlink', session)
+        self.assertIn('scopes', session['charlink'])
+        self.assertIn('imports', session['charlink'])
+
+        converted_imports = [list(x) for x in session['charlink']['imports']]
+
+        self.assertIn(['add_character', 'default'], converted_imports)
+        self.assertIn(['allianceauth.corputils', 'default'], converted_imports)
+        self.assertNotIn(['memberaudit', 'default'], converted_imports)
+        self.assertIn(['miningtaxes', 'default'], converted_imports)
+        self.assertIn(['moonmining', 'default'], converted_imports)
+        self.assertIn(['corpstats', 'default'], converted_imports)
+        self.assertEqual(len(session['charlink']['imports']), 5)
+
+    def test_get(self):
+        self.client.force_login(self.user)
+
+        res = self.client.get(reverse('charlink:dashboard_post'))
+
+        self.assertRedirects(res, reverse('charlink:index'))
+
+        messages = list(get_messages(res.wsgi_request))
+
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0].level, DEFAULT_LEVELS['ERROR'])
+        self.assertEqual(messages[0].message, 'Invalid request')
+
+    # force form invalid
+    @patch('charlink.forms.LinkForm.is_valid')
+    def test_form_invalid(self, mock_is_valid):
+        mock_is_valid.return_value = False
+
+        self.client.force_login(self.user)
+        res = self.client.post(reverse('charlink:dashboard_post'), self.form_data)
+
+        self.assertRedirects(res, reverse('authentication:dashboard'))
+
+        messages = list(get_messages(res.wsgi_request))
+
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0].level, DEFAULT_LEVELS['ERROR'])
+        self.assertEqual(messages[0].message, 'Invalid form data')
+
+
 class TestIndex(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory(permissions=[
-            'corputils.add_corpstats',
-            'memberaudit.basic_access',
-            'miningtaxes.basic_access',
-            'moonmining.add_refinery_owner',
-            'moonmining.basic_access',
-            'corpstats.add_corpstat',
-        ])
+        cls.user = UserMainFactory(
+            permissions=[
+                'corputils.add_corpstats',
+                'memberaudit.basic_access',
+                'miningtaxes.basic_access',
+                'moonmining.add_refinery_owner',
+                'moonmining.basic_access',
+                'corpstats.add_corpstat',
+            ]
+        )
 
         cls.form_data = {
             'allianceauth.corputils_default': ['on'],
@@ -317,12 +446,14 @@ class TestAuditApp(TestCase):
     @classmethod
     def setUpTestData(cls):
         permissions = ["memberaudit.basic_access", "moonmining.add_refinery_owner", "moonmining.basic_access"]
-        cls.user = UserMainFactory(permissions=[
-            'charlink.view_corp',
-            'corptools.view_characteraudit',
-            *permissions,
-            *_corp_perms,
-        ])
+        cls.user = UserMainFactory(
+            permissions=[
+                'charlink.view_corp',
+                'corptools.view_characteraudit',
+                *permissions,
+                *_corp_perms,
+            ]
+        )
         char2, char3 = EveCharacterFactory.create_batch(
             2,
             corporation=cls.user.profile.main_character.corporation
