@@ -124,7 +124,7 @@ def _users_with_perms():
     )
 
 
-import_app = AppImport('structures', [
+app_import = AppImport('structures', [
     LoginImport(
         app_label='structures',
         unique_id='default',

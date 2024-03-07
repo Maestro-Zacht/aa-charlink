@@ -42,7 +42,7 @@ def _users_with_perms():
     )
 
 
-import_app = AppImport('memberaudit', [
+app_import = AppImport('memberaudit', [
     LoginImport(
         app_label='memberaudit',
         unique_id='default',

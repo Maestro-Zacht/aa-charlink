@@ -64,7 +64,7 @@ def _users_with_perms():
     )
 
 
-import_app = AppImport('moonmining', [
+app_import = AppImport('moonmining', [
     LoginImport(
         app_label='moonmining',
         unique_id='default',

@@ -38,7 +38,7 @@ def _users_with_perms():
     )
 
 
-import_app = AppImport('corpstats', [
+app_import = AppImport('corpstats', [
     LoginImport(
         app_label='corpstats',
         unique_id='default',

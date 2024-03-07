@@ -10,8 +10,8 @@ from allianceauth.authentication.models import CharacterOwnership
 from app_utils.testdata_factories import UserMainFactory, EveCorporationInfoFactory, EveCharacterFactory
 
 from charlink.views import get_navbar_elements, dashboard_login
-from charlink.imports.memberaudit import import_app as memberaudit_import
-from charlink.imports.miningtaxes import import_app as miningtaxes_import
+from charlink.imports.memberaudit import app_import as memberaudit_import
+from charlink.imports.miningtaxes import app_import as miningtaxes_import
 from charlink.imports.corptools import _corp_perms
 from charlink.app_imports.utils import AppImport, LoginImport
 

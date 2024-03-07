@@ -79,7 +79,7 @@ def _users_with_perms_corp():
     return users
 
 
-import_app = AppImport('corptools', [
+app_import = AppImport('corptools', [
     LoginImport(
         app_label='corptools',
         unique_id='default',

@@ -6,6 +6,7 @@ from django.db.models import Exists, OuterRef
 
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.authentication.models import CharacterOwnership
+from allianceauth.hooks import get_hooks
 
 from .utils import LoginImport, AppImport
 
@@ -35,14 +36,34 @@ _imported = False
 def import_apps():
     global _imported
     if not _imported:
+        # hooks
+        charlink_hooks = get_hooks('charlink')
+
+        for hook_f in charlink_hooks:
+            hook_mod = hook_f()
+            try:
+                assert isinstance(hook_mod, str)
+                app_import: AppImport = import_module(hook_mod).app_import
+                AppImport.validate_import(app_import)
+            except AssertionError:
+                logger.debug(f"Loading of {hook_mod} link via hook: failed to validate")
+            except ModuleNotFoundError:
+                logger.debug(f"Loading of {hook_mod} link via hook: failed to import")
+            except:
+                logger.debug(f"Loading of {hook_mod} link via hook: failed")
+            else:
+                _supported_apps[app_import.app_label] = app_import
+                logger.debug(f"Loading of {hook_mod} link via hook: success")
+
+        # defaults
         for app in settings.INSTALLED_APPS:
-            if app != 'allianceauth':
+            if app != 'allianceauth' and app not in _supported_apps:
                 try:
                     module = import_module(f'charlink.imports.{app}')
                 except ModuleNotFoundError:
                     logger.debug(f"Loading of {app} link: failed")
                 else:
-                    _supported_apps[app] = module.import_app
+                    _supported_apps[app] = module.app_import
                     logger.debug(f"Loading of {app} link: success")
 
         _imported = True

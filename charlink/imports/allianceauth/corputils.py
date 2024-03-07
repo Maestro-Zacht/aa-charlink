@@ -37,7 +37,7 @@ def _users_with_perms():
     )
 
 
-import_app = AppImport('allianceauth.corputils', [
+app_import = AppImport('allianceauth.corputils', [
     LoginImport(
         app_label='allianceauth.corputils',
         unique_id='default',

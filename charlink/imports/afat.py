@@ -60,7 +60,7 @@ def _users_with_perms_clickfleet():
     )
 
 
-import_app = AppImport('afat', [
+app_import = AppImport('afat', [
     LoginImport(
         app_label='afat',
         unique_id='readfleet',

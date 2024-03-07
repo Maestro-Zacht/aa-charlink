@@ -32,7 +32,7 @@ def _users_with_perms():
     )
 
 
-import_app = AppImport('miningtaxes', [
+app_import = AppImport('miningtaxes', [
     LoginImport(
         app_label='miningtaxes',
         unique_id='default',
