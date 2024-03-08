@@ -102,3 +102,75 @@ class TestAppImport(TestCase):
         app_import = import_apps()['add_character']
         with self.assertRaises(KeyError):
             app_import.get('not_found')
+
+    def test_validate_import(self):
+        app_import = import_apps()['add_character']
+        app_import.validate_import()
+
+        app_import.app_label = 1
+        with self.assertRaises(AssertionError):
+            app_import.validate_import()
+        app_import.app_label = 'add_character'
+
+        tmp = app_import.imports
+        app_import.imports = 1
+        with self.assertRaises(AssertionError):
+            app_import.validate_import()
+        app_import.imports = []
+        with self.assertRaises(AssertionError):
+            app_import.validate_import()
+        app_import.imports = tmp
+
+        app_import.validate_import()
+        app_import.imports[0].unique_id = 1
+        with self.assertRaises(AssertionError):
+            app_import.validate_import()
+        app_import.imports[0].unique_id = 'default'
+
+        app_import.imports[0].unique_id = 'invalid id'
+        with self.assertRaises(AssertionError):
+            app_import.validate_import()
+        app_import.imports[0].unique_id = 'default'
+
+        app_import.imports[0].field_label = 1
+        with self.assertRaises(AssertionError):
+            app_import.validate_import()
+        app_import.imports[0].field_label = 'Add Character (default)'
+
+        app_import.imports[0].add_character = 1
+        with self.assertRaises(AssertionError):
+            app_import.validate_import()
+        app_import.imports[0].add_character = lambda request, token: None
+
+        app_import.imports[0].scopes = 1
+        with self.assertRaises(AssertionError):
+            app_import.validate_import()
+        app_import.imports[0].scopes = ['publicData']
+
+        app_import.imports[0].check_permissions = 1
+        with self.assertRaises(AssertionError):
+            app_import.validate_import()
+        app_import.imports[0].check_permissions = lambda user: True
+
+        tmp = app_import.imports[0].is_character_added
+        app_import.imports[0].is_character_added = 1
+        with self.assertRaises(AssertionError):
+            app_import.validate_import()
+        app_import.imports[0].is_character_added = tmp
+
+        tmp = app_import.imports[0].is_character_added_annotation
+        app_import.imports[0].is_character_added_annotation = 1
+        with self.assertRaises(AssertionError):
+            app_import.validate_import()
+        app_import.imports[0].is_character_added_annotation = tmp
+
+        tmp = app_import.imports[0].get_users_with_perms
+        app_import.imports[0].get_users_with_perms = 1
+        with self.assertRaises(AssertionError):
+            app_import.validate_import()
+        app_import.imports[0].get_users_with_perms = tmp
+
+        app_import.imports.append(app_import.imports[0])
+        with self.assertRaises(AssertionError):
+            app_import.validate_import()
+        app_import.imports = [app_import.imports[0]]
