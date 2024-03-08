@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 from typing import Callable, List
 
@@ -28,26 +29,26 @@ class LoginImport:
     def __hash__(self) -> int:
         return hash(self.get_query_id())
 
-    @staticmethod
-    def validate_import(login_import: 'LoginImport'):
-        assert hasattr(login_import, 'app_label')
-        assert hasattr(login_import, 'unique_id')
-        assert hasattr(login_import, 'field_label')
-        assert hasattr(login_import, 'add_character')
-        assert hasattr(login_import, 'scopes')
-        assert hasattr(login_import, 'check_permissions')
-        assert hasattr(login_import, 'is_character_added')
-        assert hasattr(login_import, 'is_character_added_annotation')
-        assert hasattr(login_import, 'get_users_with_perms')
-        assert isinstance(login_import.app_label, str)
-        assert isinstance(login_import.unique_id, str)
-        assert isinstance(login_import.field_label, str)
-        assert callable(login_import.add_character)
-        assert isinstance(login_import.scopes, list)
-        assert callable(login_import.check_permissions)
-        assert callable(login_import.is_character_added)
-        assert isinstance(login_import.is_character_added_annotation, Exists)
-        assert callable(login_import.get_users_with_perms)
+    def validate_import(self):
+        assert hasattr(self, 'app_label')
+        assert hasattr(self, 'unique_id')
+        assert hasattr(self, 'field_label')
+        assert hasattr(self, 'add_character')
+        assert hasattr(self, 'scopes')
+        assert hasattr(self, 'check_permissions')
+        assert hasattr(self, 'is_character_added')
+        assert hasattr(self, 'is_character_added_annotation')
+        assert hasattr(self, 'get_users_with_perms')
+        assert isinstance(self.app_label, str)
+        assert isinstance(self.unique_id, str)
+        assert re.match(r'^[a-zA-Z0-9]+$', self.unique_id) is not None
+        assert isinstance(self.field_label, str)
+        assert callable(self.add_character)
+        assert isinstance(self.scopes, list)
+        assert callable(self.check_permissions)
+        assert callable(self.is_character_added)
+        assert isinstance(self.is_character_added_annotation, Exists)
+        assert callable(self.get_users_with_perms)
 
 
 @dataclass
@@ -86,13 +87,19 @@ class AppImport:
 
         raise KeyError(f"Import with unique_id {unique_id} not found")
 
-    @staticmethod
-    def validate_import(app_import: 'AppImport'):
-        assert hasattr(app_import, 'app_label')
-        assert hasattr(app_import, 'imports')
-        assert isinstance(app_import.app_label, str)
-        assert isinstance(app_import.imports, list)
-        assert len(app_import.imports) > 0
+    def validate_import(self):
+        assert hasattr(self, 'app_label')
+        assert hasattr(self, 'imports')
+        assert isinstance(self.app_label, str)
+        assert isinstance(self.imports, list)
+        assert len(self.imports) > 0
 
-        for import_ in app_import.imports:
-            LoginImport.validate_import(import_)
+        ids = {}
+
+        for import_ in self.imports:
+            import_.validate_import()
+            ids.setdefault(import_.unique_id, 0)
+            ids[import_.unique_id] += 1
+
+        for count in ids.values():
+            assert count == 1

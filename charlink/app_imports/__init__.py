@@ -44,7 +44,8 @@ def import_apps():
             try:
                 assert isinstance(hook_mod, str)
                 app_import: AppImport = import_module(hook_mod).app_import
-                AppImport.validate_import(app_import)
+                assert type(app_import) == AppImport
+                app_import.validate_import()
             except AssertionError:
                 logger.debug(f"Loading of {hook_mod} link via hook: failed to validate")
             except ModuleNotFoundError:

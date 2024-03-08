@@ -297,6 +297,8 @@ INSTALLED_APPS += [
     'moonstuff',
     'structures',
     'afat',
+
+    'testapp',
 ]
 
 # Register an application at https://developers.eveonline.com for Authentication
