@@ -298,7 +298,7 @@ INSTALLED_APPS += [
     'structures',
     'afat',
 
-    'testapp',
+    'testauth.testapp',
 ]
 
 # Register an application at https://developers.eveonline.com for Authentication
