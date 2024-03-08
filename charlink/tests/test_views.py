@@ -66,31 +66,44 @@ class TestDashboardLogin(TestCase):
         cls.request = request_factory.get('/fake')
         cls.request.user = cls.user
 
-        cls.form_content = '''
-            <div class="mb-3">
+        cls.form_contents = [
+            '''<div class="mb-3">
                 <div class="form-check">
                     <input type="checkbox" name="charlink-add_character_default" class="form-check-input" disabled id="id_charlink-add_character_default" checked>
                     <label class="form-check-label" for="id_charlink-add_character_default">Add Character (default)</label>
                 </div>
-            </div>
-            <div class="mb-3">
+            </div>''',
+            '''<div class="mb-3">
                 <div class="form-check">
                     <input type="checkbox" name="charlink-memberaudit_default" class="form-check-input" id="id_charlink-memberaudit_default" checked>
                     <label class="form-check-label" for="id_charlink-memberaudit_default">Member Audit</label>
                 </div>
-            </div>
-            <div class="mb-3">
+            </div>''',
+            '''<div class="mb-3">
                 <div class="form-check">
                     <input type="checkbox" name="charlink-miningtaxes_default" class="form-check-input" id="id_charlink-miningtaxes_default" checked>
                     <label class="form-check-label" for="id_charlink-miningtaxes_default">Mining Taxes</label>
                 </div>
-            </div>
-        '''
+            </div>''',
+            '''<div class="mb-3">
+                <div class="form-check">
+                    <input type="checkbox" name="charlink-testauth.testapp_default" class="form-check-input" id="id_charlink-testauth.testapp_default" checked>
+                    <label class="form-check-label" for="id_charlink-testauth.testapp_default">TestApp</label>
+                </div>
+            </div>''',
+            '''<div class="mb-3">
+                <div class="form-check">
+                    <input type="checkbox" name="charlink-testauth.testapp_import2" class="form-check-input" id="id_charlink-testauth.testapp_import2" checked>
+                    <label class="form-check-label" for="id_charlink-testauth.testapp_import2">TestApp2</label>
+                </div>
+            </div>''',
+        ]
 
     def test_ok(self):
         res = dashboard_login(self.request)
         self.assertInHTML('<h4 class="card-title mb-3">CharLink</h4>', res)
-        self.assertInHTML(self.form_content, res)
+        for content in self.form_contents:
+            self.assertInHTML(content, res)
 
 
 class TestDashboardPost(TestCase):

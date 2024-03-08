@@ -18,6 +18,7 @@ class TestImportApps(TestCase):
         self.assertTrue(mock_import_module.called)
         self.assertIn('add_character', imported_apps)
         self.assertIn('allianceauth.corputils', imported_apps)
+        self.assertIn('testauth.testapp', imported_apps)
         self.assertNotIn('allianceauth', imported_apps)
         self.assertNotIn('allianceauth.authentication', imported_apps)
         mock_import_module.assert_any_call('charlink.imports.allianceauth.authentication')
@@ -30,6 +31,7 @@ class TestImportApps(TestCase):
         self.assertFalse(mock_import_module.called)
         self.assertIn('add_character', imported_apps)
         self.assertIn('allianceauth.corputils', imported_apps)
+        self.assertIn('testauth.testapp', imported_apps)
         self.assertNotIn('allianceauth', imported_apps)
         self.assertNotIn('allianceauth.authentication', imported_apps)
 

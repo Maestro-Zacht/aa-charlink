@@ -6,10 +6,10 @@ from allianceauth.eveonline.models import EveCharacter
 from charlink.app_imports import AppImport, LoginImport
 
 app_import = AppImport(
-    'testapp',
+    'testauth.testapp',
     [
         LoginImport(
-            app_label='testapp',
+            app_label='testauth.testapp',
             unique_id='default',
             field_label='TestApp',
             add_character=lambda request, user: None,
@@ -20,7 +20,7 @@ app_import = AppImport(
             get_users_with_perms=lambda: User.objects.all()
         ),
         LoginImport(
-            app_label='testapp',
+            app_label='testauth.testapp',
             unique_id='import2',
             field_label='TestApp2',
             add_character=lambda request, user: None,

@@ -140,19 +140,19 @@ class TestGetUserAvailableApps(TestCase):
         res = get_user_available_apps(self.user)
         self.assertSetEqual(
             set(res.keys()),
-            {'memberaudit', 'add_character'}
+            {'memberaudit', 'add_character', 'testauth.testapp'}
         )
 
         res2 = get_user_available_apps(self.corptools_user_corp)
         self.assertSetEqual(
             set(res2.keys()),
-            {'add_character', 'corptools'}
+            {'add_character', 'corptools', 'testauth.testapp'}
         )
 
         res3 = get_user_available_apps(self.corptools_user_charaudit)
         self.assertSetEqual(
             set(res3.keys()),
-            {'add_character', 'corptools'}
+            {'add_character', 'corptools', 'testauth.testapp'}
         )
 
 
