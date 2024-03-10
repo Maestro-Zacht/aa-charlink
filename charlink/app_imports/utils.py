@@ -2,7 +2,6 @@ import re
 from dataclasses import dataclass
 from typing import Callable, List
 
-from django.http import HttpRequest
 from django.db.models import Exists, QuerySet
 from django import forms
 from django.contrib.auth.models import User
@@ -17,7 +16,7 @@ class LoginImport:
     app_label: str
     unique_id: str
     field_label: str
-    add_character: Callable[[HttpRequest, Token], None]
+    add_character: Callable[[Token], None]
     scopes: List[str]
     check_permissions: Callable[[User], bool]
     is_character_added: Callable[[EveCharacter], bool]

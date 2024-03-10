@@ -42,7 +42,7 @@ class TestImportApps(TestCase):
         main_char = user.profile.main_character
 
         add_char = import_apps()['allianceauth.authentication']
-        self.assertIsNone(add_char.imports[0].add_character(None, None))
+        self.assertIsNone(add_char.imports[0].add_character(None))
         self.assertTrue(add_char.imports[0].is_character_added(main_char))
         self.assertTrue(add_char.imports[0].check_permissions(user))
         self.assertEqual(add_char.imports[0].get_users_with_perms().count(), 1)
@@ -144,7 +144,7 @@ class TestAppImport(TestCase):
         app_import.imports[0].add_character = 1
         with self.assertRaises(AssertionError):
             app_import.validate_import()
-        app_import.imports[0].add_character = lambda request, token: None
+        app_import.imports[0].add_character = lambda token: None
 
         app_import.imports[0].scopes = 1
         with self.assertRaises(AssertionError):
