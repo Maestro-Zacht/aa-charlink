@@ -13,9 +13,9 @@ from .utils import LoginImport, AppImport
 logger = get_extension_logger(__name__)
 
 _supported_apps = {
-    'add_character': AppImport('add_character', [
+    'allianceauth.authentication': AppImport('allianceauth.authentication', [
         LoginImport(
-            app_label='add_character',
+            app_label='allianceauth.authentication',
             unique_id='default',
             field_label='Add Character (default)',
             add_character=lambda request, token: None,

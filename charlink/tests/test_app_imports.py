@@ -16,12 +16,12 @@ class TestImportApps(TestCase):
     def test_not_imported(self, mock_import_module):
         imported_apps = import_apps()
         self.assertTrue(mock_import_module.called)
-        self.assertIn('add_character', imported_apps)
+        self.assertIn('allianceauth.authentication', imported_apps)
         self.assertIn('allianceauth.corputils', imported_apps)
         self.assertIn('testauth.testapp', imported_apps)
         self.assertNotIn('allianceauth', imported_apps)
-        self.assertNotIn('allianceauth.authentication', imported_apps)
-        mock_import_module.assert_any_call('charlink.imports.allianceauth.authentication')
+        self.assertNotIn('allianceauth.eveonline', imported_apps)
+        mock_import_module.assert_any_call('charlink.imports.allianceauth.eveonline')
 
     @patch('charlink.app_imports.import_module', wraps=import_module)
     def test_imported(self, mock_import_module):
@@ -29,17 +29,17 @@ class TestImportApps(TestCase):
         mock_import_module.reset_mock()
         imported_apps = import_apps()
         self.assertFalse(mock_import_module.called)
-        self.assertIn('add_character', imported_apps)
+        self.assertIn('allianceauth.authentication', imported_apps)
         self.assertIn('allianceauth.corputils', imported_apps)
         self.assertIn('testauth.testapp', imported_apps)
         self.assertNotIn('allianceauth', imported_apps)
-        self.assertNotIn('allianceauth.authentication', imported_apps)
+        self.assertNotIn('allianceauth.eveonline', imported_apps)
 
     def test_supported_apps_default(self):
         user = UserMainFactory()
         main_char = user.profile.main_character
 
-        add_char = import_apps()['add_character']
+        add_char = import_apps()['allianceauth.authentication']
         self.assertIsNone(add_char.imports[0].add_character(None, None))
         self.assertTrue(add_char.imports[0].is_character_added(main_char))
         self.assertTrue(add_char.imports[0].check_permissions(user))
@@ -49,12 +49,12 @@ class TestImportApps(TestCase):
 class TestLoginImport(TestCase):
 
     def test_get_query_id(self):
-        login_import = import_apps()['add_character'].get('default')
-        self.assertEqual(login_import.get_query_id(), 'add_character_default')
+        login_import = import_apps()['allianceauth.authentication'].get('default')
+        self.assertEqual(login_import.get_query_id(), 'allianceauth.authentication_default')
 
     def test_hash(self):
-        login_import = import_apps()['add_character'].get('default')
-        self.assertEqual(hash(login_import), hash('add_character_default'))
+        login_import = import_apps()['allianceauth.authentication'].get('default')
+        self.assertEqual(hash(login_import), hash('allianceauth.authentication_default'))
 
 
 class TestAppImport(TestCase):
@@ -64,13 +64,13 @@ class TestAppImport(TestCase):
         cls.user = UserMainFactory()
 
     def test_get_form_fields(self):
-        app_import = import_apps()['add_character']
+        app_import = import_apps()['allianceauth.authentication']
         form_fields = app_import.get_form_fields(self.user)
         self.assertEqual(len(form_fields), 1)
-        self.assertIn('add_character_default', form_fields)
+        self.assertIn('allianceauth.authentication_default', form_fields)
 
     def test_get_imports_with_perms(self):
-        app_import = import_apps()['add_character']
+        app_import = import_apps()['allianceauth.authentication']
         imports = app_import.get_imports_with_perms(self.user)
         self.assertEqual(len(imports.imports), 1)
 
@@ -92,27 +92,27 @@ class TestAppImport(TestCase):
         self.assertEqual(len(imports_both.imports), 2)
 
     def test_has_any_perms(self):
-        app_import = import_apps()['add_character']
+        app_import = import_apps()['allianceauth.authentication']
         self.assertTrue(app_import.has_any_perms(self.user))
 
     def test_get_ok(self):
-        app_import = import_apps()['add_character']
+        app_import = import_apps()['allianceauth.authentication']
         login_import = app_import.get('default')
         self.assertEqual(login_import.unique_id, 'default')
 
     def test_get_not_found(self):
-        app_import = import_apps()['add_character']
+        app_import = import_apps()['allianceauth.authentication']
         with self.assertRaises(KeyError):
             app_import.get('not_found')
 
     def test_validate_import(self):
-        app_import = import_apps()['add_character']
+        app_import = import_apps()['allianceauth.authentication']
         app_import.validate_import()
 
         app_import.app_label = 1
         with self.assertRaises(AssertionError):
             app_import.validate_import()
-        app_import.app_label = 'add_character'
+        app_import.app_label = 'allianceauth.authentication'
 
         tmp = app_import.imports
         app_import.imports = 1
@@ -176,3 +176,13 @@ class TestAppImport(TestCase):
         with self.assertRaises(AssertionError):
             app_import.validate_import()
         app_import.imports = [app_import.imports[0]]
+
+        app_import.imports[0].app_label = 'different_app'
+        with self.assertRaises(AssertionError):
+            app_import.validate_import()
+        app_import.imports[0].app_label = 'allianceauth.authentication'
+
+        app_import.app_label = 'different_app'
+        with self.assertRaises(AssertionError):
+            app_import.validate_import()
+        app_import.app_label = 'allianceauth.authentication'

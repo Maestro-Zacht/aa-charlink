@@ -6,6 +6,7 @@ from django.http import HttpRequest
 from django.db.models import Exists, QuerySet
 from django import forms
 from django.contrib.auth.models import User
+from django.conf import settings
 
 from allianceauth.eveonline.models import EveCharacter
 from esi.models import Token
@@ -93,6 +94,7 @@ class AppImport:
         assert isinstance(self.app_label, str)
         assert isinstance(self.imports, list)
         assert len(self.imports) > 0
+        assert self.app_label in settings.INSTALLED_APPS
 
         ids = {}
 
@@ -100,6 +102,7 @@ class AppImport:
             import_.validate_import()
             ids.setdefault(import_.unique_id, 0)
             ids[import_.unique_id] += 1
+            assert import_.app_label == self.app_label
 
         for count in ids.values():
             assert count == 1
