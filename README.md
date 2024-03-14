@@ -9,10 +9,10 @@ A simple app for AllianceAuth that allows users to link each character to all th
 ### Basic usage
 
 1. Select which app you want to link your character to
-   <img src="https://raw.githubusercontent.com/Maestro-Zacht/aa-charlink/e5dd9519cd3772b19505f4ca4b02771774d2a695/docs/images/charlink_homepage.png" alt="Charlink Homepage">
+   ![Charlink Homepage](https://raw.githubusercontent.com/Maestro-Zacht/aa-charlink/e5dd9519cd3772b19505f4ca4b02771774d2a695/docs/images/charlink_homepage.png)
 2. Login on CPP site
 3. Character linked to the selected apps
-   <img src="https://raw.githubusercontent.com/Maestro-Zacht/aa-charlink/e5dd9519cd3772b19505f4ca4b02771774d2a695/docs/images/charlink_success.png" alt="Success">
+   ![Success](https://raw.githubusercontent.com/Maestro-Zacht/aa-charlink/e5dd9519cd3772b19505f4ca4b02771774d2a695/docs/images/charlink_success.png)
 
 ### Auditing
 
