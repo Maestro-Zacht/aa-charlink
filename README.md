@@ -49,7 +49,7 @@ From version 1.1.0, CharLink supports hook integration. If you want to integrate
 ```python
 @hooks.register('charlink')
 def register_charlink_hook():
-    return 'testauth.testapp.charlink_hook'
+   return 'testauth.testapp.charlink_hook'
 ```
 
 The hook has to return a string with the import path of the module containing the app integration. The module must contain a variable called `app_import` which is an instance of `charlink.app_imports.utils.AppImport`. You can find the documentation of the class in the [`utils.py`](./charlink/app_imports/utils.py) and some examples in the [imports folder](./charlink/imports).
