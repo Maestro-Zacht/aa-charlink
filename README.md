@@ -9,10 +9,10 @@ A simple app for AllianceAuth that allows users to link each character to all th
 ### Basic usage
 
 1. Select which app you want to link your character to
-   ![Overview](https://raw.githubusercontent.com/Maestro-Zacht/aa-charlink/main/docs/images/charlink_homepage.png)
+   ![Charlink Homepage](https://raw.githubusercontent.com/Maestro-Zacht/aa-charlink/e5dd9519cd3772b19505f4ca4b02771774d2a695/docs/images/charlink_homepage.png)
 2. Login on CPP site
 3. Character linked to the selected apps
-   ![Success](https://raw.githubusercontent.com/Maestro-Zacht/aa-charlink/main/docs/images/charlink_success.png)
+   ![Success](https://raw.githubusercontent.com/Maestro-Zacht/aa-charlink/e5dd9519cd3772b19505f4ca4b02771774d2a695/docs/images/charlink_success.png)
 
 ### Auditing
 
@@ -31,11 +31,28 @@ NEW: Users can now audit the apps they have access to. Select the app you want t
    ```
 
 2. Add `'charlink',` to your `INSTALLED_APPS` in `local.py`
-3. Run migrations
+3. Run migrations and collectstatic
+
+   ```shell
+   python manage.py migrate
+   python manage.py collectstatic
+   ```
 
 ## Current apps
 
-I've opened an [issue](https://github.com/Maestro-Zacht/aa-charlink/issues/1) to track the current apps that are implemented in CharLink and the WIPs. If you want another app to be supported, please comment on the issue or reach me on the [AllianceAuth discord server](https://discord.gg/fjnHAmk).
+I've opened an [issue](https://github.com/Maestro-Zacht/aa-charlink/issues/1) to track the apps that have a default integration in CharLink and the WIPs. If you want another app to be supported, please comment on the issue, reach me on the [AllianceAuth discord server](https://discord.gg/fjnHAmk) or ask the developer of the app to implement an [integration via hook](#hook-integration).
+
+## Hook integration
+
+From version 1.1.0, CharLink supports hook integration. If you want to integrate your app with CharLink, you need to register a hook in the `auth_hooks.py` file:
+
+```python
+@hooks.register('charlink')
+def register_charlink_hook():
+   return 'testauth.testapp.charlink_hook'
+```
+
+The hook has to return a string with the import path of the module containing the app integration. The module must contain a variable called `app_import` which is an instance of `charlink.app_imports.utils.AppImport`. You can find the documentation of the class in the [`utils.py`](./charlink/app_imports/utils.py) and some examples in the [imports folder](./charlink/imports).
 
 ## Settings
 

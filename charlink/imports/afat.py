@@ -60,12 +60,12 @@ def _users_with_perms_clickfleet():
     )
 
 
-import_app = AppImport('afat', [
+app_import = AppImport('afat', [
     LoginImport(
         app_label='afat',
         unique_id='readfleet',
         field_label='AFAT Read Fleet',
-        add_character=lambda request, token: None,
+        add_character=lambda token: None,
         scopes=_scopes_readfleet,
         check_permissions=_check_perms_readfleet,
         is_character_added=_is_character_added_readfleet,
@@ -82,7 +82,7 @@ import_app = AppImport('afat', [
         app_label='afat',
         unique_id='clickfat',
         field_label='AFAT Click Fleet',
-        add_character=lambda request, token: None,
+        add_character=lambda token: None,
         scopes=_scopes_clickfleet,
         check_permissions=lambda user: user.has_perm('afat.basic_access'),
         is_character_added=_is_character_added_clickfleet,

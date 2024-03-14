@@ -9,7 +9,7 @@ from charlink.app_imports.utils import LoginImport, AppImport
 from app_utils.allianceauth import users_with_permission
 
 
-def _add_character(request, token):
+def _add_character(token):
     corp_id = EveCharacter.objects.get(character_id=token.character_id).corporation_id
     try:
         corp = EveCorporationInfo.objects.get(corporation_id=corp_id)
@@ -37,7 +37,7 @@ def _users_with_perms():
     )
 
 
-import_app = AppImport('allianceauth.corputils', [
+app_import = AppImport('allianceauth.corputils', [
     LoginImport(
         app_label='allianceauth.corputils',
         unique_id='default',

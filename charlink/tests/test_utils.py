@@ -121,11 +121,11 @@ class TestCharsAnnotateLinkedApps(TestCase):
         chars = EveCharacter.objects.all()
         imported_apps = import_apps()
 
-        res = chars_annotate_linked_apps(chars, [imported_apps['add_character'].imports[0]])
+        res = chars_annotate_linked_apps(chars, [imported_apps['allianceauth.authentication'].imports[0]])
 
         self.assertEqual(len(res), 10)
         for char in res:
-            self.assertTrue(hasattr(char, 'add_character_default'))
+            self.assertTrue(hasattr(char, 'allianceauth.authentication_default'))
 
 
 class TestGetUserAvailableApps(TestCase):
@@ -140,19 +140,19 @@ class TestGetUserAvailableApps(TestCase):
         res = get_user_available_apps(self.user)
         self.assertSetEqual(
             set(res.keys()),
-            {'memberaudit', 'add_character'}
+            {'memberaudit', 'allianceauth.authentication', 'testauth.testapp'}
         )
 
         res2 = get_user_available_apps(self.corptools_user_corp)
         self.assertSetEqual(
             set(res2.keys()),
-            {'add_character', 'corptools'}
+            {'allianceauth.authentication', 'corptools', 'testauth.testapp'}
         )
 
         res3 = get_user_available_apps(self.corptools_user_charaudit)
         self.assertSetEqual(
             set(res3.keys()),
-            {'add_character', 'corptools'}
+            {'allianceauth.authentication', 'corptools', 'testauth.testapp'}
         )
 
 

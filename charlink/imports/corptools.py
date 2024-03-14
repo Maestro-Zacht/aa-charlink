@@ -23,13 +23,13 @@ _corp_perms = [
 ]
 
 
-def _add_character_charaudit(request, token):
+def _add_character_charaudit(token):
     CharacterAudit.objects.update_or_create(
         character=EveCharacter.objects.get_character_by_id(token.character_id))
     update_character.apply_async(args=[token.character_id], priority=6)
 
 
-def _add_character_corp(request, token):
+def _add_character_corp(token):
     char = EveCharacter.objects.get_character_by_id(token.character_id)
     corp, created = EveCorporationInfo.objects.get_or_create(corporation_id=char.corporation_id,
                                                              defaults={'member_count': 0,
@@ -79,7 +79,7 @@ def _users_with_perms_corp():
     return users
 
 
-import_app = AppImport('corptools', [
+app_import = AppImport('corptools', [
     LoginImport(
         app_label='corptools',
         unique_id='default',

@@ -12,7 +12,7 @@ from charlink.app_imports.utils import LoginImport, AppImport
 from app_utils.allianceauth import users_with_permission
 
 
-def _add_character(request, token):
+def _add_character(token):
     eve_char = EveCharacter.objects.get(character_id=token.character_id)
 
     if not TrackingCharacter.objects.filter(character=eve_char).exists():
@@ -36,7 +36,7 @@ def _users_with_perms():
     )
 
 
-import_app = AppImport('moonstuff', [
+app_import = AppImport('moonstuff', [
     LoginImport(
         app_label='moonstuff',
         unique_id='default',

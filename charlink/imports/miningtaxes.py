@@ -12,7 +12,7 @@ from charlink.app_imports.utils import LoginImport, AppImport
 from app_utils.allianceauth import users_with_permission
 
 
-def _add_character(request, token):
+def _add_character(token):
     eve_character = EveCharacter.objects.get(character_id=token.character_id)
     with transaction.atomic():
         character, _ = Character.objects.update_or_create(eve_character=eve_character)
@@ -32,7 +32,7 @@ def _users_with_perms():
     )
 
 
-import_app = AppImport('miningtaxes', [
+app_import = AppImport('miningtaxes', [
     LoginImport(
         app_label='miningtaxes',
         unique_id='default',

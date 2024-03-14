@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from django.test import TestCase, RequestFactory
+from django.test import TestCase
 
 from app_utils.testdata_factories import UserMainFactory, EveCorporationInfoFactory, EveCharacterFactory
 from app_utils.testing import add_character_to_user
@@ -17,15 +17,12 @@ class TestAddCharacter(TestCase):
     def setUpTestData(cls):
         cls.user = UserMainFactory(permissions=['corpstats.add_corpstat'])
         cls.token = cls.user.token_set.first()
-        cls.factory = RequestFactory()
 
     @patch('corpstats.models.CorpStat.update')
     def test_ok(self, mock_update):
         mock_update.return_value = None
 
-        request = self.factory.get('/charlink/login/')
-
-        _add_character(request, self.token)
+        _add_character(self.token)
 
         self.assertTrue(mock_update.called)
         self.assertTrue(_is_character_added(self.user.profile.main_character))
@@ -36,10 +33,9 @@ class TestAddCharacter(TestCase):
         mock_update.return_value = None
         character = self.user.profile.main_character
 
-        request = self.factory.get('/charlink/login/')
         character.corporation.delete()
 
-        _add_character(request, self.token)
+        _add_character(self.token)
 
         self.assertTrue(mock_update.called)
         self.assertTrue(mock_create_corporation.called)

@@ -3,7 +3,6 @@ from django.contrib.auth.models import Permission
 
 from django.utils import translation
 from django.utils.translation import gettext as _
-from django.utils.html import format_html
 
 from structures import __title__, tasks
 from structures.models import Owner, Webhook, OwnerCharacter
@@ -13,7 +12,6 @@ from structures.app_settings import (
 )
 
 from app_utils.allianceauth import notify_admins
-from app_utils.messages import messages_plus
 from app_utils.allianceauth import users_with_permission
 
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
@@ -22,10 +20,10 @@ from allianceauth.authentication.models import CharacterOwnership
 from charlink.app_imports.utils import LoginImport, AppImport
 
 
-def _add_character(request, token):
+def _add_character(token):
     token_char = EveCharacter.objects.get(character_id=token.character_id)
     character_ownership = CharacterOwnership.objects.get(
-        user=request.user, character=token_char
+        user=token.user, character=token_char
     )
     try:
         corporation = EveCorporationInfo.objects.get(
@@ -47,23 +45,7 @@ def _add_character(request, token):
             owner.save()
 
     if owner.characters.count() == 1:
-        tasks.update_all_for_owner.delay(owner_pk=owner.pk, user_pk=request.user.pk)
-        messages_plus.info(
-            request,
-            format_html(
-                _(
-                    "%(corporation)s has been added with %(character)s "
-                    "as sync character. "
-                    "We have started fetching structures and notifications "
-                    "for this corporation and you will receive a report once "
-                    "the process is finished."
-                )
-                % {
-                    "corporation": format_html("<strong>{}</strong>", owner),
-                    "character": format_html("<strong>{}</strong>", token_char),
-                }
-            ),
-        )
+        tasks.update_all_for_owner.delay(owner_pk=owner.pk, user_pk=token.user.pk)
 
         if STRUCTURES_ADMIN_NOTIFICATIONS_ENABLED:
             with translation.override(STRUCTURES_DEFAULT_LANGUAGE):
@@ -72,25 +54,10 @@ def _add_character(request, token):
                         "%(corporation)s was added as new "
                         "structure owner by %(user)s."
                     )
-                    % {"corporation": owner, "user": request.user.username},
+                    % {"corporation": owner, "user": token.user.username},
                     title=_("%s: Structure owner added: %s") % (__title__, owner),
                 )
     else:
-        messages_plus.info(
-            request,
-            format_html(
-                _(
-                    "%(character)s has been added to %(corporation)s "
-                    "as sync character. "
-                    "You now have %(characters_count)d sync character(s) configured."
-                )
-                % {
-                    "corporation": format_html("<strong>{}</strong>", owner),
-                    "character": format_html("<strong>{}</strong>", token_char),
-                    "characters_count": owner.characters_count(),
-                }
-            ),
-        )
         if STRUCTURES_ADMIN_NOTIFICATIONS_ENABLED:
             with translation.override(STRUCTURES_DEFAULT_LANGUAGE):
                 notify_admins(
@@ -102,7 +69,7 @@ def _add_character(request, token):
                     % {
                         "character": token_char,
                         "corporation": owner,
-                        "user": request.user.username,
+                        "user": token.user.username,
                         "characters_count": owner.characters_count(),
                     },
                     title=_("%s: Character added to: %s") % (__title__, owner),
@@ -124,7 +91,7 @@ def _users_with_perms():
     )
 
 
-import_app = AppImport('structures', [
+app_import = AppImport('structures', [
     LoginImport(
         app_label='structures',
         unique_id='default',

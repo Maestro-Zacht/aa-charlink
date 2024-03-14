@@ -2,6 +2,8 @@ from django.db import transaction
 from django.db.models import Exists, OuterRef
 from django.contrib.auth.models import Permission
 
+from esi.models import Token
+
 from memberaudit.models import Character, ComplianceGroupDesignation
 from memberaudit.app_settings import MEMBERAUDIT_APP_NAME, MEMBERAUDIT_TASKS_NORMAL_PRIORITY
 from memberaudit import tasks
@@ -13,7 +15,7 @@ from charlink.app_imports.utils import LoginImport, AppImport
 from app_utils.allianceauth import users_with_permission
 
 
-def _add_character(request, token):
+def _add_character(token: Token):
     eve_character = EveCharacter.objects.get(character_id=token.character_id)
     with transaction.atomic():
         character, created = Character.objects.update_or_create(
@@ -25,7 +27,7 @@ def _add_character(request, token):
     )
     if ComplianceGroupDesignation.objects.exists():
         tasks.update_compliance_groups_for_user.apply_async(
-            args=[request.user.pk], priority=MEMBERAUDIT_TASKS_NORMAL_PRIORITY
+            args=[token.user.pk], priority=MEMBERAUDIT_TASKS_NORMAL_PRIORITY
         )
 
 
@@ -42,7 +44,7 @@ def _users_with_perms():
     )
 
 
-import_app = AppImport('memberaudit', [
+app_import = AppImport('memberaudit', [
     LoginImport(
         app_label='memberaudit',
         unique_id='default',

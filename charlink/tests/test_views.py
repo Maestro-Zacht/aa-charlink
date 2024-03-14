@@ -10,8 +10,8 @@ from allianceauth.authentication.models import CharacterOwnership
 from app_utils.testdata_factories import UserMainFactory, EveCorporationInfoFactory, EveCharacterFactory
 
 from charlink.views import get_navbar_elements, dashboard_login
-from charlink.imports.memberaudit import import_app as memberaudit_import
-from charlink.imports.miningtaxes import import_app as miningtaxes_import
+from charlink.imports.memberaudit import app_import as memberaudit_import
+from charlink.imports.miningtaxes import app_import as miningtaxes_import
 from charlink.imports.corptools import _corp_perms
 from charlink.app_imports.utils import AppImport, LoginImport
 
@@ -66,31 +66,44 @@ class TestDashboardLogin(TestCase):
         cls.request = request_factory.get('/fake')
         cls.request.user = cls.user
 
-        cls.form_content = '''
-            <div class="mb-3">
+        cls.form_contents = [
+            '''<div class="mb-3">
                 <div class="form-check">
-                    <input type="checkbox" name="charlink-add_character_default" class="form-check-input" disabled id="id_charlink-add_character_default" checked>
-                    <label class="form-check-label" for="id_charlink-add_character_default">Add Character (default)</label>
+                    <input type="checkbox" name="charlink-allianceauth.authentication_default" class="form-check-input" disabled id="id_charlink-allianceauth.authentication_default" checked>
+                    <label class="form-check-label" for="id_charlink-allianceauth.authentication_default">Add Character (default)</label>
                 </div>
-            </div>
-            <div class="mb-3">
+            </div>''',
+            '''<div class="mb-3">
                 <div class="form-check">
                     <input type="checkbox" name="charlink-memberaudit_default" class="form-check-input" id="id_charlink-memberaudit_default" checked>
                     <label class="form-check-label" for="id_charlink-memberaudit_default">Member Audit</label>
                 </div>
-            </div>
-            <div class="mb-3">
+            </div>''',
+            '''<div class="mb-3">
                 <div class="form-check">
                     <input type="checkbox" name="charlink-miningtaxes_default" class="form-check-input" id="id_charlink-miningtaxes_default" checked>
                     <label class="form-check-label" for="id_charlink-miningtaxes_default">Mining Taxes</label>
                 </div>
-            </div>
-        '''
+            </div>''',
+            '''<div class="mb-3">
+                <div class="form-check">
+                    <input type="checkbox" name="charlink-testauth.testapp_default" class="form-check-input" id="id_charlink-testauth.testapp_default" checked>
+                    <label class="form-check-label" for="id_charlink-testauth.testapp_default">TestApp</label>
+                </div>
+            </div>''',
+            '''<div class="mb-3">
+                <div class="form-check">
+                    <input type="checkbox" name="charlink-testauth.testapp_import2" class="form-check-input" id="id_charlink-testauth.testapp_import2" checked>
+                    <label class="form-check-label" for="id_charlink-testauth.testapp_import2">TestApp2</label>
+                </div>
+            </div>''',
+        ]
 
     def test_ok(self):
         res = dashboard_login(self.request)
         self.assertInHTML('<h4 class="card-title mb-3">CharLink</h4>', res)
-        self.assertInHTML(self.form_content, res)
+        for content in self.form_contents:
+            self.assertInHTML(content, res)
 
 
 class TestDashboardPost(TestCase):
@@ -137,7 +150,7 @@ class TestDashboardPost(TestCase):
 
         converted_imports = [list(x) for x in session['charlink']['imports']]
 
-        self.assertIn(['add_character', 'default'], converted_imports)
+        self.assertIn(['allianceauth.authentication', 'default'], converted_imports)
         self.assertIn(['allianceauth.corputils', 'default'], converted_imports)
         self.assertNotIn(['memberaudit', 'default'], converted_imports)
         self.assertIn(['miningtaxes', 'default'], converted_imports)
@@ -225,7 +238,7 @@ class TestIndex(TestCase):
 
         converted_imports = [list(x) for x in session['charlink']['imports']]
 
-        self.assertIn(['add_character', 'default'], converted_imports)
+        self.assertIn(['allianceauth.authentication', 'default'], converted_imports)
         self.assertIn(['allianceauth.corputils', 'default'], converted_imports)
         self.assertNotIn(['memberaudit', 'default'], converted_imports)
         self.assertIn(['miningtaxes', 'default'], converted_imports)
@@ -237,7 +250,7 @@ class TestIndex(TestCase):
     # def test_post_wrong_data(self):
     #     self.client.force_login(self.user)
 
-    #     res = self.client.post(reverse('charlink:index'), {'add_character:': '5'})
+    #     res = self.client.post(reverse('charlink:index'), {'allianceauth.authentication:': '5'})
 
     #     self.assertEqual(res.status_code, 200)
     #     self.assertIn('form', res.context)
@@ -281,7 +294,7 @@ class TestLoginView(TestCase):
             'imports': [
                 ('memberaudit', 'default'),
                 ('miningtaxes', 'default'),
-                ('add_character', 'default'),
+                ('allianceauth.authentication', 'default'),
             ],
         }
         session.save()
@@ -299,7 +312,7 @@ class TestLoginView(TestCase):
                     app_label='memberaudit',
                     unique_id='default',
                     field_label='Member Audit',
-                    add_character=lambda request, token: None,
+                    add_character=lambda token: None,
                     scopes=memberaudit_import.imports[0].scopes,
                     check_permissions=memberaudit_import.imports[0].check_permissions,
                     is_character_added=memberaudit_import.imports[0].is_character_added,
@@ -320,12 +333,12 @@ class TestLoginView(TestCase):
                     get_users_with_perms=miningtaxes_import.imports[0].get_users_with_perms,
                 )
             ]),
-            'add_character': AppImport('add_character', [
+            'allianceauth.authentication': AppImport('allianceauth.authentication', [
                 LoginImport(
-                    app_label='add_character',
+                    app_label='allianceauth.authentication',
                     unique_id='default',
                     field_label='Add Character (default)',
-                    add_character=lambda request, token: None,
+                    add_character=lambda token: None,
                     scopes=['publicData'],
                     check_permissions=lambda user: True,
                     is_character_added=lambda character: CharacterOwnership.objects.filter(character=character).exists(),
@@ -482,7 +495,7 @@ class TestAuditApp(TestCase):
     def test_app_empty_perms(self):
         self.client.force_login(self.user)
 
-        res = self.client.get(reverse('charlink:audit_app', args=['add_character']))
+        res = self.client.get(reverse('charlink:audit_app', args=['allianceauth.authentication']))
 
         self.assertEqual(res.status_code, 200)
         self.assertIn('logins', res.context)
