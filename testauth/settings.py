@@ -23,6 +23,7 @@ INSTALLED_APPS = [
     'django_bootstrap5',  # https://github.com/zostera/django-bootstrap5
     'sortedm2m',
     'esi',
+    'allianceauth.framework',
     'allianceauth.authentication',
     'allianceauth.services',
     'allianceauth.eveonline',
