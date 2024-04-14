@@ -10,6 +10,6 @@ COPY .devcontainer/requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
 COPY . /workspace
-RUN ln -s /workspace/charlink myauth/charlink
+RUN pip install -e /workspace
 
 RUN allianceauth update myauth

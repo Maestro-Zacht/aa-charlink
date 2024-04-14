@@ -1,3 +1,5 @@
 ipython
 bpython
 tox
+coverage
+factory_boy
