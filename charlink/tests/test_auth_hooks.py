@@ -16,21 +16,23 @@ class TestHooks(TestCase):
         cls.html_menu = f"""
             <li class="d-flex flex-wrap m-2 p-2 pt-0 pb-0 mt-0 mb-0 me-0 pe-0">
                 <i class="nav-link fas fa-link fa-fw align-self-center me-3 active"></i>
-                <a class="nav-link flex-fill align-self-center me-auto" href="{reverse('charlink:index')}">
+                <a class="nav-link flex-fill align-self-center me-auto active" href="{reverse('charlink:index')}">
                     CharLink
                 </a>
             </li>
         """
-        cls.html_dashboard = f'<form method="post" action="{reverse("charlink:dashboard_post")}">'
+        cls.html_dashboard = (
+            f'<form method="post" action="{reverse("charlink:dashboard_post")}">'
+        )
 
     def test_menu_hook(self):
         self.client.force_login(self.testuser)
 
-        response = self.client.get(reverse('charlink:index'))
+        response = self.client.get(reverse("charlink:index"))
         self.assertContains(response, self.html_menu, html=True)
 
     def test_dashboard_hook(self):
         self.client.force_login(self.testuser)
 
-        response = self.client.get(reverse('authentication:dashboard'))
+        response = self.client.get(reverse("authentication:dashboard"))
         self.assertContains(response, self.html_dashboard, status_code=200)
