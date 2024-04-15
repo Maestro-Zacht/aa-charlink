@@ -1,11 +1,11 @@
 {% extends 'charlink/base.html' %}
 {% load charlinkutils %}
-{% load static %}
+{% load charlink_versioned_static %}
 
 {% block page_title %}Charlink User Audit{% endblock page_title %}
 
 {% block extra_css %}
-    <link rel="stylesheet" type="text/css" href="{% static 'charlink/css/added-icons.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% charlink_static 'charlink/css/added-icons.css' %}">
     {% include "bundles/datatables-css-bs5.html" %}
 {% endblock extra_css %}
 
