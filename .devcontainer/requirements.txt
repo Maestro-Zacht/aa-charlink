@@ -3,3 +3,15 @@ bpython
 tox
 coverage
 factory_boy
+django-debug-toolbar
+aa-taskmonitor
+
+aa-corpstats-two
+allianceauth-corptools
+django-eveuniverse
+aa-memberaudit
+aa-miningtaxes
+aa-moonmining
+aa-moonstuff
+aa-structures
+allianceauth-afat

@@ -86,8 +86,85 @@ INSTALLED_APPS += [
     # 'allianceauth.services.modules.xenforo',
 
     'charlink',
+
+    'eveuniverse',
+    'corpstats',
+    'corptools',
+    'memberaudit',
+    'miningtaxes',
+    'moonmining',
+    'moonstuff',
+    'structures',
+    'afat',
+
+    "debug_toolbar",
+    'taskmonitor',
 ]
 
 #######################################
 # Add any custom settings below here. #
 #######################################
+
+MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
+
+DEBUG_TOOLBAR_CONFIG = {
+    "SHOW_TOOLBAR_CALLBACK": lambda request: True,
+}
+
+CELERYBEAT_SCHEDULE['memberaudit_run_regular_updates'] = {
+    'task': 'memberaudit.tasks.run_regular_updates',
+    'schedule': crontab(minute=0, hour='*/1'),
+}
+
+CELERYBEAT_SCHEDULE['moonmining_run_regular_updates'] = {
+    'task': 'moonmining.tasks.run_regular_updates',
+    'schedule': crontab(minute='*/10'),
+}
+CELERYBEAT_SCHEDULE['moonmining_run_report_updates'] = {
+    'task': 'moonmining.tasks.run_report_updates',
+    'schedule': crontab(minute=30, hour='*/1'),
+}
+CELERYBEAT_SCHEDULE['moonmining_run_value_updates'] = {
+    'task': 'moonmining.tasks.run_calculated_properties_update',
+    'schedule': crontab(minute=30, hour=3)
+}
+
+# Moonstuff Module
+EVEUNIVERSE_LOAD_TYPE_MATERIALS = True
+
+CELERYBEAT_SCHEDULE['moonstuff_import_extraction_data'] = {
+    'task': 'moonstuff.tasks.import_extraction_data',
+    'schedule': crontab(minute='*/10'),
+}
+CELERYBEAT_SCHEDULE['moonstuff_run_ledger_update'] = {
+    'task': 'moonstuff.tasks.update_ledger',
+    'schedule': crontab(minute=0, hour='*'),
+}
+CELERYBEAT_SCHEDULE['moonstuff_run_refinery_update'] = {
+    'task': 'moonstuff.tasks.update_refineries',
+    'schedule': crontab(minute=0, hour=0),
+}
+CELERYBEAT_SCHEDULE['moonstuff_run_price_update'] = {
+    'task': 'moonstuff.tasks.load_prices',
+    'schedule': crontab(minute=0, hour=0),
+}
+
+CELERYBEAT_SCHEDULE['structures_update_all_structures'] = {
+    'task': 'structures.tasks.update_all_structures',
+    'schedule': crontab(minute='*/30'),
+}
+CELERYBEAT_SCHEDULE['structures_fetch_all_notifications'] = {
+    'task': 'structures.tasks.fetch_all_notifications',
+    'schedule': crontab(minute='*/5'),
+}
+
+# AFAT - https://github.com/ppfeufer/allianceauth-afat
+CELERYBEAT_SCHEDULE["afat_update_esi_fatlinks"] = {
+    "task": "afat.tasks.update_esi_fatlinks",
+    "schedule": crontab(minute="*/1"),
+}
+
+CELERYBEAT_SCHEDULE["afat_logrotate"] = {
+    "task": "afat.tasks.logrotate",
+    "schedule": crontab(minute="0", hour="1"),
+}
