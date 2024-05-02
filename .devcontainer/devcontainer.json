@@ -19,7 +19,8 @@
 				"batisteo.vscode-django",
 				"github.vscode-github-actions",
 				"ms-python.vscode-pylance",
-				"ms-python.autopep8"
+				"ms-python.autopep8",
+				"ms-azuretools.vscode-docker"
 			]
 		}
 	}
