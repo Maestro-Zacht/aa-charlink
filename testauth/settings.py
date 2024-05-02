@@ -300,6 +300,7 @@ INSTALLED_APPS += [
     'afat',
 
     'testauth.testapp',
+    'testauth.testapp_duplicate',
 ]
 
 # Register an application at https://developers.eveonline.com for Authentication
