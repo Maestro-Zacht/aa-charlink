@@ -30,6 +30,8 @@ _supported_apps = {
     ])
 }
 
+_duplicated_apps = set()
+
 _imported = False
 
 
@@ -53,8 +55,15 @@ def import_apps():
             except:
                 logger.debug(f"Loading of {hook_mod} link via hook: failed")
             else:
-                _supported_apps[app_import.app_label] = app_import
-                logger.debug(f"Loading of {hook_mod} link via hook: success")
+                if app_import.app_label in _supported_apps:
+                    _supported_apps.pop(app_import.app_label)
+                    _duplicated_apps.add(app_import.app_label)
+
+                if app_import.app_label in _duplicated_apps:
+                    logger.debug(f"Loading of {hook_mod} link via hook: failed, duplicate {app_import.app_label}")
+                else:
+                    _supported_apps[app_import.app_label] = app_import
+                    logger.debug(f"Loading of {hook_mod} link via hook: success")
 
         # defaults
         for app in settings.INSTALLED_APPS:
