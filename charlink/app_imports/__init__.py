@@ -79,3 +79,10 @@ def import_apps():
         _imported = True
 
     return _supported_apps
+
+
+def get_duplicated_apps():
+    if not _imported:
+        import_apps()
+
+    return _duplicated_apps
