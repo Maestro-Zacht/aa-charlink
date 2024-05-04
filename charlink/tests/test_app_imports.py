@@ -5,14 +5,20 @@ from django.test import TestCase
 
 from app_utils.testdata_factories import UserMainFactory
 
-from charlink.app_imports import import_apps
+from charlink.app_imports import import_apps, get_duplicated_apps
 from charlink.imports.corptools import _corp_perms
+
+from ..app_imports import AppImport
 
 
 class TestImportApps(TestCase):
 
     @patch('charlink.app_imports.import_module', wraps=import_module)
     @patch('charlink.app_imports._imported', False)
+    @patch('charlink.app_imports._duplicated_apps', set())
+    @patch('charlink.app_imports._supported_apps', {
+        'allianceauth.authentication': AppImport('allianceauth.authentication', [])
+    })
     def test_not_imported(self, mock_import_module):
         imported_apps = import_apps()
         self.assertTrue(mock_import_module.called)
@@ -46,6 +52,21 @@ class TestImportApps(TestCase):
         self.assertTrue(add_char.imports[0].is_character_added(main_char))
         self.assertTrue(add_char.imports[0].check_permissions(user))
         self.assertEqual(add_char.imports[0].get_users_with_perms().count(), 1)
+
+    def test_ignore_duplicate_imports(self):
+        imported_apps = import_apps()
+        self.assertNotIn('testauth.testapp_duplicate', imported_apps)
+        self.assertSetEqual({'testauth.testapp_duplicate'}, get_duplicated_apps())
+
+    @patch('charlink.app_imports.import_module', wraps=import_module)
+    @patch('charlink.app_imports._imported', False)
+    @patch('charlink.app_imports._duplicated_apps', set())
+    @patch('charlink.app_imports._supported_apps', {
+        'allianceauth.authentication': AppImport('allianceauth.authentication', [])
+    })
+    def test_get_duplicated_apps_imports_apps(self, mock_import_module):
+        get_duplicated_apps()
+        self.assertTrue(mock_import_module.called)
 
 
 class TestLoginImport(TestCase):
