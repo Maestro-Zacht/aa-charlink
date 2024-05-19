@@ -96,6 +96,7 @@ INSTALLED_APPS += [
     'moonstuff',
     'structures',
     'afat',
+    'marketmanager',
 
     "debug_toolbar",
     'taskmonitor',
@@ -167,4 +168,55 @@ CELERYBEAT_SCHEDULE["afat_update_esi_fatlinks"] = {
 CELERYBEAT_SCHEDULE["afat_logrotate"] = {
     "task": "afat.tasks.logrotate",
     "schedule": crontab(minute="0", hour="1"),
+}
+
+# Settings for AA-MarketManager
+# Market Orders
+CELERYBEAT_SCHEDULE['marketmanager_fetch_public_market_orders'] = {
+    'task': 'marketmanager.tasks.fetch_public_market_orders',
+    'schedule': crontab(minute=0, hour='*/3'),
+}
+CELERYBEAT_SCHEDULE['marketmanager_fetch_all_character_orders'] = {
+    'task': 'marketmanager.tasks.fetch_all_character_orders',
+    'schedule': crontab(minute=0, hour='*/3'),
+}
+CELERYBEAT_SCHEDULE['marketmanager_fetch_all_corporation_orders'] = {
+    'task': 'marketmanager.tasks.fetch_all_corporation_orders',
+    'schedule': crontab(minute=0, hour='*/3'),
+}
+CELERYBEAT_SCHEDULE['marketmanager_fetch_all_structure_orders'] = {
+    'task': 'marketmanager.tasks.fetch_all_structure_orders',
+    'schedule': crontab(minute=0, hour='*/3'),
+}
+# Structure Information
+CELERYBEAT_SCHEDULE['marketmanager_fetch_public_structures'] = {
+    'task': 'marketmanager.tasks.fetch_public_structures',
+    'schedule': crontab(minute=0, hour=4),
+}
+CELERYBEAT_SCHEDULE['marketmanager_update_private_structures'] = {
+    'task': 'marketmanager.tasks.update_private_structures',
+    'schedule': crontab(minute=0, hour=5),
+}
+CELERYBEAT_SCHEDULE['marketmanager_fetch_all_corporations_structures'] = {
+    'task': 'marketmanager.tasks.fetch_all_corporations_structures',
+    'schedule': crontab(minute=0, hour=6),
+}
+# Watch Configs
+CELERYBEAT_SCHEDULE['marketmanager_update_managed_supply_configs'] = {
+    'task': 'marketmanager.tasks.update_managed_supply_configs',
+    'schedule': crontab(minute='0', hour='2'),
+}
+CELERYBEAT_SCHEDULE['marketmanager_run_all_watch_configs'] = {
+    'task': 'marketmanager.tasks.run_all_watch_configs',
+    'schedule': crontab(minute=0, hour='*/3'),
+}
+# Background Tasks
+CELERYBEAT_SCHEDULE['marketmanager_update_all_type_statistics'] = {
+    'task': 'marketmanager.tasks.update_all_type_statistics',
+    'schedule': crontab(minute=0, hour=0, day_of_week=1),
+}
+# Cleanup
+CELERYBEAT_SCHEDULE['marketmanager_garbage_collection'] = {
+    'task': 'marketmanager.tasks.garbage_collection',
+    'schedule': crontab(minute='0', hour=0),
 }

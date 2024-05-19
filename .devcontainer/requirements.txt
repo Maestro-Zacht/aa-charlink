@@ -15,3 +15,4 @@ aa-moonmining
 aa-moonstuff
 aa-structures
 allianceauth-afat
+aa-market-manager
