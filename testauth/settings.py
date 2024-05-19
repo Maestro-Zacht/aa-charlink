@@ -298,6 +298,7 @@ INSTALLED_APPS += [
     'moonstuff',
     'structures',
     'afat',
+    'marketmanager',
 
     'testauth.testapp',
     'testauth.testapp_duplicate',
