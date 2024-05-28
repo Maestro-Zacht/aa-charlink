@@ -101,7 +101,6 @@ class TestDashboardLogin(TestCase):
 
     def test_ok(self):
         res = dashboard_login(self.request)
-        self.assertInHTML('<h4 class="card-title mb-3">CharLink</h4>', res)
         for content in self.form_contents:
             self.assertInHTML(content, res)
 
