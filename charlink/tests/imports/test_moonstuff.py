@@ -20,11 +20,12 @@ class TestAddCharacter(TestCase):
 
         token = self.user.token_set.first()
 
-        _add_character(token)
+        _add_character(None, token)
 
         self.assertTrue(_is_character_added(self.user.profile.main_character))
 
-        _add_character(token)
+        with self.assertRaises(AssertionError):
+            _add_character(None, token)
 
         mock_import_extraction_data.assert_called_once()
         self.assertTrue(_is_character_added(self.user.profile.main_character))
@@ -45,7 +46,7 @@ class TestIsCharacterAdded(TestCase):
 
         token = self.user.token_set.first()
 
-        _add_character(token)
+        _add_character(None, token)
 
         self.assertTrue(_is_character_added(self.character))
 

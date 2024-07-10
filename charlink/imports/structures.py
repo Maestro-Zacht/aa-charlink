@@ -3,6 +3,9 @@ from django.contrib.auth.models import Permission
 
 from django.utils import translation
 from django.utils.translation import gettext as _
+from django.utils.html import format_html
+from django.contrib import messages
+
 
 from structures import __title__, tasks
 from structures.models import Owner, Webhook, OwnerCharacter
@@ -20,11 +23,12 @@ from allianceauth.authentication.models import CharacterOwnership
 from charlink.app_imports.utils import LoginImport, AppImport
 
 
-def _add_character(token):
+def _add_character(request, token):
     token_char = EveCharacter.objects.get(character_id=token.character_id)
     character_ownership = CharacterOwnership.objects.get(
-        user=token.user, character=token_char
+        user=request.user, character=token_char
     )
+
     try:
         corporation = EveCorporationInfo.objects.get(
             corporation_id=token_char.corporation_id
@@ -45,7 +49,20 @@ def _add_character(token):
             owner.save()
 
     if owner.characters.count() == 1:
-        tasks.update_all_for_owner.delay(owner_pk=owner.pk, user_pk=token.user.pk)
+        tasks.update_all_for_owner.delay(owner_pk=owner.pk, user_pk=request.user.pk)
+        messages.info(
+            request,
+            format_html(
+                _(
+                    "%(corporation)s has been added with %(character)s "
+                    "as sync character. "
+                    "We have started fetching structures and notifications "
+                    "for this corporation and you will receive a report once "
+                    "the process is finished."
+                )
+                % {"corporation": owner, "character": token_char}
+            ),
+        )
 
         if STRUCTURES_ADMIN_NOTIFICATIONS_ENABLED:
             with translation.override(STRUCTURES_DEFAULT_LANGUAGE):
@@ -58,6 +75,21 @@ def _add_character(token):
                     title=_("%s: Structure owner added: %s") % (__title__, owner),
                 )
     else:
+        messages.info(
+            request,
+            format_html(
+                _(
+                    "%(character)s has been added to %(corporation)s "
+                    "as sync character. "
+                    "You now have %(characters_count)d sync character(s) configured."
+                )
+                % {
+                    "corporation": owner,
+                    "character": token_char,
+                    "characters_count": owner.valid_characters_count(),
+                }
+            ),
+        )
         if STRUCTURES_ADMIN_NOTIFICATIONS_ENABLED:
             with translation.override(STRUCTURES_DEFAULT_LANGUAGE):
                 notify_admins(
@@ -69,8 +101,8 @@ def _add_character(token):
                     % {
                         "character": token_char,
                         "corporation": owner,
-                        "user": token.user.username,
-                        "characters_count": owner.characters_count(),
+                        "user": request.user.username,
+                        "characters_count": owner.valid_characters_count(),
                     },
                     title=_("%s: Character added to: %s") % (__title__, owner),
                 )

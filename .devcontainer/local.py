@@ -97,6 +97,7 @@ INSTALLED_APPS += [
     'structures',
     'afat',
     'marketmanager',
+    'aa_contacts',
 
     "debug_toolbar",
     'taskmonitor',
@@ -219,4 +220,10 @@ CELERYBEAT_SCHEDULE['marketmanager_update_all_type_statistics'] = {
 CELERYBEAT_SCHEDULE['marketmanager_garbage_collection'] = {
     'task': 'marketmanager.tasks.garbage_collection',
     'schedule': crontab(minute='0', hour=0),
+}
+
+# AA Contacts
+CELERYBEAT_SCHEDULE['aa_contacts_update_all_contacts'] = {
+    'task': 'aa_contacts.tasks.update_all_contacts',
+    'schedule': crontab(minute='24'),
 }

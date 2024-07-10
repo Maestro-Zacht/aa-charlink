@@ -130,7 +130,7 @@ def login_view(request, token):
         import_ = imported_apps[app].get(unique_id)
         if app != 'allianceauth.authentication' and app not in CHARLINK_IGNORE_APPS and import_.check_permissions(request.user):
             try:
-                import_.add_character(token)
+                import_.add_character(request, token)
             except Exception as e:
                 logger.exception(e)
                 messages.error(request, f"Failed to add character to {import_.field_label}")

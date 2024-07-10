@@ -40,8 +40,8 @@ class TestAddCharacter(TestCase):
     def test_ok(self):
         app_import = import_apps()['marketmanager']
 
-        self.assertIsNone(app_import.get('character').add_character(None))
-        self.assertIsNone(app_import.get('corporation').add_character(None))
+        self.assertIsNone(app_import.get('character').add_character(None, None))
+        self.assertIsNone(app_import.get('corporation').add_character(None, None))
 
 
 class TestCheckPermissions(TestCase):

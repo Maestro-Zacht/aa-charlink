@@ -22,7 +22,7 @@ class TestAddCharacter(TestCase):
     def test_ok(self, mock_update):
         mock_update.return_value = None
 
-        _add_character(self.token)
+        _add_character(None, self.token)
 
         self.assertTrue(mock_update.called)
         self.assertTrue(_is_character_added(self.user.profile.main_character))
@@ -35,7 +35,7 @@ class TestAddCharacter(TestCase):
 
         character.corporation.delete()
 
-        _add_character(self.token)
+        _add_character(None, self.token)
 
         self.assertTrue(mock_update.called)
         self.assertTrue(mock_create_corporation.called)

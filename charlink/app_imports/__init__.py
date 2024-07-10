@@ -18,7 +18,7 @@ _supported_apps = {
             app_label='allianceauth.authentication',
             unique_id='default',
             field_label='Add Character (default)',
-            add_character=lambda token: None,
+            add_character=lambda request, token: None,
             scopes=['publicData'],
             check_permissions=lambda user: True,
             is_character_added=lambda character: CharacterOwnership.objects.filter(character=character).exists(),
