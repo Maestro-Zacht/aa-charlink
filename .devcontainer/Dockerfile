@@ -7,7 +7,8 @@ USER ${AUTH_USER}
 
 RUN cd /home/allianceauth
 COPY .devcontainer/requirements.txt requirements.txt
-RUN pip install -r requirements.txt
+RUN --mount=type=cache,target=~/.cache \
+    pip install -r requirements.txt
 
 COPY . /workspace
 RUN pip install -e /workspace

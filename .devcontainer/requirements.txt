@@ -16,3 +16,4 @@ aa-moonstuff
 aa-structures
 allianceauth-afat
 aa-market-manager
+aa-contacts
