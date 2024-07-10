@@ -299,6 +299,7 @@ INSTALLED_APPS += [
     'structures',
     'afat',
     'marketmanager',
+    'aa_contacts',
 
     'testauth.testapp',
     'testauth.testapp_duplicate',
