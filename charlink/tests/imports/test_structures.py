@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
+from django.contrib.messages.storage.fallback import FallbackStorage
 
 from app_utils.testdata_factories import UserMainFactory, EveCorporationInfoFactory, EveCharacterFactory
 from app_utils.testing import add_character_to_user
@@ -19,11 +20,22 @@ class TestAddCharacter(TestCase):
         cls.character = cls.user.profile.main_character
         cls.token = cls.user.token_set.first()
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.factory = RequestFactory()
+
     @patch("structures.tasks.update_all_for_owner.delay")
     def test_ok(self, mock_update_all_for_owner):
         mock_update_all_for_owner.return_value = None
 
-        _add_character(self.token)
+        request = self.factory.get('/charlink/login/')
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        request._messages = messages
+        request.user = self.user
+
+        _add_character(request, self.token)
 
         self.assertTrue(_is_character_added(self.character))
         mock_update_all_for_owner.assert_called_once()
@@ -35,7 +47,13 @@ class TestAddCharacter(TestCase):
 
         self.character.corporation.delete()
 
-        _add_character(self.token)
+        request = self.factory.get('/charlink/login/')
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        request._messages = messages
+        request.user = self.user
+
+        _add_character(request, self.token)
 
         self.assertTrue(_is_character_added(self.character))
         self.assertTrue(mock_update_all_for_owner.called)
@@ -45,8 +63,14 @@ class TestAddCharacter(TestCase):
     def test_already_added(self, mock_update_all_for_owner):
         mock_update_all_for_owner.return_value = None
 
-        _add_character(self.token)
-        _add_character(self.token)
+        request = self.factory.get('/charlink/login/')
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        request._messages = messages
+        request.user = self.user
+
+        _add_character(request, self.token)
+        _add_character(request, self.token)
 
         self.assertTrue(_is_character_added(self.character))
         self.assertTrue(mock_update_all_for_owner.called)
@@ -57,7 +81,13 @@ class TestAddCharacter(TestCase):
 
         Webhook.objects.create(is_default=True, name="test", url="https://discordapp.com/api/webhooks/123456/abcdef")
 
-        _add_character(self.token)
+        request = self.factory.get('/charlink/login/')
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        request._messages = messages
+        request.user = self.user
+
+        _add_character(request, self.token)
 
         self.assertTrue(_is_character_added(self.character))
         mock_update_all_for_owner.assert_called_once()
@@ -68,7 +98,13 @@ class TestAddCharacter(TestCase):
     def test_no_admin_notifications(self, mock_update_all_for_owner):
         mock_update_all_for_owner.return_value = None
 
-        _add_character(self.token)
+        request = self.factory.get('/charlink/login/')
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        request._messages = messages
+        request.user = self.user
+
+        _add_character(request, self.token)
 
         self.assertTrue(_is_character_added(self.character))
         mock_update_all_for_owner.assert_called_once()
@@ -77,7 +113,13 @@ class TestAddCharacter(TestCase):
     def test_second_owner(self, mock_update_all_for_owner):
         mock_update_all_for_owner.return_value = None
 
-        _add_character(self.token)
+        request = self.factory.get('/charlink/login/')
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        request._messages = messages
+        request.user = self.user
+
+        _add_character(request, self.token)
 
         self.assertTrue(_is_character_added(self.character))
         mock_update_all_for_owner.assert_called_once()
@@ -85,10 +127,10 @@ class TestAddCharacter(TestCase):
         character2 = EveCharacterFactory(corporation=self.character.corporation)
         add_character_to_user(self.user, character2)
 
-        _add_character(self.user.token_set.get(character_id=character2.character_id))
+        _add_character(request, self.user.token_set.get(character_id=character2.character_id))
 
         self.assertTrue(_is_character_added(character2))
-        self.assertEqual(Owner.objects.first().characters_count(), 2)
+        self.assertEqual(Owner.objects.first().valid_characters_count(), 2)
         mock_update_all_for_owner.assert_called_once()
 
     @patch("structures.tasks.update_all_for_owner.delay")
@@ -96,7 +138,13 @@ class TestAddCharacter(TestCase):
     def test_second_owner_no_admin_notifications(self, mock_update_all_for_owner):
         mock_update_all_for_owner.return_value = None
 
-        _add_character(self.token)
+        request = self.factory.get('/charlink/login/')
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        request._messages = messages
+        request.user = self.user
+
+        _add_character(request, self.token)
 
         self.assertTrue(_is_character_added(self.character))
         mock_update_all_for_owner.assert_called_once()
@@ -104,10 +152,10 @@ class TestAddCharacter(TestCase):
         character2 = EveCharacterFactory(corporation=self.character.corporation)
         add_character_to_user(self.user, character2)
 
-        _add_character(self.user.token_set.get(character_id=character2.character_id))
+        _add_character(request, self.user.token_set.get(character_id=character2.character_id))
 
         self.assertTrue(_is_character_added(character2))
-        self.assertEqual(Owner.objects.first().characters_count(), 2)
+        self.assertEqual(Owner.objects.first().valid_characters_count(), 2)
         mock_update_all_for_owner.assert_called_once()
 
 
@@ -119,13 +167,24 @@ class TestIsCharacterAdded(TestCase):
         cls.character = cls.user.profile.main_character
         cls.token = cls.user.token_set.first()
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.factory = RequestFactory()
+
     @patch("structures.tasks.update_all_for_owner.delay")
     def test_ok(self, mock_update_all_for_owner):
         mock_update_all_for_owner.return_value = None
 
         self.assertFalse(_is_character_added(self.character))
 
-        _add_character(self.token)
+        request = self.factory.get('/charlink/login/')
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        request._messages = messages
+        request.user = self.user
+
+        _add_character(request, self.token)
 
         self.assertTrue(_is_character_added(self.character))
 

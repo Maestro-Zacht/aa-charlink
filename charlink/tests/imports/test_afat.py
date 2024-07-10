@@ -15,8 +15,8 @@ class TestAddCharacter(TestCase):
     def test_ok(self):
         app_import = import_apps()['afat']
 
-        self.assertIsNone(app_import.get('readfleet').add_character(None))
-        self.assertIsNone(app_import.get('clickfat').add_character(None))
+        self.assertIsNone(app_import.get('readfleet').add_character(None, None))
+        self.assertIsNone(app_import.get('clickfat').add_character(None, None))
 
 
 class TestIsCharacterAdded(TestCase):

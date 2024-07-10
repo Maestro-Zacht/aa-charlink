@@ -117,7 +117,7 @@ def _add_character(request, token):
                         "character": token_char,
                         "corporation": owner,
                         "user": request.user.username,
-                        "characters_count": owner.characters_count(),
+                        "characters_count": owner.valid_characters_count(),
                     },
                     title=_("%s: Character added to: %s") % (__title__, owner),
                 )

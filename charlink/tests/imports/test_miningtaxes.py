@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
+from django.contrib.messages.storage.fallback import FallbackStorage
 
 from app_utils.testdata_factories import UserMainFactory
 
@@ -15,13 +16,23 @@ class TestAddCharacter(TestCase):
         cls.user = UserMainFactory(permissions=["miningtaxes.basic_access"])
         cls.character = cls.user.profile.main_character
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.factory = RequestFactory()
+
     @patch('miningtaxes.tasks.update_character.apply_async')
     def test_ok(self, mock_update_character):
         mock_update_character.return_value = None
 
         token = self.user.token_set.first()
 
-        _add_character_basic(token)
+        request = self.factory.get('/charlink/login/')
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        request._messages = messages
+
+        _add_character_basic(request, token)
 
         mock_update_character.assert_called_once()
         self.assertTrue(_is_character_added_basic(self.character))
@@ -34,12 +45,22 @@ class TestIsCharacterAdded(TestCase):
         cls.user = UserMainFactory(permissions=["miningtaxes.basic_access"])
         cls.character = cls.user.profile.main_character
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.factory = RequestFactory()
+
     @patch('miningtaxes.tasks.update_character.apply_async')
     def test_ok(self, mock_update_character):
         mock_update_character.return_value = None
 
+        request = self.factory.get('/charlink/login/')
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        request._messages = messages
+
         self.assertFalse(_is_character_added_basic(self.character))
-        _add_character_basic(self.user.token_set.first())
+        _add_character_basic(request, self.user.token_set.first())
         self.assertTrue(_is_character_added_basic(self.character))
 
 

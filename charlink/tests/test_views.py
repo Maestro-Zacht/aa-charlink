@@ -282,7 +282,7 @@ class TestLoginView(TestCase):
         )
         cls.token = cls.user.token_set.first()
 
-    @patch('charlink.imports.miningtaxes._add_character')
+    @patch('charlink.imports.miningtaxes._add_character_basic')
     @patch('charlink.imports.memberaudit._add_character')
     @patch('charlink.views.import_apps')
     @patch('charlink.decorators.token_required')
@@ -311,7 +311,7 @@ class TestLoginView(TestCase):
                     app_label='memberaudit',
                     unique_id='default',
                     field_label='Member Audit',
-                    add_character=lambda token: None,
+                    add_character=lambda requets, token: None,
                     scopes=memberaudit_import.imports[0].scopes,
                     check_permissions=memberaudit_import.imports[0].check_permissions,
                     is_character_added=memberaudit_import.imports[0].is_character_added,
@@ -337,7 +337,7 @@ class TestLoginView(TestCase):
                     app_label='allianceauth.authentication',
                     unique_id='default',
                     field_label='Add Character (default)',
-                    add_character=lambda token: None,
+                    add_character=lambda request, token: None,
                     scopes=['publicData'],
                     check_permissions=lambda user: True,
                     is_character_added=lambda character: CharacterOwnership.objects.filter(character=character).exists(),

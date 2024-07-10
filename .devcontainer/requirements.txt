@@ -13,7 +13,7 @@ aa-memberaudit
 aa-miningtaxes
 aa-moonmining
 aa-moonstuff
-aa-structures
+aa-structures>=2.11.0
 allianceauth-afat
 aa-market-manager
 aa-contacts

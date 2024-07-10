@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
-from django.test import TestCase
+from django.test import TestCase, RequestFactory
+from django.contrib.messages.storage.fallback import FallbackStorage
 
 from app_utils.testdata_factories import UserMainFactory, EveCorporationInfoFactory
 
@@ -18,13 +19,23 @@ class TestAddCharacter(TestCase):
         ])
         cls.character = cls.user.profile.main_character
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.factory = RequestFactory()
+
     @patch('moonmining.tasks.update_owner.delay')
     def test_ok(self, mock_update_owner):
         mock_update_owner.return_value = None
 
         token = self.user.token_set.first()
 
-        _add_character(token)
+        request = self.factory.get('/charlink/login/')
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        request._messages = messages
+
+        _add_character(request, token)
 
         mock_update_owner.assert_called_once()
         self.assertTrue(_is_character_added(self.character))
@@ -38,7 +49,12 @@ class TestAddCharacter(TestCase):
 
         token = self.user.token_set.first()
 
-        _add_character(token)
+        request = self.factory.get('/charlink/login/')
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        request._messages = messages
+
+        _add_character(request, token)
 
         mock_update_owner.assert_called_once()
         mock_create_corporation.assert_called_once()
@@ -53,7 +69,12 @@ class TestAddCharacter(TestCase):
 
         token = self.user.token_set.first()
 
-        _add_character(token)
+        request = self.factory.get('/charlink/login/')
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        request._messages = messages
+
+        _add_character(request, token)
 
         self.assertFalse(mock_notify_admins.called)
         mock_update_owner.assert_called_once()
@@ -71,12 +92,22 @@ class TestIsCharacterAdded(TestCase):
         cls.character = cls.user.profile.main_character
         cls.token = cls.user.token_set.first()
 
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.factory = RequestFactory()
+
     @patch('moonmining.tasks.update_owner.delay')
     def test_ok(self, mock_update_owner):
         mock_update_owner.return_value = None
 
+        request = self.factory.get('/charlink/login/')
+        setattr(request, 'session', 'session')
+        messages = FallbackStorage(request)
+        request._messages = messages
+
         self.assertFalse(_is_character_added(self.character))
-        _add_character(self.token)
+        _add_character(request, self.token)
         self.assertTrue(_is_character_added(self.character))
 
 

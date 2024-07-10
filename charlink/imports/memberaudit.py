@@ -20,7 +20,7 @@ from app_utils.allianceauth import users_with_permission
 def _add_character(request, token: Token):
     eve_character = EveCharacter.objects.get(character_id=token.character_id)
     with transaction.atomic():
-        character, _ = Character.objects.update_or_create(
+        character, created = Character.objects.update_or_create(
             eve_character=eve_character, defaults={"is_disabled": False}
         )
     tasks.update_character.apply_async(
@@ -36,7 +36,7 @@ def _add_character(request, token: Token):
         format_html(
             "<strong>{}</strong> {}",
             eve_character,
-            _(
+            (
                 "has been registered. "
                 "Note that it can take a minute until all character data is visible."
             ),
