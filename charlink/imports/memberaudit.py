@@ -1,6 +1,8 @@
 from django.db import transaction
 from django.db.models import Exists, OuterRef
 from django.contrib.auth.models import Permission
+from django.contrib import messages
+from django.utils.html import format_html
 
 from esi.models import Token
 
@@ -15,15 +17,30 @@ from charlink.app_imports.utils import LoginImport, AppImport
 from app_utils.allianceauth import users_with_permission
 
 
-def _add_character(token: Token):
+def _add_character(request, token: Token):
     eve_character = EveCharacter.objects.get(character_id=token.character_id)
     with transaction.atomic():
-        character, created = Character.objects.update_or_create(
+        character, _ = Character.objects.update_or_create(
             eve_character=eve_character, defaults={"is_disabled": False}
         )
     tasks.update_character.apply_async(
-        kwargs={"character_pk": character.pk},
+        kwargs={
+            "character_pk": character.pk,
+            "force_update": True,
+            "ignore_stale": True,
+        },
         priority=MEMBERAUDIT_TASKS_NORMAL_PRIORITY,
+    )
+    messages.success(
+        request,
+        format_html(
+            "<strong>{}</strong> {}",
+            eve_character,
+            _(
+                "has been registered. "
+                "Note that it can take a minute until all character data is visible."
+            ),
+        ),
     )
     if ComplianceGroupDesignation.objects.exists():
         tasks.update_compliance_groups_for_user.apply_async(

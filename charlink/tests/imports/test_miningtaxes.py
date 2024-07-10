@@ -4,7 +4,7 @@ from django.test import TestCase
 
 from app_utils.testdata_factories import UserMainFactory
 
-from charlink.imports.miningtaxes import _add_character, _is_character_added
+from charlink.imports.miningtaxes import _add_character_basic, _is_character_added_basic
 from charlink.app_imports import import_apps
 
 
@@ -21,10 +21,10 @@ class TestAddCharacter(TestCase):
 
         token = self.user.token_set.first()
 
-        _add_character(token)
+        _add_character_basic(token)
 
         mock_update_character.assert_called_once()
-        self.assertTrue(_is_character_added(self.character))
+        self.assertTrue(_is_character_added_basic(self.character))
 
 
 class TestIsCharacterAdded(TestCase):
@@ -38,9 +38,9 @@ class TestIsCharacterAdded(TestCase):
     def test_ok(self, mock_update_character):
         mock_update_character.return_value = None
 
-        self.assertFalse(_is_character_added(self.character))
-        _add_character(self.user.token_set.first())
-        self.assertTrue(_is_character_added(self.character))
+        self.assertFalse(_is_character_added_basic(self.character))
+        _add_character_basic(self.user.token_set.first())
+        self.assertTrue(_is_character_added_basic(self.character))
 
 
 class TestCheckPermissions(TestCase):

@@ -12,7 +12,7 @@ from charlink.app_imports.utils import LoginImport, AppImport
 from app_utils.allianceauth import users_with_permission
 
 
-def _add_character(token):
+def _add_character(request, token):
     eve_char = EveCharacter.objects.get(character_id=token.character_id)
 
     if not TrackingCharacter.objects.filter(character=eve_char).exists():
@@ -21,6 +21,8 @@ def _add_character(token):
 
         # Schedule an import task to pull data from the new Tracking Character.
         import_extraction_data.delay()
+    else:
+        assert False
 
 
 def _is_character_added(character: EveCharacter):
