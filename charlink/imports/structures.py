@@ -25,24 +25,9 @@ from charlink.app_imports.utils import LoginImport, AppImport
 
 def _add_character(request, token):
     token_char = EveCharacter.objects.get(character_id=token.character_id)
-    try:
-        character_ownership = CharacterOwnership.objects.get(
-            user=request.user, character=token_char
-        )
-    except CharacterOwnership.DoesNotExist as e:
-        character_ownership = None
-        messages.error(
-            request,
-            format_html(
-                _(
-                    "You can only use your main or alt characters "
-                    "to add corporations. "
-                    "However, character %s is neither. "
-                )
-                % token_char.character_name
-            ),
-        )
-        raise e
+    character_ownership = CharacterOwnership.objects.get(
+        user=request.user, character=token_char
+    )
 
     try:
         corporation = EveCorporationInfo.objects.get(
