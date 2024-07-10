@@ -5,8 +5,16 @@ from django.contrib.messages.storage.fallback import FallbackStorage
 
 from app_utils.testdata_factories import UserMainFactory
 
-from charlink.imports.aa_contacts import _alliance_login, _corporation_login, _alliance_users_with_perms, _corporation_users_with_perms
-from charlink.app_imports import import_apps
+from charlink.imports.aa_contacts import (
+    _alliance_login,
+    _corporation_login,
+    _alliance_users_with_perms,
+    _corporation_users_with_perms,
+    _alliance_check_perms,
+    _corporation_check_perms,
+    _alliance_is_character_added,
+    _corporation_is_character_added
+)
 
 from aa_contacts.models import AllianceToken, CorporationToken
 
@@ -172,17 +180,13 @@ class TestCheckPermissions(TestCase):
         cls.user_alliance_perm = UserMainFactory(permissions=["aa_contacts.manage_alliance_contacts"])
         cls.user_corporation_perm = UserMainFactory(permissions=["aa_contacts.manage_corporation_contacts"])
 
-    def test_alliance_users_with_perms(self):
-        login_import = import_apps()['aa_contacts'].get('alliance')
+    def test_alliance_check_perms(self):
+        self.assertTrue(_alliance_check_perms(self.user_alliance_perm))
+        self.assertFalse(_alliance_check_perms(self.user_no_perm))
 
-        self.assertTrue(login_import.check_permissions(self.user_alliance_perm))
-        self.assertFalse(login_import.check_permissions(self.user_no_perm))
-
-    def test_corporation_users_with_perms(self):
-        login_import = import_apps()['aa_contacts'].get('corporation')
-
-        self.assertTrue(login_import.check_permissions(self.user_corporation_perm))
-        self.assertFalse(login_import.check_permissions(self.user_no_perm))
+    def test_corporation_check_perms(self):
+        self.assertTrue(_corporation_check_perms(self.user_corporation_perm))
+        self.assertFalse(_corporation_check_perms(self.user_no_perm))
 
 
 class TestIsCharacterAdded(TestCase):
@@ -194,15 +198,11 @@ class TestIsCharacterAdded(TestCase):
         cls.token = cls.user.token_set.first()
 
     def test_alliance_ok(self):
-        login_import = import_apps()['aa_contacts'].get('alliance')
-
-        self.assertFalse(login_import.is_character_added(self.character))
+        self.assertFalse(_alliance_is_character_added(self.character))
         AllianceToken.objects.create(alliance=self.character.alliance, token=self.token)
-        self.assertTrue(login_import.is_character_added(self.character))
+        self.assertTrue(_alliance_is_character_added(self.character))
 
     def test_corporation_ok(self):
-        login_import = import_apps()['aa_contacts'].get('corporation')
-
-        self.assertFalse(login_import.is_character_added(self.character))
+        self.assertFalse(_corporation_is_character_added(self.character))
         CorporationToken.objects.create(corporation=self.character.corporation, token=self.token)
-        self.assertTrue(login_import.is_character_added(self.character))
+        self.assertTrue(_corporation_is_character_added(self.character))

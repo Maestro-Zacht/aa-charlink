@@ -71,6 +71,22 @@ def _corporation_users_with_perms():
     )
 
 
+def _alliance_check_perms(user):
+    return user.has_perm('aa_contacts.manage_alliance_contacts')
+
+
+def _corporation_check_perms(user):
+    return user.has_perm('aa_contacts.manage_corporation_contacts')
+
+
+def _alliance_is_character_added(char: EveCharacter):
+    return AllianceToken.objects.filter(token__character_id=char.character_id).exists()
+
+
+def _corporation_is_character_added(char: EveCharacter):
+    return CorporationToken.objects.filter(token__character_id=char.character_id).exists()
+
+
 app_import = AppImport(
     "aa_contacts",
     [
@@ -80,8 +96,8 @@ app_import = AppImport(
             field_label="Alliance Contacts",
             add_character=_alliance_login,
             scopes=ALLIANCE_SCOPES,
-            check_permissions=lambda user: user.has_perm('aa_contacts.manage_alliance_contacts'),
-            is_character_added=lambda char: AllianceToken.objects.filter(token__character_id=char.character_id).exists(),
+            check_permissions=_alliance_check_perms,
+            is_character_added=_alliance_is_character_added,
             is_character_added_annotation=Exists(
                 AllianceToken.objects.filter(
                     token__character_id=OuterRef('character_id'),
@@ -95,8 +111,8 @@ app_import = AppImport(
             field_label="Corporation Contacts",
             add_character=_corporation_login,
             scopes=CORPORATION_SCOPES,
-            check_permissions=lambda user: user.has_perm('aa_contacts.manage_corporation_contacts'),
-            is_character_added=lambda char: CorporationToken.objects.filter(token__character_id=char.character_id).exists(),
+            check_permissions=_corporation_check_perms,
+            is_character_added=_corporation_is_character_added,
             is_character_added_annotation=Exists(
                 CorporationToken.objects.filter(
                     token__character_id=OuterRef('character_id'),
