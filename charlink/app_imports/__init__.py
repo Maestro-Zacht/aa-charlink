@@ -10,8 +10,9 @@ from .utils import AppImport
 logger = get_extension_logger(__name__)
 
 _supported_apps = {}
-
 _duplicated_apps = set()
+_failed_to_import = {}
+_no_import = []
 
 _imported = False
 
@@ -21,6 +22,8 @@ def import_apps():
     if not _imported:
         _supported_apps.clear()
         _duplicated_apps.clear()
+        _failed_to_import.clear()
+        _no_import.clear()
 
         # hooks
         charlink_hooks = get_hooks('charlink')
@@ -34,10 +37,13 @@ def import_apps():
                 app_import.validate_import()
             except AssertionError:
                 logger.debug(f"Loading of {hook_mod} link via hook: failed to validate")
+                _failed_to_import[hook_mod] = "Hook import: failed to validate"
             except ModuleNotFoundError:
                 logger.debug(f"Loading of {hook_mod} link via hook: failed to import")
+                _failed_to_import[hook_mod] = "Hook import: import not found"
             except:
                 logger.debug(f"Loading of {hook_mod} link via hook: failed")
+                _failed_to_import[hook_mod] = "Hook import: generic error"
             else:
                 if app_import.app_label in _supported_apps:
                     _supported_apps.pop(app_import.app_label)
@@ -55,7 +61,8 @@ def import_apps():
                 try:
                     module = import_module(f'charlink.imports.{app}')
                 except ModuleNotFoundError:
-                    logger.debug(f"Loading of {app} link: failed")
+                    logger.debug(f"Loading of {app} link: not found")
+                    _no_import.append(app)
                 else:
                     _supported_apps[app] = module.app_import
                     logger.debug(f"Loading of {app} link: success")
@@ -68,3 +75,13 @@ def import_apps():
 def get_duplicated_apps():
     import_apps()
     return _duplicated_apps
+
+
+def get_failed_to_import():
+    import_apps()
+    return _failed_to_import
+
+
+def get_no_import():
+    import_apps()
+    return _no_import

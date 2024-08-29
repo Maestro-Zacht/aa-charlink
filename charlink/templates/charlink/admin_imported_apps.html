@@ -18,6 +18,16 @@
                         Duplicated
                     </button>
                 </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="failed-tab" data-bs-toggle="tab" data-bs-target="#failedApps" type="button" role="tab" aria-controls="failedApps" aria-selected="false">
+                        Failed to import
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link" id="missing-tab" data-bs-toggle="tab" data-bs-target="#missingApps" type="button" role="tab" aria-controls="missingApps" aria-selected="false">
+                        Missing imports
+                    </button>
+                </li>
             </ul>
         </div>
         <div class="card-body">
@@ -61,6 +71,28 @@
                         </ul>
                     {% else %}
                         <p class="card-text">No duplicated apps found.</p>
+                    {% endif %}
+                </div>
+                <div class="tab-pane fade text-center" id="failedApps" role="tabpanel" aria-labelledby="failed-tab" tabindex="0">
+                    {% if failed_to_import|length > 0 %}
+                        <ul class="list-group">
+                            {% for app, reason in failed_to_import.items %}
+                                <li class="list-group-item">{{ app }}: {{ reason }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="card-text">All apps have been imported successfully.</p>
+                    {% endif %}
+                </div>
+                <div class="tab-pane fade text-center" id="missingApps" role="tabpanel" aria-labelledby="missing-tab" tabindex="0">
+                    {% if no_import|length > 0 %}
+                        <ul class="list-group">
+                            {% for app in no_import %}
+                                <li class="list-group-item">{{ app }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="card-text">No missing imports found.</p>
                     {% endif %}
                 </div>
             </div>
