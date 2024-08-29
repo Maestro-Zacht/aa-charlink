@@ -12,23 +12,7 @@ from .utils import LoginImport, AppImport
 
 logger = get_extension_logger(__name__)
 
-_supported_apps = {
-    'allianceauth.authentication': AppImport('allianceauth.authentication', [
-        LoginImport(
-            app_label='allianceauth.authentication',
-            unique_id='default',
-            field_label='Add Character (default)',
-            add_character=lambda request, token: None,
-            scopes=['publicData'],
-            check_permissions=lambda user: True,
-            is_character_added=lambda character: CharacterOwnership.objects.filter(character=character).exists(),
-            is_character_added_annotation=Exists(CharacterOwnership.objects.filter(character_id=OuterRef('pk'))),
-            get_users_with_perms=lambda: User.objects.filter(
-                Exists(CharacterOwnership.objects.filter(user_id=OuterRef('pk')))
-            ),
-        )
-    ])
-}
+_supported_apps = {}
 
 _duplicated_apps = set()
 
