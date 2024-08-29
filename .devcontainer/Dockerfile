@@ -12,4 +12,7 @@ RUN pip install -r requirements.txt --no-cache-dir
 COPY . /workspace
 RUN pip install -e /workspace
 
+# Duplicated apps for testing
+COPY ./testauth/live_duplicate /home/allianceauth/myauth/live_duplicate
+
 RUN allianceauth update myauth

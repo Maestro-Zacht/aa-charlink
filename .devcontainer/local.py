@@ -99,6 +99,8 @@ INSTALLED_APPS += [
     'marketmanager',
     'aa_contacts',
 
+    'live_duplicate',
+
     "debug_toolbar",
     'taskmonitor',
 ]
