@@ -19,6 +19,9 @@ _imported = False
 def import_apps():
     global _imported
     if not _imported:
+        _supported_apps.clear()
+        _duplicated_apps.clear()
+
         # hooks
         charlink_hooks = get_hooks('charlink')
 
@@ -63,7 +66,5 @@ def import_apps():
 
 
 def get_duplicated_apps():
-    if not _imported:
-        import_apps()
-
+    import_apps()
     return _duplicated_apps
