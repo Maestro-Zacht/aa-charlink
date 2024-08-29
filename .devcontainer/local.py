@@ -98,6 +98,7 @@ INSTALLED_APPS += [
     'afat',
     'marketmanager',
     'aa_contacts',
+    'standingsrequests',
 
     "debug_toolbar",
     'taskmonitor',
@@ -226,4 +227,24 @@ CELERYBEAT_SCHEDULE['marketmanager_garbage_collection'] = {
 CELERYBEAT_SCHEDULE['aa_contacts_update_all_contacts'] = {
     'task': 'aa_contacts.tasks.update_all_contacts',
     'schedule': crontab(minute='24'),
+}
+
+# Standings Requests
+STANDINGS_API_CHARID = int(os.environ.get("STANDINGS_API_CHARID"))
+
+CELERYBEAT_SCHEDULE['standings_requests_standings_update'] = {
+    'task': 'standings_requests.standings_update',
+    'schedule': crontab(minute='*/30'),
+}
+CELERYBEAT_SCHEDULE['standings_requests_update_associations_api'] = {
+    'task': 'standings_requests.update_associations_api',
+    'schedule': crontab(minute='30', hour='*/3'),
+}
+CELERYBEAT_SCHEDULE['standings_requests_validate_requests'] = {
+    'task': 'standings_requests.validate_requests',
+    'schedule': crontab(minute='0', hour='*/6'),
+}
+CELERYBEAT_SCHEDULE['standings_requests_purge_stale_data'] = {
+    'task': 'standings_requests.purge_stale_data',
+    'schedule': crontab(minute='0', hour='*/24'),
 }

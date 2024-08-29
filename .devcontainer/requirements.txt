@@ -17,3 +17,4 @@ aa-structures>=2.11.0
 allianceauth-afat
 aa-market-manager
 aa-contacts
+aa-standingsrequests
