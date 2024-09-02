@@ -27,7 +27,9 @@
 				"DavidAnson.vscode-markdownlint",
 				"donjayamanne.githistory",
 				"eamodio.gitlens",
-				"ryanluker.vscode-coverage-gutters"
+				"ryanluker.vscode-coverage-gutters",
+				"ms-vscode.makefile-tools",
+				"mrorz.language-gettext"
 			]
 		}
 	}
