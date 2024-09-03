@@ -2,14 +2,14 @@
 {% load charlinkutils %}
 {% load charlink_versioned_static %}
 
-{% block page_title %}Charlink App Audit{% endblock page_title %}
+{% block page_title %}{% translate "Charlink App Audit" %}{% endblock page_title %}
 
 {% block extra_css %}
     <link rel="stylesheet" type="text/css" href="{% charlink_static 'charlink/css/added-icons.css' %}">
     {% include "bundles/datatables-css-bs5.html" %}
 {% endblock extra_css %}
 
-{% block charlink_page_header %}<h1 class="page-header text-center">Links Audit</h1>{% endblock charlink_page_header %}
+{% block charlink_page_header %}<h1 class="page-header text-center">{% translate "Links Audit" %}</h1>{% endblock charlink_page_header %}
 
 {% block charlink_content %}
     <div class="card">
@@ -33,9 +33,9 @@
                                 <thead>
                                     <tr>
                                         <th></th>
-                                        <th class="text-center">Character</th>
+                                        <th class="text-center">{% translate "Character" %}</th>
                                         <th scope="col" class="text-center">{{ login_data.field_label }}</th>
-                                        <th class="text-center">Main Character</th>
+                                        <th class="text-center">{% translate "Main Character" %}</th>
                                     </tr>
                                 </thead>
                                 <tbody>

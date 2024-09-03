@@ -8,7 +8,7 @@
                     <form method="post" action="{% url "charlink:dashboard_post" %}">
                         {% csrf_token %}
                         {% bootstrap_form form %}
-                        <button type="submit" class="btn btn-outline-info mt-2">Login</button>
+                        <button type="submit" class="btn btn-outline-info mt-2">{% translate "Login" %}</button>
                     </form>
                 </div>
             </div>
