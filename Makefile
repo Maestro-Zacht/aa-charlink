@@ -6,7 +6,7 @@ tox_tests:
 .PHONY: translations
 translations:
 	@echo "Creating or updating translation files"
-	@django-admin makemessages \
+	@django-admin makemessages -l en \
 		-l cs \
 		-l de \
 		-l es \
@@ -20,7 +20,6 @@ translations:
 		-l sk \
 		-l uk \
 		-l zh_Hans \
-		--keep-pot \
 		--ignore 'build/*'
 
 .PHONY: compile_translations
