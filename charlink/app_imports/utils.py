@@ -60,7 +60,7 @@ class LoginImport:
         assert isinstance(self.app_label, str)
         assert isinstance(self.unique_id, str)
         assert re.match(r'^[a-zA-Z0-9]+$', self.unique_id) is not None
-        assert isinstance(self.field_label, str)
+        assert isinstance(str(self.field_label), str)
         assert callable(self.add_character)
         assert isinstance(self.scopes, list)
         assert callable(self.check_permissions)
