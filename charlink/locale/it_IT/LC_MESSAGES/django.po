@@ -48,11 +48,11 @@ msgstr "Market Manager - Accesso corporazione"
 
 #: charlink/imports/miningtaxes.py:82
 msgid "Mining Taxes"
-msgstr ""
+msgstr "Tasse di estrazione"
 
 #: charlink/imports/miningtaxes.py:96
 msgid "Mining Taxes Admin"
-msgstr ""
+msgstr "Tasse di estrazione - Admin"
 
 #: charlink/imports/structures.py:57
 #, python-format
@@ -93,7 +93,7 @@ msgstr "%s: Personaggio aggiunto a: %s"
 
 #: charlink/templates/charlink/app_audit.html:6
 msgid "Charlink App Audit"
-msgstr ""
+msgstr "Charlink Revisione dell'Applicazione"
 
 #: charlink/templates/charlink/app_audit.html:13
 #: charlink/templates/charlink/audit.html:7
@@ -126,11 +126,11 @@ msgstr "Personaggi"
 
 #: charlink/templates/charlink/base.html:5
 msgid "CharLink"
-msgstr ""
+msgstr "CharLink"
 
 #: charlink/templates/charlink/charlink.html:7
 msgid "Charlink"
-msgstr ""
+msgstr "Charlink"
 
 #: charlink/templates/charlink/charlink.html:13
 msgid "Character Linking"
