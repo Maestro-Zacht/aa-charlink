@@ -3,6 +3,7 @@ from django.db.models import Exists, OuterRef
 from django.contrib.auth.models import Permission
 from django.contrib import messages
 from django.utils.html import format_html
+from django.utils.translation import gettext_lazy as _
 
 from miningtaxes.models import Character, Stats, AdminCharacter
 from miningtaxes import tasks
@@ -78,7 +79,7 @@ app_import = AppImport('miningtaxes', [
     LoginImport(
         app_label='miningtaxes',
         unique_id='default',
-        field_label="Mining Taxes",
+        field_label=_("Mining Taxes"),
         add_character=_add_character_basic,
         scopes=Character.get_esi_scopes(),
         check_permissions=lambda user: user.has_perm("miningtaxes.basic_access"),
@@ -92,7 +93,7 @@ app_import = AppImport('miningtaxes', [
     LoginImport(
         app_label='miningtaxes',
         unique_id='admin',
-        field_label="Mining Taxes Admin",
+        field_label=_("Mining Taxes Admin"),
         add_character=_add_character_admin,
         scopes=AdminCharacter.get_esi_scopes(),
         check_permissions=lambda user: user.has_perm("miningtaxes.admin_access"),

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-08 09:52+0000\n"
+"POT-Creation-Date: 2024-09-08 15:37+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,8 +18,41 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
+#: charlink/decorators.py:13
+msgid "Scopes error. Contact an administrator."
+msgstr ""
+
+#: charlink/imports/afat.py:68
+msgid "AFAT Read Fleet"
+msgstr ""
+
+#: charlink/imports/afat.py:85
+msgid "AFAT Click Tracking"
+msgstr ""
+
 #: charlink/imports/allianceauth/authentication.py:14
 msgid "Add Character (default)"
+msgstr ""
+
+#: charlink/imports/allianceauth/corputils.py:45
+#: charlink/imports/corpstats.py:46
+msgid "Corporation Stats"
+msgstr ""
+
+#: charlink/imports/marketmanager.py:38
+msgid "Market Manager - Character Login"
+msgstr ""
+
+#: charlink/imports/marketmanager.py:53
+msgid "Market Manager - Corporation Login"
+msgstr ""
+
+#: charlink/imports/miningtaxes.py:82
+msgid "Mining Taxes"
+msgstr ""
+
+#: charlink/imports/miningtaxes.py:96
+msgid "Mining Taxes Admin"
 msgstr ""
 
 #: charlink/imports/structures.py:57
@@ -159,4 +192,34 @@ msgstr ""
 
 #: charlink/templates/charlink/user_audit.html:6
 msgid "Charlink User Audit"
+msgstr ""
+
+#: charlink/views.py:47
+msgid "Invalid request"
+msgstr ""
+
+#: charlink/views.py:54
+msgid "Invalid form data"
+msgstr ""
+
+#: charlink/views.py:137
+#, python-format
+msgid "Failed to add character to %(field_label)s"
+msgstr ""
+
+#: charlink/views.py:139
+#, python-format
+msgid "Character successfully added to %(field_label)s"
+msgstr ""
+
+#: charlink/views.py:155
+msgid "You do not have permission to view the selected corporation statistics."
+msgstr ""
+
+#: charlink/views.py:219
+msgid "You do not have permission to view the selected user statistics."
+msgstr ""
+
+#: charlink/views.py:244
+msgid "You do not have permission to view the selected application statistics."
 msgstr ""

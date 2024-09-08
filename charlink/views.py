@@ -8,6 +8,7 @@ from django.db.models import Q
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.template.loader import render_to_string
+from django.utils.translation import gettext as _
 
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
@@ -43,14 +44,14 @@ def dashboard_login(request):
 @login_required
 def dashboard_post(request):
     if request.method != 'POST':
-        messages.error(request, 'Invalid request')
+        messages.error(request, _('Invalid request'))
         return redirect('charlink:index')
 
     imported_apps = import_apps()
 
     form = LinkForm(request.user, request.POST, prefix='charlink')
     if not form.is_valid():
-        messages.error(request, 'Invalid form data')
+        messages.error(request, _('Invalid form data'))
         return redirect('authentication:dashboard')
 
     scopes = set()
@@ -133,9 +134,9 @@ def login_view(request, token):
                 import_.add_character(request, token)
             except Exception as e:
                 logger.exception(e)
-                messages.error(request, f"Failed to add character to {import_.field_label}")
+                messages.error(request, _("Failed to add character to %(field_label)s") % {'field_label': import_.field_label})
             else:
-                messages.success(request, f"Character successfully added to {import_.field_label}")
+                messages.success(request, _("Character successfully added to %(field_label)s") % {'field_label': import_.field_label})
 
     return redirect('charlink:index')
 
@@ -151,7 +152,7 @@ def audit(request, corp_id: int):
     corps = get_visible_corps(request.user)
 
     if not corps.filter(corporation_id=corp_id).exists():
-        raise PermissionDenied('You do not have permission to view the selected corporation statistics.')
+        raise PermissionDenied(_('You do not have permission to view the selected corporation statistics.'))
 
     context = {
         'selected': corp,
@@ -215,7 +216,7 @@ def audit_user(request, user_id):
         )
         .exists()
     ):
-        raise PermissionDenied('You do not have permission to view the selected user statistics.')
+        raise PermissionDenied(_('You do not have permission to view the selected user statistics.'))
 
     context = {
         'characters_added': get_user_linked_chars(user),
@@ -240,7 +241,7 @@ def audit_app(request, app):
     app_imports = imported_apps[app]
 
     if not app_imports.has_any_perms(request.user):
-        raise PermissionDenied('You do not have permission to view the selected application statistics.')
+        raise PermissionDenied(_('You do not have permission to view the selected application statistics.'))
 
     app_imports = app_imports.get_imports_with_perms(request.user)
 

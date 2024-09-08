@@ -1,5 +1,6 @@
 from django.db.models import Exists, OuterRef
 from django.contrib.auth.models import Permission, User
+from django.utils.translation import gettext_lazy as _
 
 from charlink.app_imports.utils import LoginImport, AppImport
 
@@ -64,7 +65,7 @@ app_import = AppImport('afat', [
     LoginImport(
         app_label='afat',
         unique_id='readfleet',
-        field_label='AFAT Read Fleet',
+        field_label=_('AFAT Read Fleet'),
         add_character=lambda requets, token: None,
         scopes=_scopes_readfleet,
         check_permissions=_check_perms_readfleet,
@@ -81,7 +82,7 @@ app_import = AppImport('afat', [
     LoginImport(
         app_label='afat',
         unique_id='clickfat',
-        field_label='AFAT Click Fleet',
+        field_label=_('AFAT Click Tracking'),
         add_character=lambda request, token: None,
         scopes=_scopes_clickfleet,
         check_permissions=lambda user: user.has_perm('afat.basic_access'),

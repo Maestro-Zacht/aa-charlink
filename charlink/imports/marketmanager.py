@@ -1,5 +1,6 @@
 from django.db.models import Exists, OuterRef
 from django.contrib.auth.models import Permission
+from django.utils.translation import gettext_lazy as _
 
 from allianceauth.eveonline.models import EveCharacter
 
@@ -34,7 +35,7 @@ app_import = AppImport('marketmanager', [
     LoginImport(
         app_label='marketmanager',
         unique_id='character',
-        field_label='Market Manager Character Login',
+        field_label=_('Market Manager - Character Login'),
         add_character=lambda request, token: None,
         scopes=CHARACTER_SCOPES,
         check_permissions=lambda user: user.has_perm("marketmanager.basic_market_browser"),
@@ -49,7 +50,7 @@ app_import = AppImport('marketmanager', [
     LoginImport(
         app_label='marketmanager',
         unique_id='corporation',
-        field_label='Market Manager Corporation Login',
+        field_label=_('Market Manager - Corporation Login'),
         add_character=lambda request, token: None,
         scopes=CORPORATION_SCOPES,
         check_permissions=lambda user: user.has_perm("marketmanager.basic_market_browser"),

@@ -1,5 +1,6 @@
 from django.db.models import Exists, OuterRef
 from django.contrib.auth.models import Permission
+from django.utils.translation import gettext_lazy as _
 
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from allianceauth.corputils.models import CorpStats
@@ -41,7 +42,7 @@ app_import = AppImport('allianceauth.corputils', [
     LoginImport(
         app_label='allianceauth.corputils',
         unique_id='default',
-        field_label='Corporation Stats',
+        field_label=_('Corporation Stats'),
         add_character=_add_character,
         scopes=['esi-corporations.read_corporation_membership.v1'],
         check_permissions=lambda user: user.has_perm('corputils.add_corpstats'),
