@@ -25,4 +25,17 @@ translations:
 .PHONY: compile_translations
 compile_translations:
 	@echo "Compiling translation files"
-	@django-admin compilemessages
+	@django-admin compilemessages \
+		-l en \
+		-l cs \
+		-l de \
+		-l es \
+		-l fr_FR \
+		-l it_IT \
+		-l ja \
+		-l ko_KR \
+		-l nl \
+		-l pl_PL \
+		-l ru \
+		-l uk \
+		-l zh_Hans

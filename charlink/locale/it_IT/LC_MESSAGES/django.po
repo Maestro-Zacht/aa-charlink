@@ -19,15 +19,15 @@ msgstr ""
 
 #: charlink/decorators.py:13
 msgid "Scopes error. Contact an administrator."
-msgstr ""
+msgstr "Errore negli scope. Contatta un amministratore."
 
 #: charlink/imports/afat.py:68
 msgid "AFAT Read Fleet"
-msgstr ""
+msgstr "AFAT Leggi Flotta"
 
 #: charlink/imports/afat.py:85
 msgid "AFAT Click Tracking"
-msgstr ""
+msgstr "AFAT Clicca Tracciamento"
 
 #: charlink/imports/allianceauth/authentication.py:14
 msgid "Add Character (default)"
@@ -36,15 +36,15 @@ msgstr "Aggiungi personaggio (predefinito)"
 #: charlink/imports/allianceauth/corputils.py:45
 #: charlink/imports/corpstats.py:46
 msgid "Corporation Stats"
-msgstr ""
+msgstr "Statistiche della corporazione"
 
 #: charlink/imports/marketmanager.py:38
 msgid "Market Manager - Character Login"
-msgstr ""
+msgstr "Market Manager - Accesso personaggio"
 
 #: charlink/imports/marketmanager.py:53
 msgid "Market Manager - Corporation Login"
-msgstr ""
+msgstr "Market Manager - Accesso corporazione"
 
 #: charlink/imports/miningtaxes.py:82
 msgid "Mining Taxes"
@@ -60,36 +60,36 @@ msgid ""
 "%(corporation)s has been added with %(character)s as sync character. We have "
 "started fetching structures and notifications for this corporation and you "
 "will receive a report once the process is finished."
-msgstr ""
+msgstr "%(corporation)s è stata aggiunta con %(character)s come personaggio per la sincronizzazione. Abbiamo iniziato a scaricare le strutture e le notifiche per questa corporazione e riceverai un rapporto una volta che il processo sarà terminato."
 
 #: charlink/imports/structures.py:71
 #, python-format
 msgid "%(corporation)s was added as new structure owner by %(user)s."
-msgstr ""
+msgstr "%(corporation)s è stata aggiunta come nuovo proprietario delle strutture da %(user)s."
 
 #: charlink/imports/structures.py:75
 #, python-format
 msgid "%s: Structure owner added: %s"
-msgstr ""
+msgstr "%s: Proprietario della strutture aggiunto: %s"
 
 #: charlink/imports/structures.py:82
 #, python-format
 msgid ""
 "%(character)s has been added to %(corporation)s as sync character. You now "
 "have %(characters_count)d sync character(s) configured."
-msgstr ""
+msgstr "%(character)s è stato aggiunto a %(corporation)s come personaggio per la sincronizzazione. Ora hai %(characters_count)d personaggio(i) per la sincronizzazione configurato(i)."
 
 #: charlink/imports/structures.py:97
 #, python-format
 msgid ""
 "%(character)s was added as sync character to %(corporation)s by %(user)s.\n"
 "We now have %(characters_count)d sync character(s) configured."
-msgstr ""
+msgstr "%(character)s è stato aggiunto come personaggio per la sincronizzazione di %(corporation)s da %(user)s.\nOra abbiamo %(characters_count)d personaggio(i) per la sincronizzazione configurato(i)."
 
 #: charlink/imports/structures.py:107
 #, python-format
 msgid "%s: Character added to: %s"
-msgstr ""
+msgstr "%s: Personaggio aggiunto a: %s"
 
 #: charlink/templates/charlink/app_audit.html:6
 msgid "Charlink App Audit"
@@ -100,7 +100,7 @@ msgstr ""
 #: charlink/templates/charlink/search.html:6
 #: charlink/templates/charlink/user_audit.html:13
 msgid "Links Audit"
-msgstr ""
+msgstr "Revisione dei collegamenti"
 
 #: charlink/templates/charlink/app_audit.html:37
 #: charlink/templates/charlink/audit.html:46
@@ -108,21 +108,21 @@ msgstr ""
 #: charlink/templates/charlink/search.html:23
 #: charlink/templates/charlink/user_audit.html:26
 msgid "Character"
-msgstr ""
+msgstr "Personaggio"
 
 #: charlink/templates/charlink/app_audit.html:39
 #: charlink/templates/charlink/audit.html:47
 #: charlink/templates/charlink/search.html:25
 msgid "Main Character"
-msgstr ""
+msgstr "Personaggio principale"
 
 #: charlink/templates/charlink/audit.html:5
 msgid "Charlink Audit"
-msgstr ""
+msgstr "Revisione di Charlink"
 
 #: charlink/templates/charlink/audit.html:33
 msgid "Characters"
-msgstr ""
+msgstr "Personaggi"
 
 #: charlink/templates/charlink/base.html:5
 msgid "CharLink"
@@ -134,91 +134,91 @@ msgstr ""
 
 #: charlink/templates/charlink/charlink.html:13
 msgid "Character Linking"
-msgstr ""
+msgstr "Colllegamento dei personaggi"
 
 #: charlink/templates/charlink/charlink.html:21
 msgid "Login Form"
-msgstr ""
+msgstr "Form di accesso"
 
 #: charlink/templates/charlink/charlink.html:26
 #: charlink/templates/charlink/user_audit.html:18
 msgid "Linked Characters"
-msgstr ""
+msgstr "Personaggi collegati"
 
 #: charlink/templates/charlink/charlink.html:36
 msgid ""
 "Select the apps you want to link from the list. You will be redirected to "
 "eveonline website to authenticate and provide the token with all the scopes "
 "needed."
-msgstr ""
+msgstr "Seleziona le app che vuoi collegare dall'elenco. Sarai reindirizzato al sito web di eveonline per autenticarti e fornire il token con tutti gli scope necessari."
 
 #: charlink/templates/charlink/charlink.html:42
 #: charlink/templates/charlink/dashboard_login.html:13
 msgid "Login"
-msgstr ""
+msgstr "Accesso"
 
 #: charlink/templates/charlink/charlink.html:101
 msgid "Scopes required:"
-msgstr ""
+msgstr "Scope richiesti:"
 
 #: charlink/templates/charlink/menu-left.html:5
 msgid "Corporations"
-msgstr ""
+msgstr "Corporazioni"
 
 #: charlink/templates/charlink/menu-left.html:18
 msgid "Apps"
-msgstr ""
+msgstr "Le app"
 
 #: charlink/templates/charlink/menu-right.html:5
 msgid "Search"
-msgstr ""
+msgstr "Cerca"
 
 #: charlink/templates/charlink/search.html:4
 msgid "Charlink Search"
-msgstr ""
+msgstr "Ricerca di Charlink"
 
 #: charlink/templates/charlink/search.html:15
 msgid "Search results"
-msgstr ""
+msgstr "Risultati della ricerca"
 
 #: charlink/templates/charlink/search.html:24
 msgid "Corporation"
-msgstr ""
+msgstr "Corporazione"
 
 #: charlink/templates/charlink/search.html:26
 msgid "Main Corporation"
-msgstr ""
+msgstr "Corporazione principale"
 
 #: charlink/templates/charlink/user_audit.html:6
 msgid "Charlink User Audit"
-msgstr ""
+msgstr "Revisione degli utenti di Charlink"
 
 #: charlink/views.py:47
 msgid "Invalid request"
-msgstr ""
+msgstr "Richiesta non valida"
 
 #: charlink/views.py:54
 msgid "Invalid form data"
-msgstr ""
+msgstr "Dati del form non validi"
 
 #: charlink/views.py:137
 #, python-format
 msgid "Failed to add character to %(field_label)s"
-msgstr ""
+msgstr "Aggiunta del personaggio a %(field_label)s non riuscita"
 
 #: charlink/views.py:139
 #, python-format
 msgid "Character successfully added to %(field_label)s"
-msgstr ""
+msgstr "Personaggio aggiunto con successo a %(field_label)s"
 
 #: charlink/views.py:155
 msgid "You do not have permission to view the selected corporation statistics."
-msgstr ""
+msgstr "Non hai il permesso di visualizzare le statistiche della corporazione selezionata."
 
 #: charlink/views.py:219
 msgid "You do not have permission to view the selected user statistics."
-msgstr ""
+msgstr "Non hai il permesso di visualizzare le statistiche dell'utente selezionato."
 
 #: charlink/views.py:244
 msgid "You do not have permission to view the selected application statistics."
-msgstr ""
+msgstr "Non hai il permesso di visualizzare le statistiche dell'applicazione selezionata."
