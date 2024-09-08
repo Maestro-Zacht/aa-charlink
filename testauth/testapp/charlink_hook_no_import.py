@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 from allianceauth.eveonline.models import EveCharacter
 
-from charlink.app_imports import AppImport, LoginImport
+from charlink.app_imports.utils import AppImport, LoginImport
 
 app_import_wrong = AppImport(
     'fakeapp2',
