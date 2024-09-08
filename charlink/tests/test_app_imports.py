@@ -8,17 +8,13 @@ from app_utils.testdata_factories import UserMainFactory
 from charlink.app_imports import import_apps, get_duplicated_apps
 from charlink.imports.corptools import _corp_perms
 
-from ..app_imports import AppImport
-
 
 class TestImportApps(TestCase):
 
     @patch('charlink.app_imports.import_module', wraps=import_module)
     @patch('charlink.app_imports._imported', False)
     @patch('charlink.app_imports._duplicated_apps', set())
-    @patch('charlink.app_imports._supported_apps', {
-        'allianceauth.authentication': AppImport('allianceauth.authentication', [])
-    })
+    @patch('charlink.app_imports._supported_apps', {})
     def test_not_imported(self, mock_import_module):
         imported_apps = import_apps()
         self.assertTrue(mock_import_module.called)
@@ -48,7 +44,7 @@ class TestImportApps(TestCase):
         main_char = user.profile.main_character
 
         add_char = import_apps()['allianceauth.authentication']
-        self.assertIsNone(add_char.imports[0].add_character(None))
+        self.assertIsNone(add_char.imports[0].add_character(None, None))
         self.assertTrue(add_char.imports[0].is_character_added(main_char))
         self.assertTrue(add_char.imports[0].check_permissions(user))
         self.assertEqual(add_char.imports[0].get_users_with_perms().count(), 1)
@@ -61,9 +57,7 @@ class TestImportApps(TestCase):
     @patch('charlink.app_imports.import_module', wraps=import_module)
     @patch('charlink.app_imports._imported', False)
     @patch('charlink.app_imports._duplicated_apps', set())
-    @patch('charlink.app_imports._supported_apps', {
-        'allianceauth.authentication': AppImport('allianceauth.authentication', [])
-    })
+    @patch('charlink.app_imports._supported_apps', {})
     def test_get_duplicated_apps_imports_apps(self, mock_import_module):
         get_duplicated_apps()
         self.assertTrue(mock_import_module.called)
@@ -157,15 +151,10 @@ class TestAppImport(TestCase):
             app_import.validate_import()
         app_import.imports[0].unique_id = 'default'
 
-        app_import.imports[0].field_label = 1
-        with self.assertRaises(AssertionError):
-            app_import.validate_import()
-        app_import.imports[0].field_label = 'Add Character (default)'
-
         app_import.imports[0].add_character = 1
         with self.assertRaises(AssertionError):
             app_import.validate_import()
-        app_import.imports[0].add_character = lambda token: None
+        app_import.imports[0].add_character = lambda request, token: None
 
         app_import.imports[0].scopes = 1
         with self.assertRaises(AssertionError):

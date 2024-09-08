@@ -1,8 +1,9 @@
 {% extends 'charlink/base.html' %}
+{% load i18n %}
 
-{% block page_title %}Charlink Search{% endblock page_title %}
+{% block page_title %}{% translate "Charlink Search" %}{% endblock page_title %}
 
-{% block charlink_page_header %}<h1 class="page-header text-center">Links Audit</h1>{% endblock charlink_page_header %}
+{% block charlink_page_header %}<h1 class="page-header text-center">{% translate "Links Audit" %}</h1>{% endblock charlink_page_header %}
 
 {% block extra_css %}
     {% include "bundles/datatables-css-bs5.html" %}
@@ -11,7 +12,7 @@
 {% block charlink_content %}
     <div class="card">
         <div class="card-header text-center">
-            <h3 class="card-title">Search results</h3>
+            <h3 class="card-title">{% translate "Search results" %}</h3>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -19,10 +20,10 @@
                     <thead>
                         <tr>
                             <th></th>
-                            <th class="text-center">Character</th>
-                            <th class="text-center">Corporation</th>
-                            <th class="text-center">Main Character</th>
-                            <th class="text-center">Main Corporation</th>
+                            <th class="text-center">{% translate "Character" %}</th>
+                            <th class="text-center">{% translate "Corporation" %}</th>
+                            <th class="text-center">{% translate "Main Character" %}</th>
+                            <th class="text-center">{% translate "Main Corporation" %}</th>
                         </tr>
                     </thead>
                     <tbody>

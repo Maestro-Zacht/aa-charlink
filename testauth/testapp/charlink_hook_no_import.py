@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 from allianceauth.eveonline.models import EveCharacter
 
-from charlink.app_imports import AppImport, LoginImport
+from charlink.app_imports.utils import AppImport, LoginImport
 
 app_import_wrong = AppImport(
     'fakeapp2',
@@ -12,7 +12,7 @@ app_import_wrong = AppImport(
             app_label='fakeapp2',
             unique_id='invalid id',
             field_label='TestApp',
-            add_character=lambda user: None,
+            add_character=lambda request, user: None,
             scopes=['esi-characters.read_loyalty.v1'],
             check_permissions=lambda user: True,
             is_character_added=lambda character: True,

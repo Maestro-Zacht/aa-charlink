@@ -1,14 +1,11 @@
 from importlib import import_module
 
 from django.conf import settings
-from django.contrib.auth.models import User
-from django.db.models import Exists, OuterRef
 
 from allianceauth.services.hooks import get_extension_logger
-from allianceauth.authentication.models import CharacterOwnership
 from allianceauth.hooks import get_hooks
 
-from .utils import LoginImport, AppImport
+from .utils import AppImport
 
 logger = get_extension_logger(__name__)
 

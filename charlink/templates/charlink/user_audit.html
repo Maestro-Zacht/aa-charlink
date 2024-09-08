@@ -1,20 +1,21 @@
 {% extends 'charlink/base.html' %}
 {% load charlinkutils %}
 {% load charlink_versioned_static %}
+{% load i18n %}
 
-{% block page_title %}Charlink User Audit{% endblock page_title %}
+{% block page_title %}{% translate "Charlink User Audit" %}{% endblock page_title %}
 
 {% block extra_css %}
     <link rel="stylesheet" type="text/css" href="{% charlink_static 'charlink/css/added-icons.css' %}">
     {% include "bundles/datatables-css-bs5.html" %}
 {% endblock extra_css %}
 
-{% block charlink_page_header %}<h1 class="page-header text-center">Links Audit</h1>{% endblock charlink_page_header %}
+{% block charlink_page_header %}<h1 class="page-header text-center">{% translate "Links Audit" %}</h1>{% endblock charlink_page_header %}
 
 {% block charlink_content %}
     <div class="card">
         <div class="card-header text-center">
-            <h3 class="card-title">Linked Characters</h3>
+            <h3 class="card-title">{% translate "Linked Characters" %}</h3>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -22,7 +23,7 @@
                     <thead>
                         <tr>
                             <th></th>
-                            <th>Character</th>
+                            <th>{% translate "Character" %}</th>
                             {% for import_data in characters_added.apps.values %}
                                 {% for login_data in import_data.imports %}
                                     <th>{{ login_data.field_label }}</th>
