@@ -17,7 +17,6 @@ translations:
 		-l nl \
 		-l pl_PL \
 		-l ru \
-		-l sk \
 		-l uk \
 		-l zh_Hans \
 		--ignore 'build/*'
