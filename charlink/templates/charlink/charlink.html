@@ -3,13 +3,13 @@
 {% load charlinkutils %}
 {% load charlink_versioned_static %}
 
-{% block page_title %}Charlink{% endblock page_title %}
+{% block page_title %}{% translate "Charlink" %}{% endblock page_title %}
 
 {% block extra_css %}
     <link rel="stylesheet" type="text/css" href="{% charlink_static 'charlink/css/added-icons.css' %}">
 {% endblock extra_css %}
 
-{% block charlink_page_header %}<h1 class="page-header text-center">Character Linking</h1>{% endblock charlink_page_header %}
+{% block charlink_page_header %}<h1 class="page-header text-center">{% translate "Character Linking" %}</h1>{% endblock charlink_page_header %}
 
 {% block charlink_content %}
     <div class="card">
@@ -17,12 +17,12 @@
             <ul class="nav nav-tabs card-header-tabs">
                 <li class="nav-item">
                     <button class="nav-link active" id="login-tab" data-bs-toggle="tab" data-bs-target="#loginForm" type="button" role="tab" aria-controls="loginForm" aria-selected="true">
-                        Login Form
+                        {% translate "Login Form" %}
                     </button>
                 </li>
                 <li class="nav-item">
                     <button class="nav-link" id="characters-tab" data-bs-toggle="tab" data-bs-target="#linkedCharacters" type="button" role="tab" aria-controls="linkedCharacters" aria-selected="false">
-                        Linked Characters
+                        {% translate "Linked Characters" %}
                     </button>
                 </li>
             </ul>
@@ -32,13 +32,13 @@
                 <div class="tab-pane fade text-center container-fluid show active" id="loginForm" role="tabpanel" aria-labelledby="login-tab" tabindex="0">
                     <div class="row justify-content-center">
                         <div class="col-12 my-3">
-                            <p>Select the apps you want to link from the list. You will be redirected to eveonline website to authenticate and provide the token with all the scopes needed.</p>
+                            <p>{% translate "Select the apps you want to link from the list. You will be redirected to eveonline website to authenticate and provide the token with all the scopes needed." %}</p>
                         </div>
                         <div class="col-lg-4">
                             <form method="post">
                                 {% csrf_token %}
                                 {% bootstrap_form form %}
-                                <button type="submit" class="btn btn-primary mt-3">Login</button>
+                                <button type="submit" class="btn btn-primary mt-3">{% translate "Login" %}</button>
                             </form>
                         </div>
                     </div>
@@ -47,7 +47,7 @@
                     <div class="table-responsive">
                         <table class="table table-aa align-middle">
                             <thead>
-                                <th>Character</th>
+                                <th>{% translate "Character" %}</th>
                                 {% for app_imports in characters_added.apps.values %}
                                     {% for login_import in app_imports.imports %}
                                         <th scope="col">{{ login_import.field_label }}</th>
@@ -97,7 +97,7 @@
                 {% for import_data in characters_added.apps.values %}
                     {% for login_data in import_data.imports %}
                         <div class="tab-pane fade {% if forloop.parentloop.first and forloop.first %}show active {% endif %}text-center" id="{{ import_data.app_label }}-{{ login_data.unique_id }}" role="tabpanel" aria-labelledby="{{ import_data.app_label }}-{{ login_data.unique_id }}-tab" tabindex="0">
-                            Scopes required:
+                            {% translate "Scopes required:" %}
                             {{ login_data.scopes|unordered_list|safe }}
                         </div>
                     {% endfor %}

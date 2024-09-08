@@ -1,6 +1,6 @@
 <li class="nav-item dropdown">
     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-        Corporations
+        {% translate "Corporations" %}
     </a>
     <ul class="dropdown-menu">
         {% for corp in available %}
@@ -13,7 +13,7 @@
 
 <li class="nav-item dropdown ms-3">
     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-        Apps
+        {% translate "Apps" %}
     </a>
     <ul class="dropdown-menu">
         {% for app, import_data in available_apps.items %}

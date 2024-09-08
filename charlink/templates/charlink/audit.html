@@ -1,9 +1,9 @@
 {% extends 'charlink/base.html' %}
 {% load charlinkutils %}
 
-{% block page_title %}Charlink Audit{% endblock page_title %}
+{% block page_title %}{% translate "Charlink Audit" %}{% endblock page_title %}
 
-{% block charlink_page_header %}<h1 class="page-header text-center">Links Audit</h1>{% endblock charlink_page_header %}
+{% block charlink_page_header %}<h1 class="page-header text-center">{% translate "Links Audit" %}</h1>{% endblock charlink_page_header %}
 
 {% block extra_css %}
     {% include "bundles/datatables-css-bs5.html" %}
@@ -29,7 +29,7 @@
                     <ul class="nav nav-pills">
                         <li class="nav-item">
                             <button class="nav-link active" id="characters-tab" data-bs-toggle="tab" data-bs-target="#characters-tab-pane" type="button" role="tab" aria-controls="characters-tab-pane" aria-selected="true">
-                                Characters
+                                {% translate "Characters" %}
                             </button>
                         </li>
                     </ul>
@@ -42,8 +42,8 @@
                                     <thead>
                                         <tr>
                                             <th></th>
-                                            <th class="text-center">Character</th>
-                                            <th class="text-center">Main Character</th>
+                                            <th class="text-center">{% translate "Character" %}</th>
+                                            <th class="text-center">{% translate "Main Character" %}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
