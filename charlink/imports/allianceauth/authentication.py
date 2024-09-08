@@ -1,5 +1,6 @@
 from django.db.models import Exists, OuterRef
 from django.contrib.auth.models import User
+from django.utils.translation import gettext_lazy as _
 
 from allianceauth.authentication.models import CharacterOwnership
 
@@ -10,7 +11,7 @@ app_import = AppImport('allianceauth.authentication', [
     LoginImport(
         app_label='allianceauth.authentication',
         unique_id='default',
-        field_label='Add Character (default)',
+        field_label=_('Add Character (default)'),
         add_character=lambda request, token: None,
         scopes=['publicData'],
         check_permissions=lambda user: True,
