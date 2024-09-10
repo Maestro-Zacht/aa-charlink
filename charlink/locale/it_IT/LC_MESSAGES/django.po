@@ -2,20 +2,24 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# 
+# Translators:
+# Matteo Ghia, 2024
+# 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-09-08 15:37+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2024-09-08 14:58+0000\n"
+"Last-Translator: Matteo Ghia, 2024\n"
+"Language-Team: Italian (Italy) (https://app.transifex.com/alliance-auth/teams/107430/it_IT/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: it_IT\n"
+"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
 
 #: charlink/decorators.py:13
 msgid "Scopes error. Contact an administrator."
@@ -57,15 +61,21 @@ msgstr "Tasse di estrazione - Admin"
 #: charlink/imports/structures.py:57
 #, python-format
 msgid ""
-"%(corporation)s has been added with %(character)s as sync character. We have "
-"started fetching structures and notifications for this corporation and you "
+"%(corporation)s has been added with %(character)s as sync character. We have"
+" started fetching structures and notifications for this corporation and you "
 "will receive a report once the process is finished."
-msgstr "%(corporation)s è stata aggiunta con %(character)s come personaggio per la sincronizzazione. Abbiamo iniziato a scaricare le strutture e le notifiche per questa corporazione e riceverai un rapporto una volta che il processo sarà terminato."
+msgstr ""
+"%(corporation)s è stata aggiunta con %(character)s come personaggio per la "
+"sincronizzazione. Abbiamo iniziato a scaricare le strutture e le notifiche "
+"per questa corporazione e riceverai un rapporto una volta che il processo "
+"sarà terminato."
 
 #: charlink/imports/structures.py:71
 #, python-format
 msgid "%(corporation)s was added as new structure owner by %(user)s."
-msgstr "%(corporation)s è stata aggiunta come nuovo proprietario delle strutture da %(user)s."
+msgstr ""
+"%(corporation)s è stata aggiunta come nuovo proprietario delle strutture da "
+"%(user)s"
 
 #: charlink/imports/structures.py:75
 #, python-format
@@ -77,14 +87,19 @@ msgstr "%s: Proprietario della strutture aggiunto: %s"
 msgid ""
 "%(character)s has been added to %(corporation)s as sync character. You now "
 "have %(characters_count)d sync character(s) configured."
-msgstr "%(character)s è stato aggiunto a %(corporation)s come personaggio per la sincronizzazione. Ora hai %(characters_count)d personaggio(i) per la sincronizzazione configurato(i)."
+msgstr ""
+"%(character)s è stato aggiunto a %(corporation)s come personaggio per la "
+"sincronizzazione. Ora hai %(characters_count)d personaggio(i) per la "
+"sincronizzazione configurato(i)."
 
 #: charlink/imports/structures.py:97
 #, python-format
 msgid ""
 "%(character)s was added as sync character to %(corporation)s by %(user)s.\n"
 "We now have %(characters_count)d sync character(s) configured."
-msgstr "%(character)s è stato aggiunto come personaggio per la sincronizzazione di %(corporation)s da %(user)s.\nOra abbiamo %(characters_count)d personaggio(i) per la sincronizzazione configurato(i)."
+msgstr ""
+"%(character)s è stato aggiunto come personaggio per la sincronizzazione di %(corporation)s da %(user)s.\n"
+"Ora abbiamo %(characters_count)d personaggio(i) per la sincronizzazione configurato(i)."
 
 #: charlink/imports/structures.py:107
 #, python-format
@@ -114,7 +129,7 @@ msgstr "Personaggio"
 #: charlink/templates/charlink/audit.html:47
 #: charlink/templates/charlink/search.html:25
 msgid "Main Character"
-msgstr "Personaggio principale"
+msgstr "Personaggio Principale"
 
 #: charlink/templates/charlink/audit.html:5
 msgid "Charlink Audit"
@@ -134,7 +149,7 @@ msgstr "Charlink"
 
 #: charlink/templates/charlink/charlink.html:13
 msgid "Character Linking"
-msgstr "Colllegamento dei personaggi"
+msgstr "Collegamento dei personaggi"
 
 #: charlink/templates/charlink/charlink.html:21
 msgid "Login Form"
@@ -150,7 +165,10 @@ msgid ""
 "Select the apps you want to link from the list. You will be redirected to "
 "eveonline website to authenticate and provide the token with all the scopes "
 "needed."
-msgstr "Seleziona le app che vuoi collegare dall'elenco. Sarai reindirizzato al sito web di eveonline per autenticarti e fornire il token con tutti gli scope necessari."
+msgstr ""
+"Seleziona le app che vuoi collegare dall'elenco. Sarai reindirizzato al sito"
+" web di eveonline per autenticarti e fornire il token con tutti gli scope "
+"necessari."
 
 #: charlink/templates/charlink/charlink.html:42
 #: charlink/templates/charlink/dashboard_login.html:13
@@ -191,7 +209,7 @@ msgstr "Corporazione principale"
 
 #: charlink/templates/charlink/user_audit.html:6
 msgid "Charlink User Audit"
-msgstr "Revisione degli utenti di Charlink"
+msgstr "Revisione degli utenti di CharLink"
 
 #: charlink/views.py:47
 msgid "Invalid request"
@@ -212,13 +230,20 @@ msgid "Character successfully added to %(field_label)s"
 msgstr "Personaggio aggiunto con successo a %(field_label)s"
 
 #: charlink/views.py:155
-msgid "You do not have permission to view the selected corporation statistics."
-msgstr "Non hai il permesso di visualizzare le statistiche della corporazione selezionata."
+msgid ""
+"You do not have permission to view the selected corporation statistics."
+msgstr ""
+"Non hai il permesso di visualizzare le statistiche della corporazione "
+"selezionata."
 
 #: charlink/views.py:219
 msgid "You do not have permission to view the selected user statistics."
-msgstr "Non hai il permesso di visualizzare le statistiche dell'utente selezionato."
+msgstr ""
+"Non hai il permesso di visualizzare le statistiche dell'utente selezionato."
 
 #: charlink/views.py:244
-msgid "You do not have permission to view the selected application statistics."
-msgstr "Non hai il permesso di visualizzare le statistiche dell'applicazione selezionata."
+msgid ""
+"You do not have permission to view the selected application statistics."
+msgstr ""
+"Non hai il permesso di visualizzare le statistiche dell'applicazione "
+"selezionata."
