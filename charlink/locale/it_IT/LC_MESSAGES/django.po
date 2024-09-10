@@ -206,7 +206,7 @@ msgstr "Corporazione principale"
 
 #: charlink/templates/charlink/user_audit.html:6
 msgid "CharLink User Audit"
-msgstr ""
+msgstr "Revisione degli utenti di CharLink"
 
 #: charlink/views.py:47
 msgid "Invalid request"
