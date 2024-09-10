@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-08 15:37+0000\n"
+"POT-Creation-Date: 2024-09-10 15:38+0000\n"
 "PO-Revision-Date: 2024-09-08 14:58+0000\n"
 "Last-Translator: Matteo Ghia, 2024\n"
 "Language-Team: Italian (Italy) (https://app.transifex.com/alliance-auth/teams/107430/it_IT/)\n"
@@ -140,12 +140,9 @@ msgid "Characters"
 msgstr "Personaggi"
 
 #: charlink/templates/charlink/base.html:5
+#: charlink/templates/charlink/charlink.html:7
 msgid "CharLink"
 msgstr "CharLink"
-
-#: charlink/templates/charlink/charlink.html:7
-msgid "Charlink"
-msgstr "Charlink"
 
 #: charlink/templates/charlink/charlink.html:13
 msgid "Character Linking"
@@ -208,7 +205,7 @@ msgid "Main Corporation"
 msgstr "Corporazione principale"
 
 #: charlink/templates/charlink/user_audit.html:6
-msgid "Charlink User Audit"
+msgid "CharLink User Audit"
 msgstr "Revisione degli utenti di CharLink"
 
 #: charlink/views.py:47
