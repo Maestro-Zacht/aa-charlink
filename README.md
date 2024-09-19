@@ -2,6 +2,8 @@
 
 [![PyPI](https://img.shields.io/pypi/v/aa-charlink)](https://pypi.org/project/aa-charlink/)
 
+![EvE Partner](https://raw.githubusercontent.com/Maestro-Zacht/aa-charlink/503fac8d44c7c40ea8489da6519f94219446d1e5/docs/images/eve_partner.jpg)
+
 A simple app for AllianceAuth that allows users to link each character to all the AllianceAuth apps with only 1 login action.
 
 ## Overview
