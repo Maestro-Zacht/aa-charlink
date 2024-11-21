@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-10 15:38+0000\n"
+"POT-Creation-Date: 2024-11-21 15:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,18 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: charlink/app_imports/__init__.py:41
+msgid "Hook import: failed to validate"
+msgstr ""
+
+#: charlink/app_imports/__init__.py:44
+msgid "Hook import: import not found"
+msgstr ""
+
+#: charlink/app_imports/__init__.py:47
+msgid "Hook import: generic error"
+msgstr ""
 
 #: charlink/decorators.py:13
 msgid "Scopes error. Contact an administrator."
@@ -92,6 +104,48 @@ msgstr ""
 msgid "%s: Character added to: %s"
 msgstr ""
 
+#: charlink/templates/charlink/admin_imported_apps.html:3
+msgid "Charlink Imported Apps"
+msgstr ""
+
+#: charlink/templates/charlink/admin_imported_apps.html:5
+#: charlink/templates/charlink/menu-left.html:31
+msgid "Imported Apps"
+msgstr ""
+
+#: charlink/templates/charlink/admin_imported_apps.html:13
+msgid "Imported"
+msgstr ""
+
+#: charlink/templates/charlink/admin_imported_apps.html:18
+msgid "Duplicated"
+msgstr ""
+
+#: charlink/templates/charlink/admin_imported_apps.html:23
+msgid "Failed to import"
+msgstr ""
+
+#: charlink/templates/charlink/admin_imported_apps.html:28
+msgid "Missing imports"
+msgstr ""
+
+#: charlink/templates/charlink/admin_imported_apps.html:52
+#: charlink/templates/charlink/charlink.html:101
+msgid "Scopes required:"
+msgstr ""
+
+#: charlink/templates/charlink/admin_imported_apps.html:73
+msgid "No duplicated apps found."
+msgstr ""
+
+#: charlink/templates/charlink/admin_imported_apps.html:84
+msgid "All apps have been imported successfully."
+msgstr ""
+
+#: charlink/templates/charlink/admin_imported_apps.html:95
+msgid "No missing imports found."
+msgstr ""
+
 #: charlink/templates/charlink/app_audit.html:6
 msgid "Charlink App Audit"
 msgstr ""
@@ -153,10 +207,6 @@ msgstr ""
 #: charlink/templates/charlink/charlink.html:42
 #: charlink/templates/charlink/dashboard_login.html:13
 msgid "Login"
-msgstr ""
-
-#: charlink/templates/charlink/charlink.html:101
-msgid "Scopes required:"
 msgstr ""
 
 #: charlink/templates/charlink/menu-left.html:5

@@ -1,7 +1,7 @@
 import re
 
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.db.models import Q
@@ -15,7 +15,7 @@ from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from allianceauth.authentication.decorators import permissions_required
 
 from .forms import LinkForm
-from .app_imports import import_apps
+from .app_imports import import_apps, get_duplicated_apps, get_failed_to_import, get_no_import
 from .decorators import charlink
 from .app_settings import CHARLINK_IGNORE_APPS
 from .utils import get_user_available_apps, get_user_linked_chars, get_visible_corps, chars_annotate_linked_apps
@@ -272,3 +272,17 @@ def audit_app(request, app):
     }
 
     return render(request, 'charlink/app_audit.html', context=context)
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser)
+def admin_imported_apps(request):
+    context = {
+        'imported_apps': import_apps(),
+        'duplicated_apps': get_duplicated_apps(),
+        'failed_to_import': get_failed_to_import(),
+        'no_import': get_no_import(),
+        **get_navbar_elements(request.user),
+    }
+
+    return render(request, 'charlink/admin_imported_apps.html', context=context)
