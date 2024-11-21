@@ -5,7 +5,7 @@ from django.test import TestCase
 
 from app_utils.testdata_factories import UserMainFactory
 
-from charlink.app_imports import import_apps, get_duplicated_apps
+from charlink.app_imports import import_apps, get_duplicated_apps, get_failed_to_import, get_no_import
 from charlink.imports.corptools import _corp_perms
 
 
@@ -17,15 +17,25 @@ class TestImportApps(TestCase):
     @patch('charlink.app_imports._supported_apps', {})
     def test_not_imported(self, mock_import_module):
         imported_apps = import_apps()
+        failed = get_failed_to_import()
+        no_import = get_no_import()
+        duplicated = get_duplicated_apps()
+
         self.assertTrue(mock_import_module.called)
         self.assertIn('allianceauth.authentication', imported_apps)
         self.assertIn('allianceauth.corputils', imported_apps)
         self.assertIn('testauth.testapp', imported_apps)
         self.assertNotIn('fakeapp', imported_apps)
+        self.assertIn('testauth.testapp.charlink_hook_invalid', failed)
         self.assertNotIn('fakeapp2', imported_apps)
+        self.assertIn('testauth.testapp.charlink_hook_no_import', failed)
         self.assertNotIn('allianceauth', imported_apps)
         self.assertNotIn('allianceauth.eveonline', imported_apps)
+        self.assertIn('testauth.testapp.charlink_hook_no_import', failed)
         mock_import_module.assert_any_call('charlink.imports.allianceauth.eveonline')
+
+        self.assertSetEqual({'testauth.testapp_duplicate'}, duplicated)
+        self.assertIn('charlink', no_import)
 
     @patch('charlink.app_imports.import_module', wraps=import_module)
     def test_imported(self, mock_import_module):

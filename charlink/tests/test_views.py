@@ -541,3 +541,38 @@ class TestAuditApp(TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertIn('logins', res.context)
         self.assertEqual(len(res.context['logins']), 2)
+
+
+class TestAdminImportedApps(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.admin = UserMainFactory(is_superuser=True)
+        cls.user = UserMainFactory()
+
+    @patch('charlink.app_imports.import_apps')
+    @patch('charlink.views.get_duplicated_apps')
+    @patch('charlink.views.get_failed_to_import')
+    @patch('charlink.views.get_no_import')
+    def test_admin(self, mock_no_import, mock_failed_to_import, mock_duplicated_apps, mock_import_apps):
+        mock_no_import.return_value = []
+        mock_failed_to_import.return_value = {}
+        mock_duplicated_apps.return_value = set()
+        mock_import_apps.return_value = {}
+
+        self.client.force_login(self.admin)
+
+        res = self.client.get(reverse('charlink:admin_imported_apps'))
+
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('imported_apps', res.context)
+        self.assertIn('duplicated_apps', res.context)
+        self.assertIn('failed_to_import', res.context)
+        self.assertIn('no_import', res.context)
+
+    def test_no_admin(self):
+        self.client.force_login(self.user)
+
+        res = self.client.get(reverse('charlink:admin_imported_apps'))
+
+        self.assertNotEqual(res.status_code, 200)
