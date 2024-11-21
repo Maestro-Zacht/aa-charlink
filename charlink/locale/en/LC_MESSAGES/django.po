@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-21 14:58+0000\n"
+"POT-Creation-Date: 2024-11-21 15:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,18 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: charlink/app_imports/__init__.py:41
+msgid "Hook import: failed to validate"
+msgstr ""
+
+#: charlink/app_imports/__init__.py:44
+msgid "Hook import: import not found"
+msgstr ""
+
+#: charlink/app_imports/__init__.py:47
+msgid "Hook import: generic error"
+msgstr ""
 
 #: charlink/decorators.py:13
 msgid "Scopes error. Contact an administrator."

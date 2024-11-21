@@ -1,6 +1,7 @@
 from importlib import import_module
 
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.hooks import get_hooks
@@ -37,13 +38,13 @@ def import_apps():
                 app_import.validate_import()
             except AssertionError:
                 logger.debug(f"Loading of {hook_mod} link via hook: failed to validate")
-                _failed_to_import[hook_mod] = "Hook import: failed to validate"
+                _failed_to_import[hook_mod] = _("Hook import: failed to validate")
             except ModuleNotFoundError:
                 logger.debug(f"Loading of {hook_mod} link via hook: failed to import")
-                _failed_to_import[hook_mod] = "Hook import: import not found"
+                _failed_to_import[hook_mod] = _("Hook import: import not found")
             except:
                 logger.debug(f"Loading of {hook_mod} link via hook: failed")
-                _failed_to_import[hook_mod] = "Hook import: generic error"
+                _failed_to_import[hook_mod] = _("Hook import: generic error")
             else:
                 if app_import.app_label in _supported_apps:
                     _supported_apps.pop(app_import.app_label)
