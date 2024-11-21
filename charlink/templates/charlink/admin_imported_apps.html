@@ -1,8 +1,8 @@
 {% extends 'charlink/base.html' %}
 
-{% block page_title %}Charlink Imported Apps{% endblock page_title %}
+{% block page_title %}{% translate "Charlink Imported Apps" %}{% endblock page_title %}
 
-{% block charlink_page_header %}<h1 class="page-header text-center">Imported Apps</h1>{% endblock charlink_page_header %}
+{% block charlink_page_header %}<h1 class="page-header text-center">{% translate "Imported Apps" %}</h1>{% endblock charlink_page_header %}
 
 {% block charlink_content %}
     <div class="card">
@@ -10,22 +10,22 @@
             <ul class="nav nav-tabs card-header-tabs">
                 <li class="nav-item">
                     <button class="nav-link active" id="imported-tab" data-bs-toggle="tab" data-bs-target="#imported" type="button" role="tab" aria-controls="imported" aria-selected="true">
-                        Imported
+                        {% translate "Imported" %}
                     </button>
                 </li>
                 <li class="nav-item">
                     <button class="nav-link" id="duplicated-tab" data-bs-toggle="tab" data-bs-target="#duplicatedApps" type="button" role="tab" aria-controls="duplicatedApps" aria-selected="false">
-                        Duplicated
+                        {% translate "Duplicated" %}
                     </button>
                 </li>
                 <li class="nav-item">
                     <button class="nav-link" id="failed-tab" data-bs-toggle="tab" data-bs-target="#failedApps" type="button" role="tab" aria-controls="failedApps" aria-selected="false">
-                        Failed to import
+                        {% translate "Failed to import" %}
                     </button>
                 </li>
                 <li class="nav-item">
                     <button class="nav-link" id="missing-tab" data-bs-toggle="tab" data-bs-target="#missingApps" type="button" role="tab" aria-controls="missingApps" aria-selected="false">
-                        Missing imports
+                        {% translate "Missing imports" %}
                     </button>
                 </li>
             </ul>
@@ -49,7 +49,7 @@
                                                     <div class="card">
                                                         <div class="card-header">{{ login_import.field_label }}</div>
                                                         <div class="card-body">
-                                                            Scopes required:
+                                                            {% translate "Scopes required:" %}
                                                             {{ login_import.scopes|unordered_list|safe }}
                                                         </div>
                                                     </div>
@@ -70,7 +70,7 @@
                             {% endfor %}
                         </ul>
                     {% else %}
-                        <p class="card-text">No duplicated apps found.</p>
+                        <p class="card-text">{% translate "No duplicated apps found." %}</p>
                     {% endif %}
                 </div>
                 <div class="tab-pane fade text-center" id="failedApps" role="tabpanel" aria-labelledby="failed-tab" tabindex="0">
@@ -81,7 +81,7 @@
                             {% endfor %}
                         </ul>
                     {% else %}
-                        <p class="card-text">All apps have been imported successfully.</p>
+                        <p class="card-text">{% translate "All apps have been imported successfully." %}</p>
                     {% endif %}
                 </div>
                 <div class="tab-pane fade text-center" id="missingApps" role="tabpanel" aria-labelledby="missing-tab" tabindex="0">
@@ -92,7 +92,7 @@
                             {% endfor %}
                         </ul>
                     {% else %}
-                        <p class="card-text">No missing imports found.</p>
+                        <p class="card-text">{% translate "No missing imports found." %}</p>
                     {% endif %}
                 </div>
             </div>
