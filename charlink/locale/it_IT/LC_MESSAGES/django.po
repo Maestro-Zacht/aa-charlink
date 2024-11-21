@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-10 15:38+0000\n"
+"POT-Creation-Date: 2024-11-21 15:02+0000\n"
 "PO-Revision-Date: 2024-09-08 14:58+0000\n"
 "Last-Translator: Matteo Ghia, 2024\n"
 "Language-Team: Italian (Italy) (https://app.transifex.com/alliance-auth/teams/107430/it_IT/)\n"
@@ -20,6 +20,18 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Language: it_IT\n"
 "Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
+
+#: charlink/app_imports/__init__.py:41
+msgid "Hook import: failed to validate"
+msgstr "Importazione via hook: validazione fallita"
+
+#: charlink/app_imports/__init__.py:44
+msgid "Hook import: import not found"
+msgstr "Importazione via hook: file di import non trovato"
+
+#: charlink/app_imports/__init__.py:47
+msgid "Hook import: generic error"
+msgstr "Importazione via hook: errore generico"
 
 #: charlink/decorators.py:13
 msgid "Scopes error. Contact an administrator."
@@ -106,6 +118,48 @@ msgstr ""
 msgid "%s: Character added to: %s"
 msgstr "%s: Personaggio aggiunto a: %s"
 
+#: charlink/templates/charlink/admin_imported_apps.html:3
+msgid "Charlink Imported Apps"
+msgstr "App Importate in Charlink"
+
+#: charlink/templates/charlink/admin_imported_apps.html:5
+#: charlink/templates/charlink/menu-left.html:31
+msgid "Imported Apps"
+msgstr "App Importate"
+
+#: charlink/templates/charlink/admin_imported_apps.html:13
+msgid "Imported"
+msgstr "Importate"
+
+#: charlink/templates/charlink/admin_imported_apps.html:18
+msgid "Duplicated"
+msgstr "Duplicate"
+
+#: charlink/templates/charlink/admin_imported_apps.html:23
+msgid "Failed to import"
+msgstr "Importazione fallita"
+
+#: charlink/templates/charlink/admin_imported_apps.html:28
+msgid "Missing imports"
+msgstr "Import mancanti"
+
+#: charlink/templates/charlink/admin_imported_apps.html:52
+#: charlink/templates/charlink/charlink.html:101
+msgid "Scopes required:"
+msgstr "Scope richiesti:"
+
+#: charlink/templates/charlink/admin_imported_apps.html:73
+msgid "No duplicated apps found."
+msgstr "Nessuna app duplicata."
+
+#: charlink/templates/charlink/admin_imported_apps.html:84
+msgid "All apps have been imported successfully."
+msgstr "Tutte le app sono state importate con successo."
+
+#: charlink/templates/charlink/admin_imported_apps.html:95
+msgid "No missing imports found."
+msgstr "Nessun import mancante trovato."
+
 #: charlink/templates/charlink/app_audit.html:6
 msgid "Charlink App Audit"
 msgstr "Charlink Revisione dell'Applicazione"
@@ -171,10 +225,6 @@ msgstr ""
 #: charlink/templates/charlink/dashboard_login.html:13
 msgid "Login"
 msgstr "Accesso"
-
-#: charlink/templates/charlink/charlink.html:101
-msgid "Scopes required:"
-msgstr "Scope richiesti:"
 
 #: charlink/templates/charlink/menu-left.html:5
 msgid "Corporations"
