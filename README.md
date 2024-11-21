@@ -22,7 +22,8 @@ Users with the appropriate permission (see [permissions](#permissions)) can audi
 
 A user can be audited by clicking on the link on the `Main Character` column.
 
-NEW: Users can now audit the apps they have access to. Select the app you want to audit from the dropdown menu in the audit page.
+App Audit: Users can now audit character based on the apps they have access to. Select the app you want to audit from the dropdown menu in the audit page.
+Admin App status: users with `is_superuser` can now see the list of imported apps and the ones with issues with the import.
 
 ## Installation
 
@@ -75,7 +76,10 @@ The hook has to return a string with the import path of the module containing th
 If you want to setup a template override to link the "Add character" button to the login page of this package, set the `a` element to:
 
 ```html
-<a href="{% url 'charlink:index' %}" class="btn btn-block btn-info" title="Add Character">{% translate 'Add Character' %}</a>
+<a href="{% url 'charlink:index' %}" class="btn btn-primary flex-fill m-1" title="{% translate 'Add Character' %}">
+      <span class="d-md-inline m-2">{% translate 'Add Character' %}</span>
+</a>
+
 ```
 
 ## Known issues
