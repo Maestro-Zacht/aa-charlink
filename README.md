@@ -59,9 +59,29 @@ The hook has to return a string with the import path of the module containing th
 
 ## Settings
 
-| Name                   | Description                                                                         | Default |
-| ---------------------- | ----------------------------------------------------------------------------------- | ------- |
-| `CHARLINK_IGNORE_APPS` | List of apps to ignore. Use the name of the app as it is called in `INSTALLED_APPS` | `[]`    |
+| Name                   | Description                                                                                                                                                                                                                                     | Default |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `CHARLINK_IGNORE_APPS` | List of apps to ignore. Use the name of the app as it is called in `INSTALLED_APPS` if you want to ignore all the entries for that app, or any of the options in the [following section]( #ignoring-single-entries) for ignoring a single entry | `[]`    |
+
+### Ignoring single entries
+
+The following apps have more than 1 entry and you can ignore individual entries by adding the relative option below:
+
+- `AllianceAuth Contacts`
+  - `Alliance Contacts`: `aa_contacts.alliance`
+  - `Corporation Contacts`: `aa_contacts.corporation`
+- `Corptools`
+  - `Character Audit`: `corptools.default`
+  - `Corporation Audit`: `corptools.structures`
+- `MiningTaxes`
+  - `Mining Taxes`: `miningtaxes.default`
+  - `Mining Taxes Admin`: `miningtaxes.admin`
+- `AFAT`
+  - `AFAT Read Fleet`: `afat.readfleet`
+  - `AFAT Click Tracking`: `afat.clickfat`
+- `Market Manager`
+  - `Market Manager - Character Login`: `marketmanager.character`
+  - `Market Manager - Corporation Login`: `marketmanager.corporation`
 
 ## Permissions
 
