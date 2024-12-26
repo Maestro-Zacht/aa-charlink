@@ -1,3 +1,4 @@
+from unittest.mock import patch
 from django.test import TestCase
 
 from allianceauth.eveonline.models import EveCharacter
@@ -152,6 +153,36 @@ class TestGetUserAvailableApps(TestCase):
         res3 = get_user_available_apps(self.corptools_user_charaudit)
         self.assertSetEqual(
             set(res3.keys()),
+            {'allianceauth.authentication', 'corptools', 'testauth.testapp'}
+        )
+
+    @patch('charlink.utils.CHARLINK_IGNORE_APPS', {'corptools'})
+    @patch('charlink.app_imports.utils.CHARLINK_IGNORE_APPS', {'corptools'})
+    def test_ignore(self):
+        res = get_user_available_apps(self.corptools_user_corp)
+        self.assertSetEqual(
+            set(res.keys()),
+            {'allianceauth.authentication', 'testauth.testapp'}
+        )
+
+        res2 = get_user_available_apps(self.corptools_user_charaudit)
+        self.assertSetEqual(
+            set(res2.keys()),
+            {'allianceauth.authentication', 'testauth.testapp'}
+        )
+
+    @patch('charlink.utils.CHARLINK_IGNORE_APPS', {'corptools.structures'})
+    @patch('charlink.app_imports.utils.CHARLINK_IGNORE_APPS', {'corptools.structures'})
+    def test_partial_ignore(self):
+        res = get_user_available_apps(self.corptools_user_corp)
+        self.assertSetEqual(
+            set(res.keys()),
+            {'allianceauth.authentication', 'testauth.testapp'}
+        )
+
+        res2 = get_user_available_apps(self.corptools_user_charaudit)
+        self.assertSetEqual(
+            set(res2.keys()),
             {'allianceauth.authentication', 'corptools', 'testauth.testapp'}
         )
 
