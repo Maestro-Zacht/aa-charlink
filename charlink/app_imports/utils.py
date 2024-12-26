@@ -1,6 +1,7 @@
 import re
 from dataclasses import dataclass
 from typing import Callable, List
+from collections import defaultdict
 
 from django.db.models import Exists, QuerySet
 from django import forms
@@ -10,6 +11,8 @@ from django.http import HttpRequest
 
 from allianceauth.eveonline.models import EveCharacter
 from esi.models import Token
+
+from ..app_settings import CHARLINK_IGNORE_APPS
 
 
 @dataclass
@@ -68,6 +71,10 @@ class LoginImport:
         assert isinstance(self.is_character_added_annotation, Exists)
         assert callable(self.get_users_with_perms)
 
+    @property
+    def is_ignored(self):
+        return self.app_label in CHARLINK_IGNORE_APPS or f"{self.app_label}.{self.unique_id}" in CHARLINK_IGNORE_APPS
+
 
 @dataclass
 class AppImport:
@@ -90,7 +97,7 @@ class AppImport:
                 label=import_.field_label
             )
             for import_ in self.imports
-            if import_.check_permissions(user)
+            if import_.check_permissions(user) and not import_.is_ignored
         }
 
     def get_imports_with_perms(self, user: User):
@@ -99,12 +106,12 @@ class AppImport:
             [
                 import_
                 for import_ in self.imports
-                if import_.check_permissions(user)
+                if import_.check_permissions(user) and not import_.is_ignored
             ]
         )
 
     def has_any_perms(self, user: User):
-        return any(import_.check_permissions(user) for import_ in self.imports)
+        return any(import_.check_permissions(user) for import_ in self.imports if not import_.is_ignored)
 
     def get(self, unique_id: str) -> LoginImport:
         for import_ in self.imports:
@@ -121,11 +128,10 @@ class AppImport:
         assert len(self.imports) > 0
         assert self.app_label in settings.INSTALLED_APPS
 
-        ids = {}
+        ids = defaultdict(int)
 
         for import_ in self.imports:
             import_.validate_import()
-            ids.setdefault(import_.unique_id, 0)
             ids[import_.unique_id] += 1
             assert import_.app_label == self.app_label
 
