@@ -361,6 +361,85 @@ class TestLoginView(TestCase):
         self.assertEqual(sorted_messages[0].level, DEFAULT_LEVELS['SUCCESS'])
         self.assertEqual(sorted_messages[1].level, DEFAULT_LEVELS['ERROR'])
 
+    @patch('charlink.imports.miningtaxes._add_character_basic')
+    @patch('charlink.imports.memberaudit._add_character')
+    @patch('charlink.views.import_apps')
+    @patch('charlink.decorators.token_required')
+    @patch('charlink.app_imports.utils.CHARLINK_IGNORE_APPS', {'miningtaxes'})
+    def test_ignore(self, mock_token_required, mock_import_apps, mock_memberaudit_add_character, mock_miningtaxes_add_character):
+        session = self.client.session
+        session['charlink'] = {
+            'scopes': self.scopes,
+            'imports': [
+                ('memberaudit', 'default'),
+                ('miningtaxes', 'default'),
+                ('allianceauth.authentication', 'default'),
+            ],
+        }
+        session.save()
+
+        def fake_decorator(f):
+            def fake_wrapper(request, *args, **kwargs):
+                return f(request, self.token, *args, **kwargs)
+            return fake_wrapper
+
+        mock_token_required.return_value = fake_decorator
+
+        mock_import_apps.return_value = {
+            'memberaudit': AppImport('memberaudit', [
+                LoginImport(
+                    app_label='memberaudit',
+                    unique_id='default',
+                    field_label='Member Audit',
+                    add_character=lambda requets, token: None,
+                    scopes=memberaudit_import.imports[0].scopes,
+                    check_permissions=memberaudit_import.imports[0].check_permissions,
+                    is_character_added=memberaudit_import.imports[0].is_character_added,
+                    is_character_added_annotation=memberaudit_import.imports[0].is_character_added_annotation,
+                    get_users_with_perms=memberaudit_import.imports[0].get_users_with_perms,
+                )
+            ]),
+            'miningtaxes': AppImport('miningtaxes', [
+                LoginImport(
+                    app_label='miningtaxes',
+                    unique_id='default',
+                    field_label='Mining Taxes',
+                    add_character=Mock(side_effect=Exception('test')),
+                    scopes=miningtaxes_import.imports[0].scopes,
+                    check_permissions=miningtaxes_import.imports[0].check_permissions,
+                    is_character_added=miningtaxes_import.imports[0].is_character_added,
+                    is_character_added_annotation=miningtaxes_import.imports[0].is_character_added_annotation,
+                    get_users_with_perms=miningtaxes_import.imports[0].get_users_with_perms,
+                )
+            ]),
+            'allianceauth.authentication': AppImport('allianceauth.authentication', [
+                LoginImport(
+                    app_label='allianceauth.authentication',
+                    unique_id='default',
+                    field_label='Add Character (default)',
+                    add_character=lambda request, token: None,
+                    scopes=['publicData'],
+                    check_permissions=lambda user: True,
+                    is_character_added=lambda character: CharacterOwnership.objects.filter(character=character).exists(),
+                    is_character_added_annotation=Exists(CharacterOwnership.objects.filter(character_id=OuterRef('pk'))),
+                    get_users_with_perms=lambda: None,
+                )
+            ]),
+        }
+
+        mock_memberaudit_add_character.return_value = None
+        mock_miningtaxes_add_character.return_value = None
+
+        self.client.force_login(self.user)
+        res = self.client.get(reverse('charlink:login'))
+
+        messages = list(get_messages(res.wsgi_request))
+
+        self.assertEqual(len(messages), 1)
+
+        sorted_messages = sorted(messages, key=lambda x: x.level)
+        self.assertEqual(sorted_messages[0].level, DEFAULT_LEVELS['SUCCESS'])
+
 
 class TestAudit(TestCase):
 
