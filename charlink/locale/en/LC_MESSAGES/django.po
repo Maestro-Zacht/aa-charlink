@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-21 15:02+0000\n"
+"POT-Creation-Date: 2025-02-07 14:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -104,46 +104,54 @@ msgstr ""
 msgid "%s: Character added to: %s"
 msgstr ""
 
-#: charlink/templates/charlink/admin_imported_apps.html:3
+#: charlink/templates/charlink/admin_imported_apps.html:4
 msgid "Charlink Imported Apps"
 msgstr ""
 
-#: charlink/templates/charlink/admin_imported_apps.html:5
+#: charlink/templates/charlink/admin_imported_apps.html:6
 #: charlink/templates/charlink/menu-left.html:31
 msgid "Imported Apps"
 msgstr ""
 
-#: charlink/templates/charlink/admin_imported_apps.html:13
+#: charlink/templates/charlink/admin_imported_apps.html:14
 msgid "Imported"
 msgstr ""
 
-#: charlink/templates/charlink/admin_imported_apps.html:18
+#: charlink/templates/charlink/admin_imported_apps.html:19
 msgid "Duplicated"
 msgstr ""
 
-#: charlink/templates/charlink/admin_imported_apps.html:23
+#: charlink/templates/charlink/admin_imported_apps.html:24
 msgid "Failed to import"
 msgstr ""
 
-#: charlink/templates/charlink/admin_imported_apps.html:28
+#: charlink/templates/charlink/admin_imported_apps.html:29
 msgid "Missing imports"
 msgstr ""
 
-#: charlink/templates/charlink/admin_imported_apps.html:52
+#: charlink/templates/charlink/admin_imported_apps.html:34
+msgid "Ignored"
+msgstr ""
+
+#: charlink/templates/charlink/admin_imported_apps.html:58
 #: charlink/templates/charlink/charlink.html:101
 msgid "Scopes required:"
 msgstr ""
 
-#: charlink/templates/charlink/admin_imported_apps.html:73
+#: charlink/templates/charlink/admin_imported_apps.html:79
 msgid "No duplicated apps found."
 msgstr ""
 
-#: charlink/templates/charlink/admin_imported_apps.html:84
+#: charlink/templates/charlink/admin_imported_apps.html:90
 msgid "All apps have been imported successfully."
 msgstr ""
 
-#: charlink/templates/charlink/admin_imported_apps.html:95
+#: charlink/templates/charlink/admin_imported_apps.html:101
 msgid "No missing imports found."
+msgstr ""
+
+#: charlink/templates/charlink/admin_imported_apps.html:112
+msgid "No ignored apps."
 msgstr ""
 
 #: charlink/templates/charlink/app_audit.html:6
