@@ -14,6 +14,7 @@ from allianceauth.services.hooks import get_extension_logger
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from allianceauth.authentication.decorators import permissions_required
 
+from .app_settings import CHARLINK_IGNORE_APPS
 from .forms import LinkForm
 from .app_imports import import_apps, get_duplicated_apps, get_failed_to_import, get_no_import
 from .decorators import charlink
@@ -281,6 +282,7 @@ def admin_imported_apps(request):
         'duplicated_apps': get_duplicated_apps(),
         'failed_to_import': get_failed_to_import(),
         'no_import': get_no_import(),
+        'ignored_apps': CHARLINK_IGNORE_APPS,
         **get_navbar_elements(request.user),
     }
 
