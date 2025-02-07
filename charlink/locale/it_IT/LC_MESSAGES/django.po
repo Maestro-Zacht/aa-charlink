@@ -4,16 +4,16 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
 # Translators:
-# Matteo Ghia, 2024
+# Matteo Ghia, 2025
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-11-21 15:02+0000\n"
+"POT-Creation-Date: 2025-02-07 14:23+0000\n"
 "PO-Revision-Date: 2024-09-08 14:58+0000\n"
-"Last-Translator: Matteo Ghia, 2024\n"
+"Last-Translator: Matteo Ghia, 2025\n"
 "Language-Team: Italian (Italy) (https://app.transifex.com/alliance-auth/teams/107430/it_IT/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -118,47 +118,55 @@ msgstr ""
 msgid "%s: Character added to: %s"
 msgstr "%s: Personaggio aggiunto a: %s"
 
-#: charlink/templates/charlink/admin_imported_apps.html:3
+#: charlink/templates/charlink/admin_imported_apps.html:4
 msgid "Charlink Imported Apps"
 msgstr "App Importate in Charlink"
 
-#: charlink/templates/charlink/admin_imported_apps.html:5
+#: charlink/templates/charlink/admin_imported_apps.html:6
 #: charlink/templates/charlink/menu-left.html:31
 msgid "Imported Apps"
 msgstr "App Importate"
 
-#: charlink/templates/charlink/admin_imported_apps.html:13
+#: charlink/templates/charlink/admin_imported_apps.html:14
 msgid "Imported"
 msgstr "Importate"
 
-#: charlink/templates/charlink/admin_imported_apps.html:18
+#: charlink/templates/charlink/admin_imported_apps.html:19
 msgid "Duplicated"
 msgstr "Duplicate"
 
-#: charlink/templates/charlink/admin_imported_apps.html:23
+#: charlink/templates/charlink/admin_imported_apps.html:24
 msgid "Failed to import"
 msgstr "Importazione fallita"
 
-#: charlink/templates/charlink/admin_imported_apps.html:28
+#: charlink/templates/charlink/admin_imported_apps.html:29
 msgid "Missing imports"
 msgstr "Import mancanti"
 
-#: charlink/templates/charlink/admin_imported_apps.html:52
+#: charlink/templates/charlink/admin_imported_apps.html:34
+msgid "Ignored"
+msgstr "Ignorate"
+
+#: charlink/templates/charlink/admin_imported_apps.html:58
 #: charlink/templates/charlink/charlink.html:101
 msgid "Scopes required:"
 msgstr "Scope richiesti:"
 
-#: charlink/templates/charlink/admin_imported_apps.html:73
+#: charlink/templates/charlink/admin_imported_apps.html:79
 msgid "No duplicated apps found."
 msgstr "Nessuna app duplicata."
 
-#: charlink/templates/charlink/admin_imported_apps.html:84
+#: charlink/templates/charlink/admin_imported_apps.html:90
 msgid "All apps have been imported successfully."
 msgstr "Tutte le app sono state importate con successo."
 
-#: charlink/templates/charlink/admin_imported_apps.html:95
+#: charlink/templates/charlink/admin_imported_apps.html:101
 msgid "No missing imports found."
 msgstr "Nessun import mancante trovato."
+
+#: charlink/templates/charlink/admin_imported_apps.html:112
+msgid "No ignored apps."
+msgstr "Nessuna app ignorata."
 
 #: charlink/templates/charlink/app_audit.html:6
 msgid "Charlink App Audit"
