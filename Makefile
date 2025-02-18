@@ -6,7 +6,7 @@ tox_tests:
 .PHONY: translations
 translations:
 	@echo "Creating or updating translation files"
-	@django-admin makemessages -l en --ignore 'build/*'
+	@django-admin makemessages -l en --ignore 'build/*' --ignore 'testauth/*' --ignore 'runtests.py'
 
 .PHONY: compile_translations
 compile_translations:
