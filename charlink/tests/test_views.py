@@ -14,8 +14,15 @@ from charlink.imports.memberaudit import app_import as memberaudit_import
 from charlink.imports.miningtaxes import app_import as miningtaxes_import
 from charlink.imports.corptools import _corp_perms
 from charlink.app_imports.utils import AppImport, LoginImport
+from charlink.app_imports import import_apps
+from charlink.models import AppSettings
 
 
+@patch('charlink.app_imports._imported', False)
+@patch('charlink.app_imports._duplicated_apps', set())
+@patch('charlink.app_imports._supported_apps', {})
+@patch('charlink.app_imports._failed_to_import', {})
+@patch('charlink.app_imports._no_import', [])
 class TestGetNavbarElements(TestCase):
 
     @classmethod
@@ -48,6 +55,11 @@ class TestGetNavbarElements(TestCase):
         self.assertEqual(len(res['available_apps']), 0)
 
 
+@patch('charlink.app_imports._imported', False)
+@patch('charlink.app_imports._duplicated_apps', set())
+@patch('charlink.app_imports._supported_apps', {})
+@patch('charlink.app_imports._failed_to_import', {})
+@patch('charlink.app_imports._no_import', [])
 class TestDashboardLogin(TestCase):
 
     @classmethod
@@ -105,6 +117,11 @@ class TestDashboardLogin(TestCase):
             self.assertInHTML(content, res)
 
 
+@patch('charlink.app_imports._imported', False)
+@patch('charlink.app_imports._duplicated_apps', set())
+@patch('charlink.app_imports._supported_apps', {})
+@patch('charlink.app_imports._failed_to_import', {})
+@patch('charlink.app_imports._no_import', [])
 class TestDashboardPost(TestCase):
 
     @classmethod
@@ -187,6 +204,11 @@ class TestDashboardPost(TestCase):
         self.assertEqual(messages[0].message, 'Invalid form data')
 
 
+@patch('charlink.app_imports._imported', False)
+@patch('charlink.app_imports._duplicated_apps', set())
+@patch('charlink.app_imports._supported_apps', {})
+@patch('charlink.app_imports._failed_to_import', {})
+@patch('charlink.app_imports._no_import', [])
 class TestIndex(TestCase):
 
     @classmethod
@@ -268,6 +290,11 @@ class TestIndex(TestCase):
         self.assertIn('characters_added', res.context)
 
 
+@patch('charlink.app_imports._imported', False)
+@patch('charlink.app_imports._duplicated_apps', set())
+@patch('charlink.app_imports._supported_apps', {})
+@patch('charlink.app_imports._failed_to_import', {})
+@patch('charlink.app_imports._no_import', [])
 class TestLoginView(TestCase):
 
     @classmethod
@@ -287,6 +314,7 @@ class TestLoginView(TestCase):
     @patch('charlink.views.import_apps')
     @patch('charlink.decorators.token_required')
     def test_ok(self, mock_token_required, mock_import_apps, mock_memberaudit_add_character, mock_miningtaxes_add_character):
+        import_apps()
         session = self.client.session
         session['charlink'] = {
             'scopes': self.scopes,
@@ -365,8 +393,10 @@ class TestLoginView(TestCase):
     @patch('charlink.imports.memberaudit._add_character')
     @patch('charlink.views.import_apps')
     @patch('charlink.decorators.token_required')
-    @patch('charlink.app_imports.utils.CHARLINK_IGNORE_APPS', {'miningtaxes'})
     def test_ignore(self, mock_token_required, mock_import_apps, mock_memberaudit_add_character, mock_miningtaxes_add_character):
+        import_apps()
+        AppSettings.objects.filter(app_name__startswith='miningtaxes').update(ignored=True)
+
         session = self.client.session
         session['charlink'] = {
             'scopes': self.scopes,
@@ -441,6 +471,11 @@ class TestLoginView(TestCase):
         self.assertEqual(sorted_messages[0].level, DEFAULT_LEVELS['SUCCESS'])
 
 
+@patch('charlink.app_imports._imported', False)
+@patch('charlink.app_imports._duplicated_apps', set())
+@patch('charlink.app_imports._supported_apps', {})
+@patch('charlink.app_imports._failed_to_import', {})
+@patch('charlink.app_imports._no_import', [])
 class TestAudit(TestCase):
 
     @classmethod
@@ -467,6 +502,11 @@ class TestAudit(TestCase):
         self.assertNotEqual(res.status_code, 200)
 
 
+@patch('charlink.app_imports._imported', False)
+@patch('charlink.app_imports._duplicated_apps', set())
+@patch('charlink.app_imports._supported_apps', {})
+@patch('charlink.app_imports._failed_to_import', {})
+@patch('charlink.app_imports._no_import', [])
 class TestSearch(TestCase):
 
     @classmethod
@@ -505,6 +545,11 @@ class TestSearch(TestCase):
         self.assertRedirects(res, reverse('charlink:index'))
 
 
+@patch('charlink.app_imports._imported', False)
+@patch('charlink.app_imports._duplicated_apps', set())
+@patch('charlink.app_imports._supported_apps', {})
+@patch('charlink.app_imports._failed_to_import', {})
+@patch('charlink.app_imports._no_import', [])
 class TestAuditUser(TestCase):
 
     @classmethod
@@ -532,6 +577,11 @@ class TestAuditUser(TestCase):
         self.assertNotEqual(res.status_code, 200)
 
 
+@patch('charlink.app_imports._imported', False)
+@patch('charlink.app_imports._duplicated_apps', set())
+@patch('charlink.app_imports._supported_apps', {})
+@patch('charlink.app_imports._failed_to_import', {})
+@patch('charlink.app_imports._no_import', [])
 class TestAuditApp(TestCase):
 
     @classmethod
@@ -622,6 +672,11 @@ class TestAuditApp(TestCase):
         self.assertEqual(len(res.context['logins']), 2)
 
 
+@patch('charlink.app_imports._imported', False)
+@patch('charlink.app_imports._duplicated_apps', set())
+@patch('charlink.app_imports._supported_apps', {})
+@patch('charlink.app_imports._failed_to_import', {})
+@patch('charlink.app_imports._no_import', [])
 class TestAdminImportedApps(TestCase):
 
     @classmethod

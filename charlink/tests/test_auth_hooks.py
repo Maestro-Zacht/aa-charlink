@@ -1,9 +1,18 @@
+from unittest.mock import patch
+
 from django.test import TestCase
 from django.urls import reverse
 
 from app_utils.testdata_factories import UserMainFactory
 
+from charlink.app_imports import import_apps
 
+
+@patch('charlink.app_imports._imported', False)
+@patch('charlink.app_imports._duplicated_apps', set())
+@patch('charlink.app_imports._supported_apps', {})
+@patch('charlink.app_imports._failed_to_import', {})
+@patch('charlink.app_imports._no_import', [])
 class TestHooks(TestCase):
 
     @classmethod
@@ -26,12 +35,14 @@ class TestHooks(TestCase):
         )
 
     def test_menu_hook(self):
+        import_apps()
         self.client.force_login(self.testuser)
 
         response = self.client.get(reverse("charlink:index"))
         self.assertContains(response, self.html_menu, html=True)
 
     def test_dashboard_hook(self):
+        import_apps()
         self.client.force_login(self.testuser)
 
         response = self.client.get(reverse("authentication:dashboard"))
