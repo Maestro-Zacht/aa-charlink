@@ -29,11 +29,6 @@
                         {% translate "Missing imports" %}
                     </button>
                 </li>
-                <li class="nav-item">
-                    <button class="nav-link" id="ignored-tab" data-bs-toggle="tab" data-bs-target="#ignoredApps" type="button" role="tab" aria-controls="ignoredApps" aria-selected="false">
-                        {% translate "Ignored" %}
-                    </button>
-                </li>
             </ul>
         </div>
         <div class="card-body">
@@ -54,6 +49,27 @@
                                                 <div class="col-md-6">
                                                     <div class="card">
                                                         <div class="card-header">{{ login_import.field_label }}</div>
+                                                        <div class="card-body">
+                                                            {% translate "Visible:" %}
+                                                            <a href="{% url "charlink:toggle_app_visible" login_import.get_query_id %}" class="btn {% if login_import.is_ignored %}btn-danger{% else %}btn-success{% endif %} btn-sm ms-2">
+                                                                {% if login_import.is_ignored %}
+                                                                    <i class="fa-solid fa-eye-slash"></i>
+                                                                {% else %}
+                                                                    <i class="fa-solid fa-eye"></i>
+                                                                {% endif %}
+                                                            </a>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            {% translate "Default selection:" %}
+                                                            <a href="{% url "charlink:toggle_app_default_selection" login_import.get_query_id %}" class="btn {% if login_import.default_selection %}btn-success{% else %}btn-danger{% endif %} btn-sm ms-2">
+                                                                {% if login_import.default_selection %}
+                                                                    <i class="fa-solid fa-check"></i>
+                                                                {% else %}
+                                                                    <i class="fa-solid fa-times"></i>
+                                                                {% endif %}
+                                                            </a>
+                                                        </div>
+                                                        <br>
                                                         <div class="card-body">
                                                             {% translate "Scopes required:" %}
                                                             {{ login_import.scopes|unordered_list|safe }}
@@ -99,17 +115,6 @@
                         </ul>
                     {% else %}
                         <p class="card-text">{% translate "No missing imports found." %}</p>
-                    {% endif %}
-                </div>
-                <div class="tab-pane fade text-center" id="ignoredApps" role="tabpanel" aria-labelledby="ignored-tab" tabindex="0">
-                    {% if ignored_apps|length > 0 %}
-                        <ul class="list-group">
-                            {% for app in ignored_apps %}
-                                <li class="list-group-item">{{ app }}</li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p class="card-text">{% translate "No ignored apps." %}</p>
                     {% endif %}
                 </div>
             </div>

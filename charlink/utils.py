@@ -6,7 +6,6 @@ from django.contrib.auth.models import User
 from allianceauth.authentication.models import CharacterOwnership
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 
-from .app_settings import CHARLINK_IGNORE_APPS
 from .app_imports import import_apps
 from .app_imports.utils import LoginImport
 
@@ -72,7 +71,7 @@ def get_user_available_apps(user: User):
     return {
         app: imports.get_imports_with_perms(user)
         for app, imports in imported_apps.items()
-        if app not in CHARLINK_IGNORE_APPS and imports.has_any_perms(user)
+        if imports.has_any_perms(user)
     }
 
 

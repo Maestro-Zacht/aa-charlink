@@ -1,24 +1,25 @@
 import re
 
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.db.models import Q
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.template.loader import render_to_string
+from django.utils.text import format_lazy
 from django.utils.translation import gettext as _
 
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 from allianceauth.authentication.decorators import permissions_required
 
-from .app_settings import CHARLINK_IGNORE_APPS
 from .forms import LinkForm
 from .app_imports import import_apps, get_duplicated_apps, get_failed_to_import, get_no_import
 from .decorators import charlink
 from .utils import get_user_available_apps, get_user_linked_chars, get_visible_corps, chars_annotate_linked_apps
+from .models import AppSettings
 
 logger = get_extension_logger(__name__)
 
@@ -275,15 +276,52 @@ def audit_app(request, app):
 
 
 @login_required
-@user_passes_test(lambda u: u.is_superuser)
+@permission_required('charlink.view_admin')
 def admin_imported_apps(request):
     context = {
         'imported_apps': import_apps(),
         'duplicated_apps': get_duplicated_apps(),
         'failed_to_import': get_failed_to_import(),
         'no_import': get_no_import(),
-        'ignored_apps': CHARLINK_IGNORE_APPS,
         **get_navbar_elements(request.user),
     }
 
     return render(request, 'charlink/admin_imported_apps.html', context=context)
+
+
+@login_required
+@permission_required('charlink.view_admin')
+def toggle_app_visible(request, app_name):
+    app_settings = get_object_or_404(AppSettings, app_name=app_name)
+    app_settings.ignored = not app_settings.ignored
+    app_settings.save()
+
+    messages.success(
+        request,
+        format_lazy(
+            "App {app_name} is now {ignored}",
+            app_name=app_name,
+            ignored=_('ignored') if app_settings.ignored else _('visible')
+        )
+    )
+
+    return redirect('charlink:admin_imported_apps')
+
+
+@login_required
+@permission_required('charlink.view_admin')
+def toggle_app_default_selection(request, app_name):
+    app_settings = get_object_or_404(AppSettings, app_name=app_name)
+    app_settings.default_selection = not app_settings.default_selection
+    app_settings.save()
+
+    messages.success(
+        request,
+        format_lazy(
+            "App {app_name} is now {selected} by default",
+            app_name=app_name,
+            selected=_('selected') if app_settings.default_selection else _('not selected')
+        )
+    )
+
+    return redirect('charlink:admin_imported_apps')

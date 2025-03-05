@@ -109,8 +109,6 @@ INSTALLED_APPS += [
 # Add any custom settings below here. #
 #######################################
 
-# CHARLINK_IGNORE_APPS = ['marketmanager.corporation']
-
 MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
 
 DEBUG_TOOLBAR_CONFIG = {

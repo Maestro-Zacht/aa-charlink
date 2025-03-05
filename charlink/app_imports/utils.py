@@ -12,7 +12,7 @@ from django.http import HttpRequest
 from allianceauth.eveonline.models import EveCharacter
 from esi.models import Token
 
-from ..app_settings import CHARLINK_IGNORE_APPS
+from ..models import AppSettings
 
 
 @dataclass
@@ -72,8 +72,14 @@ class LoginImport:
         assert callable(self.get_users_with_perms)
 
     @property
-    def is_ignored(self):
-        return self.app_label in CHARLINK_IGNORE_APPS or f"{self.app_label}.{self.unique_id}" in CHARLINK_IGNORE_APPS
+    def is_ignored(self) -> bool:
+        app_settings = AppSettings.objects.get(app_name=self.get_query_id())
+        return app_settings.ignored
+
+    @property
+    def default_selection(self) -> bool:
+        app_settings = AppSettings.objects.get(app_name=self.get_query_id())
+        return app_settings.default_selection
 
 
 @dataclass
@@ -93,7 +99,7 @@ class AppImport:
         return {
             import_.get_query_id(): forms.BooleanField(
                 required=False,
-                initial=True,
+                initial=import_.default_selection,
                 label=import_.field_label
             )
             for import_ in self.imports

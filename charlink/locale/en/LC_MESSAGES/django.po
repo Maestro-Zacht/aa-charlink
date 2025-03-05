@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-02-07 14:23+0000\n"
+"POT-Creation-Date: 2025-03-05 15:08+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,15 +18,15 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: charlink/app_imports/__init__.py:41
+#: charlink/app_imports/__init__.py:42
 msgid "Hook import: failed to validate"
 msgstr ""
 
-#: charlink/app_imports/__init__.py:44
+#: charlink/app_imports/__init__.py:45
 msgid "Hook import: import not found"
 msgstr ""
 
-#: charlink/app_imports/__init__.py:47
+#: charlink/app_imports/__init__.py:48
 msgid "Hook import: generic error"
 msgstr ""
 
@@ -109,7 +109,6 @@ msgid "Charlink Imported Apps"
 msgstr ""
 
 #: charlink/templates/charlink/admin_imported_apps.html:6
-#: charlink/templates/charlink/menu-left.html:31
 msgid "Imported Apps"
 msgstr ""
 
@@ -129,29 +128,29 @@ msgstr ""
 msgid "Missing imports"
 msgstr ""
 
-#: charlink/templates/charlink/admin_imported_apps.html:34
-msgid "Ignored"
+#: charlink/templates/charlink/admin_imported_apps.html:53
+msgid "Visible:"
 msgstr ""
 
-#: charlink/templates/charlink/admin_imported_apps.html:58
+#: charlink/templates/charlink/admin_imported_apps.html:63
+msgid "Default selection:"
+msgstr ""
+
+#: charlink/templates/charlink/admin_imported_apps.html:74
 #: charlink/templates/charlink/charlink.html:101
 msgid "Scopes required:"
 msgstr ""
 
-#: charlink/templates/charlink/admin_imported_apps.html:79
+#: charlink/templates/charlink/admin_imported_apps.html:95
 msgid "No duplicated apps found."
 msgstr ""
 
-#: charlink/templates/charlink/admin_imported_apps.html:90
+#: charlink/templates/charlink/admin_imported_apps.html:106
 msgid "All apps have been imported successfully."
 msgstr ""
 
-#: charlink/templates/charlink/admin_imported_apps.html:101
+#: charlink/templates/charlink/admin_imported_apps.html:117
 msgid "No missing imports found."
-msgstr ""
-
-#: charlink/templates/charlink/admin_imported_apps.html:112
-msgid "No ignored apps."
 msgstr ""
 
 #: charlink/templates/charlink/app_audit.html:6
@@ -225,6 +224,10 @@ msgstr ""
 msgid "Apps"
 msgstr ""
 
+#: charlink/templates/charlink/menu-left.html:31
+msgid "CharLink Admin"
+msgstr ""
+
 #: charlink/templates/charlink/menu-right.html:5
 msgid "Search"
 msgstr ""
@@ -249,32 +252,48 @@ msgstr ""
 msgid "CharLink User Audit"
 msgstr ""
 
-#: charlink/views.py:47
+#: charlink/views.py:48
 msgid "Invalid request"
 msgstr ""
 
-#: charlink/views.py:54
+#: charlink/views.py:55
 msgid "Invalid form data"
 msgstr ""
 
-#: charlink/views.py:137
+#: charlink/views.py:138
 #, python-format
 msgid "Failed to add character to %(field_label)s"
 msgstr ""
 
-#: charlink/views.py:139
+#: charlink/views.py:140
 #, python-format
 msgid "Character successfully added to %(field_label)s"
 msgstr ""
 
-#: charlink/views.py:155
+#: charlink/views.py:156
 msgid "You do not have permission to view the selected corporation statistics."
 msgstr ""
 
-#: charlink/views.py:219
+#: charlink/views.py:220
 msgid "You do not have permission to view the selected user statistics."
 msgstr ""
 
-#: charlink/views.py:244
+#: charlink/views.py:245
 msgid "You do not have permission to view the selected application statistics."
+msgstr ""
+
+#: charlink/views.py:304
+msgid "ignored"
+msgstr ""
+
+#: charlink/views.py:304
+msgid "visible"
+msgstr ""
+
+#: charlink/views.py:323
+msgid "selected"
+msgstr ""
+
+#: charlink/views.py:323
+msgid "not selected"
 msgstr ""

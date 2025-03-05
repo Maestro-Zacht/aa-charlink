@@ -10,8 +10,14 @@ from app_utils.testing import create_state
 from charlink.utils import get_visible_corps, chars_annotate_linked_apps, get_user_available_apps, get_user_linked_chars
 from charlink.app_imports import import_apps
 from charlink.imports.corptools import _corp_perms
+from charlink.models import AppSettings
 
 
+@patch('charlink.app_imports._imported', False)
+@patch('charlink.app_imports._duplicated_apps', set())
+@patch('charlink.app_imports._supported_apps', {})
+@patch('charlink.app_imports._failed_to_import', {})
+@patch('charlink.app_imports._no_import', [])
 class TestGetVisibleCorps(TestCase):
 
     @classmethod
@@ -112,6 +118,11 @@ class TestGetVisibleCorps(TestCase):
         )
 
 
+@patch('charlink.app_imports._imported', False)
+@patch('charlink.app_imports._duplicated_apps', set())
+@patch('charlink.app_imports._supported_apps', {})
+@patch('charlink.app_imports._failed_to_import', {})
+@patch('charlink.app_imports._no_import', [])
 class TestCharsAnnotateLinkedApps(TestCase):
 
     @classmethod
@@ -129,6 +140,11 @@ class TestCharsAnnotateLinkedApps(TestCase):
             self.assertTrue(hasattr(char, 'allianceauth.authentication_default'))
 
 
+@patch('charlink.app_imports._imported', False)
+@patch('charlink.app_imports._duplicated_apps', set())
+@patch('charlink.app_imports._supported_apps', {})
+@patch('charlink.app_imports._failed_to_import', {})
+@patch('charlink.app_imports._no_import', [])
 class TestGetUserAvailableApps(TestCase):
 
     @classmethod
@@ -138,6 +154,8 @@ class TestGetUserAvailableApps(TestCase):
         cls.corptools_user_charaudit = UserMainFactory(permissions=["corptools.view_characteraudit"])
 
     def test_ok(self):
+        import_apps()
+
         res = get_user_available_apps(self.user)
         self.assertSetEqual(
             set(res.keys()),
@@ -156,9 +174,10 @@ class TestGetUserAvailableApps(TestCase):
             {'allianceauth.authentication', 'corptools', 'testauth.testapp'}
         )
 
-    @patch('charlink.utils.CHARLINK_IGNORE_APPS', {'corptools'})
-    @patch('charlink.app_imports.utils.CHARLINK_IGNORE_APPS', {'corptools'})
     def test_ignore(self):
+        import_apps()
+        AppSettings.objects.filter(app_name__startswith='corptools').update(ignored=True)
+
         res = get_user_available_apps(self.corptools_user_corp)
         self.assertSetEqual(
             set(res.keys()),
@@ -171,9 +190,10 @@ class TestGetUserAvailableApps(TestCase):
             {'allianceauth.authentication', 'testauth.testapp'}
         )
 
-    @patch('charlink.utils.CHARLINK_IGNORE_APPS', {'corptools.structures'})
-    @patch('charlink.app_imports.utils.CHARLINK_IGNORE_APPS', {'corptools.structures'})
     def test_partial_ignore(self):
+        import_apps()
+        AppSettings.objects.filter(app_name='corptools_structures').update(ignored=True)
+
         res = get_user_available_apps(self.corptools_user_corp)
         self.assertSetEqual(
             set(res.keys()),
@@ -187,6 +207,11 @@ class TestGetUserAvailableApps(TestCase):
         )
 
 
+@patch('charlink.app_imports._imported', False)
+@patch('charlink.app_imports._duplicated_apps', set())
+@patch('charlink.app_imports._supported_apps', {})
+@patch('charlink.app_imports._failed_to_import', {})
+@patch('charlink.app_imports._no_import', [])
 class TestGetUserLinkedChars(TestCase):
 
     @classmethod
