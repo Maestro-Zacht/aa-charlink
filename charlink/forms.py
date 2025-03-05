@@ -1,7 +1,6 @@
 from django import forms
 
 from .app_imports import import_apps
-from .app_settings import CHARLINK_IGNORE_APPS
 
 
 class LinkForm(forms.Form):
@@ -16,5 +15,6 @@ class LinkForm(forms.Form):
             label=imported_apps['allianceauth.authentication'].get('default').field_label
         )
         for app, imports in imported_apps.items():
-            if app != 'allianceauth.authentication' and app not in CHARLINK_IGNORE_APPS:
-                self.fields.update(imports.get_form_fields(user))
+            form_fields = imports.get_form_fields(user)
+            if app != 'allianceauth.authentication' and len(form_fields) > 0:
+                self.fields.update(form_fields)
