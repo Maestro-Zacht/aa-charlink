@@ -2,6 +2,7 @@ from importlib import import_module
 from unittest.mock import patch
 
 from django.test import TestCase
+from django.db.models import Q
 
 from allianceauth.tests.auth_utils import AuthUtils
 
@@ -9,8 +10,14 @@ from app_utils.testdata_factories import UserMainFactory
 
 from charlink.app_imports import import_apps, get_duplicated_apps, get_failed_to_import, get_no_import
 from charlink.imports.corptools import _corp_perms
+from charlink.models import AppSettings
 
 
+@patch('charlink.app_imports._imported', False)
+@patch('charlink.app_imports._duplicated_apps', set())
+@patch('charlink.app_imports._supported_apps', {})
+@patch('charlink.app_imports._failed_to_import', {})
+@patch('charlink.app_imports._no_import', [])
 class TestImportApps(TestCase):
 
     @patch('charlink.app_imports.import_module', wraps=import_module)
@@ -35,6 +42,31 @@ class TestImportApps(TestCase):
         self.assertNotIn('allianceauth.eveonline', imported_apps)
         self.assertIn('testauth.testapp.charlink_hook_no_import', failed)
         mock_import_module.assert_any_call('charlink.imports.allianceauth.eveonline')
+
+        self.assertSetEqual(
+            {
+                'allianceauth.corputils_default',
+                'structures_default',
+                'moonstuff_default',
+                'testauth.testapp_default',
+                'marketmanager_corporation',
+                'testauth.testapp_import2',
+                'aa_contacts_corporation',
+                'miningtaxes_default',
+                'corpstats_default',
+                'marketmanager_character',
+                'miningtaxes_admin',
+                'moonmining_default',
+                'afat_clickfat',
+                'corptools_default',
+                'memberaudit_default',
+                'allianceauth.authentication_default',
+                'afat_readfleet',
+                'corptools_structures',
+                'aa_contacts_alliance',
+            },
+            set(AppSettings.objects.values_list('app_name', flat=True))
+        )
 
         self.assertSetEqual({'testauth.testapp_duplicate'}, duplicated)
         self.assertIn('charlink', no_import)
@@ -67,14 +99,16 @@ class TestImportApps(TestCase):
         self.assertSetEqual({'testauth.testapp_duplicate'}, get_duplicated_apps())
 
     @patch('charlink.app_imports.import_module', wraps=import_module)
-    @patch('charlink.app_imports._imported', False)
-    @patch('charlink.app_imports._duplicated_apps', set())
-    @patch('charlink.app_imports._supported_apps', {})
     def test_get_duplicated_apps_imports_apps(self, mock_import_module):
         get_duplicated_apps()
         self.assertTrue(mock_import_module.called)
 
 
+@patch('charlink.app_imports._imported', False)
+@patch('charlink.app_imports._duplicated_apps', set())
+@patch('charlink.app_imports._supported_apps', {})
+@patch('charlink.app_imports._failed_to_import', {})
+@patch('charlink.app_imports._no_import', [])
 class TestLoginImport(TestCase):
 
     def test_get_query_id(self):
@@ -85,10 +119,10 @@ class TestLoginImport(TestCase):
         login_import = import_apps()['allianceauth.authentication'].get('default')
         self.assertEqual(hash(login_import), hash('allianceauth.authentication_default'))
 
-    @patch('charlink.app_imports.utils.CHARLINK_IGNORE_APPS', {'marketmanager.corporation', 'corptools'})
     def test_is_ignored(self):
         marketmanager = import_apps()['marketmanager']
-        corptools = import_apps()['corptools']
+
+        AppSettings.objects.filter(app_name='marketmanager_corporation').update(ignored=True)
 
         corporation_import = marketmanager.get('corporation')
         character_import = marketmanager.get('character')
@@ -96,10 +130,23 @@ class TestLoginImport(TestCase):
         self.assertTrue(corporation_import.is_ignored)
         self.assertFalse(character_import.is_ignored)
 
-        for import_ in corptools.imports:
-            self.assertTrue(import_.is_ignored)
+    def test_default_selection(self):
+        marketmanager = import_apps()['marketmanager']
+
+        AppSettings.objects.filter(app_name='marketmanager_corporation').update(default_selection=False)
+
+        corporation_import = marketmanager.get('corporation')
+        character_import = marketmanager.get('character')
+
+        self.assertFalse(corporation_import.default_selection)
+        self.assertTrue(character_import.default_selection)
 
 
+@patch('charlink.app_imports._imported', False)
+@patch('charlink.app_imports._duplicated_apps', set())
+@patch('charlink.app_imports._supported_apps', {})
+@patch('charlink.app_imports._failed_to_import', {})
+@patch('charlink.app_imports._no_import', [])
 class TestAppImport(TestCase):
 
     @classmethod
@@ -126,10 +173,14 @@ class TestAppImport(TestCase):
         self.assertIn('corptools_default', form_fields_corptools)
         self.assertIn('corptools_structures', form_fields_corptools)
 
-    @patch('charlink.app_imports.utils.CHARLINK_IGNORE_APPS', {'marketmanager.corporation', 'corptools'})
     def test_get_form_fields_ignore(self):
         user = AuthUtils.add_permissions_to_user_by_name(['corptools.view_characteraudit', "marketmanager.basic_market_browser", *_corp_perms], self.user)
         app_import = import_apps()['allianceauth.authentication']
+
+        AppSettings.objects.filter(
+            Q(app_name='marketmanager_corporation') | Q(app_name__startswith='corptools')
+        ).update(ignored=True)
+
         form_fields = app_import.get_form_fields(user)
         self.assertEqual(len(form_fields), 1)
         self.assertIn('allianceauth.authentication_default', form_fields)
@@ -166,9 +217,13 @@ class TestAppImport(TestCase):
         imports_both = corptools_import.get_imports_with_perms(user_both)
         self.assertEqual(len(imports_both.imports), 2)
 
-    @patch('charlink.app_imports.utils.CHARLINK_IGNORE_APPS', {'marketmanager.corporation', 'corptools'})
     def test_get_imports_with_perms_ignore(self):
         app_import = import_apps()['allianceauth.authentication']
+
+        AppSettings.objects.filter(
+            Q(app_name='marketmanager_corporation') | Q(app_name__startswith='corptools')
+        ).update(ignored=True)
+
         imports = app_import.get_imports_with_perms(self.user)
         self.assertEqual(len(imports.imports), 1)
 
@@ -198,9 +253,13 @@ class TestAppImport(TestCase):
         app_import = import_apps()['allianceauth.authentication']
         self.assertTrue(app_import.has_any_perms(self.user))
 
-    @patch('charlink.app_imports.utils.CHARLINK_IGNORE_APPS', {'marketmanager.corporation', 'corptools'})
     def test_has_any_perms_ignore(self):
         app_import = import_apps()['allianceauth.authentication']
+
+        AppSettings.objects.filter(
+            Q(app_name='marketmanager_corporation') | Q(app_name__startswith='corptools')
+        ).update(ignored=True)
+
         self.assertTrue(app_import.has_any_perms(self.user))
 
         user_marketmanager = UserMainFactory(permissions=['marketmanager.basic_market_browser'])

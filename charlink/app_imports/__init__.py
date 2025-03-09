@@ -7,6 +7,7 @@ from allianceauth.services.hooks import get_extension_logger
 from allianceauth.hooks import get_hooks
 
 from .utils import AppImport
+from ..models import AppSettings
 
 logger = get_extension_logger(__name__)
 
@@ -67,6 +68,10 @@ def import_apps():
                 else:
                     _supported_apps[app] = module.app_import
                     logger.debug(f"Loading of {app} link: success")
+
+        for app, app_import in _supported_apps.items():
+            for login_import in app_import.imports:
+                AppSettings.objects.get_or_create(app_name=login_import.get_query_id())
 
         _imported = True
 
