@@ -57,31 +57,13 @@ def register_charlink_hook():
 
 The hook has to return a string with the import path of the module containing the app integration. The module must contain a variable called `app_import` which is an instance of `charlink.app_imports.utils.AppImport`. You can find the documentation of the class in the [`utils.py`](./charlink/app_imports/utils.py) and some examples in the [imports folder](./charlink/imports).
 
-## Settings
+## Ignoring apps
 
-| Name                   | Description                                                                                                                                                                                                                                     | Default |
-| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| `CHARLINK_IGNORE_APPS` | List of apps to ignore. Use the name of the app as it is called in `INSTALLED_APPS` if you want to ignore all the entries for that app, or any of the options in the [following section]( #ignoring-single-entries) for ignoring a single entry | `[]`    |
+Ignoring apps has been moved from settings to the CharLink Admin page. In order to ingore an app, or one of its login options, click on the related eye button in this page.
 
-### Ignoring single entries
+## Default selection
 
-The following apps have more than 1 entry and you can ignore individual entries by adding the relative option below:
-
-- `AllianceAuth Contacts`
-  - `Alliance Contacts`: `aa_contacts.alliance`
-  - `Corporation Contacts`: `aa_contacts.corporation`
-- `Corptools`
-  - `Character Audit`: `corptools.default`
-  - `Corporation Audit`: `corptools.structures`
-- `MiningTaxes`
-  - `Mining Taxes`: `miningtaxes.default`
-  - `Mining Taxes Admin`: `miningtaxes.admin`
-- `AFAT`
-  - `AFAT Read Fleet`: `afat.readfleet`
-  - `AFAT Click Tracking`: `afat.clickfat`
-- `Market Manager`
-  - `Market Manager - Character Login`: `marketmanager.character`
-  - `Market Manager - Corporation Login`: `marketmanager.corporation`
+From version 1.10.0, login options can have their default selection changed by the admin. This can be done in the CharLink Admin page using the "Default selection" button.
 
 ## Permissions
 
@@ -90,6 +72,7 @@ The following apps have more than 1 entry and you can ignore individual entries 
 | `charlink.view_corp`     | Can view linked character of members of their corporation. |
 | `charlink.view_alliance` | Can view linked character of members of their alliance.    |
 | `charlink.view_state`    | Can view linked character of members of their auth state.  |
+| `charlink.view_admin`    | Can view CharLink Admin page.                              |
 
 ## Login page url
 
