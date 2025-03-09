@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-05 15:08+0000\n"
+"POT-Creation-Date: 2025-03-09 10:27+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -282,18 +282,28 @@ msgstr ""
 msgid "You do not have permission to view the selected application statistics."
 msgstr ""
 
-#: charlink/views.py:304
+#: charlink/views.py:301
+#, python-format
+msgid "App %(app_name)s is now %(ignored)s"
+msgstr ""
+
+#: charlink/views.py:303
 msgid "ignored"
 msgstr ""
 
-#: charlink/views.py:304
+#: charlink/views.py:303
 msgid "visible"
 msgstr ""
 
-#: charlink/views.py:323
+#: charlink/views.py:319
+#, python-format
+msgid "App %(app_name)s is now %(selected)s by default"
+msgstr ""
+
+#: charlink/views.py:321
 msgid "selected"
 msgstr ""
 
-#: charlink/views.py:323
+#: charlink/views.py:321
 msgid "not selected"
 msgstr ""

@@ -298,11 +298,10 @@ def toggle_app_visible(request, app_name):
 
     messages.success(
         request,
-        format_lazy(
-            "App {app_name} is now {ignored}",
-            app_name=app_name,
-            ignored=_('ignored') if app_settings.ignored else _('visible')
-        )
+        _("App %(app_name)s is now %(ignored)s") % {
+            'app_name': app_name,
+            'ignored': _('ignored') if app_settings.ignored else _('visible')
+        }
     )
 
     return redirect('charlink:admin_imported_apps')
@@ -317,11 +316,10 @@ def toggle_app_default_selection(request, app_name):
 
     messages.success(
         request,
-        format_lazy(
-            "App {app_name} is now {selected} by default",
-            app_name=app_name,
-            selected=_('selected') if app_settings.default_selection else _('not selected')
-        )
+        _("App %(app_name)s is now %(selected)s by default") % {
+            'app_name': app_name,
+            'selected': _('selected') if app_settings.default_selection else _('not selected')
+        }
     )
 
     return redirect('charlink:admin_imported_apps')
