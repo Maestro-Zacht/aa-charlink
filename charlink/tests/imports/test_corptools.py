@@ -26,8 +26,8 @@ class TestAddCharacter(TestCase):
 
         mock_update_character.assert_called_once_with(args=[token.character_id], kwargs={'force_refresh': True}, priority=6)
 
-        self.character.characteraudit.active = True
-        self.character.characteraudit.save()
+        self.user.profile.main_character.characteraudit.active = True
+        self.user.profile.main_character.characteraudit.save()
 
         self.assertTrue(_is_character_added_charaudit(self.user.profile.main_character))
 
