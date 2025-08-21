@@ -2,6 +2,8 @@ from unittest.mock import patch
 
 from django.test import TestCase
 
+from allianceauth.eveonline.models import EveCharacter
+
 from app_utils.testdata_factories import UserMainFactory
 
 from charlink.imports.corptools import _add_character_charaudit, _is_character_added_charaudit, _corp_perms, _is_character_added_corp, _add_character_corp
@@ -47,10 +49,33 @@ class TestIsCharacterAdded(TestCase):
     @patch('charlink.imports.corptools.update_character.apply_async')
     def test_ok_charaudit(self, mock_update_character):
         mock_update_character.return_value = None
+        login_import = import_apps()['corptools'].get('default')
 
         self.assertFalse(_is_character_added_charaudit(self.character))
+        self.assertFalse(
+            EveCharacter.objects
+            .filter(pk=self.character.pk)
+            .aggregate(added=login_import.is_character_added_annotation)['added']
+        )
+
         _add_character_charaudit(None, self.user.token_set.first())
+
+        self.assertFalse(_is_character_added_charaudit(self.character))
+        self.assertFalse(
+            EveCharacter.objects
+            .filter(pk=self.character.pk)
+            .aggregate(added=login_import.is_character_added_annotation)['added']
+        )
+
+        self.character.characteraudit.active = True
+        self.character.characteraudit.save()
+
         self.assertTrue(_is_character_added_charaudit(self.character))
+        self.assertTrue(
+            EveCharacter.objects
+            .filter(pk=self.character.pk)
+            .aggregate(added=login_import.is_character_added_annotation)['added']
+        )
 
     @patch('charlink.imports.corptools.update_all_corps.apply_async')
     def test_ok_corp(self, mock_update_all_corps):
