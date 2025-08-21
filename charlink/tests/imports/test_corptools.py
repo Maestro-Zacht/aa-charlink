@@ -54,8 +54,9 @@ class TestIsCharacterAdded(TestCase):
         self.assertFalse(_is_character_added_charaudit(self.character))
         self.assertFalse(
             EveCharacter.objects
-            .filter(pk=self.character.pk)
-            .aggregate(added=login_import.is_character_added_annotation)['added']
+            .annotate(added=login_import.is_character_added_annotation)
+            .get(pk=self.character.pk)
+            .added
         )
 
         _add_character_charaudit(None, self.user.token_set.first())
@@ -63,8 +64,9 @@ class TestIsCharacterAdded(TestCase):
         self.assertFalse(_is_character_added_charaudit(self.character))
         self.assertFalse(
             EveCharacter.objects
-            .filter(pk=self.character.pk)
-            .aggregate(added=login_import.is_character_added_annotation)['added']
+            .annotate(added=login_import.is_character_added_annotation)
+            .get(pk=self.character.pk)
+            .added
         )
 
         self.character.characteraudit.active = True
@@ -73,8 +75,9 @@ class TestIsCharacterAdded(TestCase):
         self.assertTrue(_is_character_added_charaudit(self.character))
         self.assertTrue(
             EveCharacter.objects
-            .filter(pk=self.character.pk)
-            .aggregate(added=login_import.is_character_added_annotation)['added']
+            .annotate(added=login_import.is_character_added_annotation)
+            .get(pk=self.character.pk)
+            .added
         )
 
     @patch('charlink.imports.corptools.update_all_corps.apply_async')
