@@ -49,7 +49,7 @@ def _add_character(request, token: Token):
 
 
 def _is_character_added(character: EveCharacter):
-    return Character.objects.filter(eve_character=character).exists()
+    return Character.objects.filter(eve_character=character, is_disabled=False).exists()
 
 
 def _users_with_perms():
@@ -72,7 +72,7 @@ app_import = AppImport('memberaudit', [
         is_character_added=_is_character_added,
         is_character_added_annotation=Exists(
             Character.objects
-            .filter(eve_character_id=OuterRef('pk'))
+            .filter(eve_character_id=OuterRef('pk'), is_disabled=False)
         ),
         get_users_with_perms=_users_with_perms,
     ),
