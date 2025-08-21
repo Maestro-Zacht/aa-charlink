@@ -25,6 +25,10 @@ class TestAddCharacter(TestCase):
         _add_character_charaudit(None, token)
 
         mock_update_character.assert_called_once_with(args=[token.character_id], kwargs={'force_refresh': True}, priority=6)
+
+        self.character.characteraudit.active = True
+        self.character.characteraudit.save()
+
         self.assertTrue(_is_character_added_charaudit(self.user.profile.main_character))
 
     @patch('charlink.imports.corptools.update_all_corps.apply_async')
