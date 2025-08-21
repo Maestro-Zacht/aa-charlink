@@ -46,7 +46,7 @@ def _check_perms_corp(user: User):
 
 
 def _is_character_added_charaudit(character: EveCharacter):
-    return CharacterAudit.objects.filter(character=character).exists()
+    return CharacterAudit.objects.filter(character=character, active=True).exists()
 
 
 def _is_character_added_corp(character: EveCharacter):
@@ -91,7 +91,7 @@ app_import = AppImport('corptools', [
         is_character_added=_is_character_added_charaudit,
         is_character_added_annotation=Exists(
             CharacterAudit.objects
-            .filter(character_id=OuterRef('pk'))
+            .filter(character_id=OuterRef('pk'), active=True)
         ),
         get_users_with_perms=_users_with_perms_charaudit,
     ),
