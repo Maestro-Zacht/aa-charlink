@@ -3,6 +3,8 @@ from unittest.mock import patch
 from django.test import TestCase, RequestFactory
 from django.contrib.messages.storage.fallback import FallbackStorage
 
+from allianceauth.eveonline.models import EveCharacter
+
 from app_utils.testdata_factories import UserMainFactory
 from app_utils.testing import create_authgroup
 
@@ -83,6 +85,7 @@ class TestIsCharacterAdded(TestCase):
     @patch('memberaudit.tasks.update_character.apply_async')
     def test_ok(self, mock_update_character):
         mock_update_character.return_value = None
+        login_import = import_apps()['memberaudit'].get('default')
 
         request = self.factory.get('/charlink/login/')
         request.user = self.user
@@ -91,8 +94,32 @@ class TestIsCharacterAdded(TestCase):
         request._messages = messages
 
         self.assertFalse(_is_character_added(self.character))
+        self.assertFalse(
+            EveCharacter.objects
+            .annotate(added=login_import.is_character_added_annotation)
+            .get(pk=self.character.pk)
+            .added
+        )
+
         _add_character(request, self.user.token_set.first())
         self.assertTrue(_is_character_added(self.character))
+        self.assertTrue(
+            EveCharacter.objects
+            .annotate(added=login_import.is_character_added_annotation)
+            .get(pk=self.character.pk)
+            .added
+        )
+
+        self.character.memberaudit_character.is_disabled = True
+        self.character.memberaudit_character.save()
+
+        self.assertFalse(_is_character_added(self.character))
+        self.assertFalse(
+            EveCharacter.objects
+            .annotate(added=login_import.is_character_added_annotation)
+            .get(pk=self.character.pk)
+            .added
+        )
 
 
 class TestCheckPermissions(TestCase):
