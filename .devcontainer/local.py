@@ -98,6 +98,7 @@ INSTALLED_APPS += [
     'afat',
     'marketmanager',
     'aa_contacts',
+    'securegroups',
 
     'live_duplicate',
 
