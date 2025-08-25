@@ -3,6 +3,7 @@ from allianceauth.services.hooks import UrlHook, MenuItemHook
 
 from . import urls
 from .views import dashboard_login
+from .models import ComplianceFilter
 
 
 class CharlinkMenuItemHook(MenuItemHook):
@@ -31,3 +32,8 @@ def register_urls():
 @hooks.register('dashboard_hook')
 def register_login_hook():
     return LoginDashboardHook()
+
+
+@hooks.register('secure_group_filters')
+def securegroups_filters():
+    return [ComplianceFilter]
