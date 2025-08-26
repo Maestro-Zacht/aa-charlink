@@ -3,7 +3,7 @@ branch = True
 source = ./charlink/
 omit =
     */tests.py
-    */tests/*.py
+    */tests/**/*.py
     */migrations/*
     doc/*
     */scripts/*

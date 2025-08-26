@@ -8,7 +8,6 @@ from django.db.models import Q
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.template.loader import render_to_string
-from django.utils.text import format_lazy
 from django.utils.translation import gettext as _
 
 from allianceauth.services.hooks import get_extension_logger

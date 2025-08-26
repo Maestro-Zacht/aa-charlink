@@ -65,6 +65,12 @@ Ignoring apps has been moved from settings to the CharLink Admin page. In order 
 
 From version 1.10.0, login options can have their default selection changed by the admin. This can be done in the CharLink Admin page using the "Default selection" button.
 
+## Smartfilters
+
+If [Securegroups](https://github.com/Solar-Helix-Independent-Transport/allianceauth-secure-groups) is installed, CharLink exports the following smartfilters:
+
+- Compliance filter: checks if the user has added all his characters to the selected apps.
+
 ## Permissions
 
 | Name                     | Description                                                |
@@ -87,4 +93,4 @@ If you want to setup a template override to link the "Add character" button to t
 
 ## Known issues
 
-- For AFAT is not possible to check if the added character has a token which is still valid, it only checks if the character has ever added a token with the required scopes.
+- For AFAT is not possible to check the validity of the added character's token.

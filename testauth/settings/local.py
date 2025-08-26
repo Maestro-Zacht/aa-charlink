@@ -65,6 +65,7 @@ INSTALLED_APPS += [
     'afat',
     'marketmanager',
     'aa_contacts',
+    'securegroups',
 
     'testauth.testapp',
     'testauth.testapp_duplicate',
