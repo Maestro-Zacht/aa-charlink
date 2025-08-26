@@ -6,6 +6,9 @@ from django.urls import reverse
 from app_utils.testdata_factories import UserMainFactory
 
 from charlink.app_imports import import_apps
+from charlink.models import ComplianceFilter
+
+from securegroups.models import SmartFilter
 
 
 @patch('charlink.app_imports._imported', False)
@@ -47,3 +50,8 @@ class TestHooks(TestCase):
 
         response = self.client.get(reverse("authentication:dashboard"))
         self.assertContains(response, self.html_dashboard, status_code=200)
+
+    def test_securegroups_hook(self):
+        cf = ComplianceFilter.objects.create(name="Test Filter", description="A test filter")
+
+        self.assertEqual(SmartFilter.objects.first().filter_object, cf)
