@@ -65,8 +65,6 @@ class TestComplianceFilter(TestCase):
     def setUpTestData(cls):
         cls.user = UserMainFactory(main_character__scopes=corptools_import.get('default').scopes)
         cls.compliance_filter = ComplianceFilter.objects.create(name="compliance test", description="compliance description")
-        import_apps()
-        cls.compliance_filter.selected_apps.add(AppSettings.objects.get(app_name='allianceauth.authentication_default'))
 
     @patch('charlink.models.ComplianceFilter.audit_filter')
     def test_process_filter(self, mock_audit_filter):
@@ -78,6 +76,8 @@ class TestComplianceFilter(TestCase):
         self.assertTrue(res)
 
     def test_audit_filter_simple(self):
+        import_apps()
+        self.compliance_filter.selected_apps.add(AppSettings.objects.get(app_name='allianceauth.authentication_default'))
         res = self.compliance_filter.audit_filter(User.objects.filter(pk=self.user.pk))
         self.assertDictEqual(res, {self.user.pk: {'check': True, 'message': 'Meets requirements'}})
 
@@ -88,6 +88,8 @@ class TestComplianceFilter(TestCase):
         character = EveCharacterFactory()
         add_character_to_user(self.user, character)
 
+        import_apps()
+        self.compliance_filter.selected_apps.add(AppSettings.objects.get(app_name='allianceauth.authentication_default'))
         self.compliance_filter.selected_apps.add(AppSettings.objects.get(app_name='corptools_default'))
 
         res = self.compliance_filter.audit_filter(User.objects.filter(pk=self.user.pk))
