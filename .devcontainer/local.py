@@ -116,9 +116,9 @@ DEBUG_TOOLBAR_CONFIG = {
     "SHOW_TOOLBAR_CALLBACK": lambda request: True,
 }
 
-CELERYBEAT_SCHEDULE['memberaudit_run_regular_updates'] = {
-    'task': 'memberaudit.tasks.run_regular_updates',
-    'schedule': crontab(minute=0, hour='*/1'),
+CELERYBEAT_SCHEDULE["memberaudit_run_regular_updates"] = {
+    "task": "memberaudit.tasks.run_regular_updates",
+    "schedule": 900,
 }
 
 CELERYBEAT_SCHEDULE['moonmining_run_regular_updates'] = {
@@ -156,11 +156,11 @@ CELERYBEAT_SCHEDULE['moonstuff_run_price_update'] = {
 
 CELERYBEAT_SCHEDULE['structures_update_all_structures'] = {
     'task': 'structures.tasks.update_all_structures',
-    'schedule': crontab(minute='*/30'),
+    'schedule': 1800,
 }
 CELERYBEAT_SCHEDULE['structures_fetch_all_notifications'] = {
     'task': 'structures.tasks.fetch_all_notifications',
-    'schedule': crontab(minute='*/5'),
+    'schedule': 300,
 }
 
 # AFAT - https://github.com/ppfeufer/allianceauth-afat
