@@ -11,7 +11,7 @@ from ..models import AppSettings
 
 logger = get_extension_logger(__name__)
 
-_supported_apps = {}
+_supported_apps: dict[str, AppImport] = {}
 _duplicated_apps = set()
 _failed_to_import = {}
 _no_import = []
