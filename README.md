@@ -33,8 +33,25 @@ Admin App status: users with `is_superuser` can now see the list of imported app
    pip install aa-charlink
    ```
 
+   if you have a baremetal installation, or add the following line to your `requirements.txt` if you are using Docker:
+
+   ```text
+   aa-charlink==x.y.z
+   ```
+
+   where `x.y.z` is the version you want to install. It is important to pin the version in order to avoid unexpected upgrades and potential breaking changes.
+
 2. Add `'charlink',` to your `INSTALLED_APPS` in `local.py`
 3. Run migrations and collectstatic
+
+   If you are using Docker, run:
+
+   ```shell
+   auth migrate
+   auth collectstatic
+   ```
+
+   otherwise
 
    ```shell
    python manage.py migrate
@@ -67,6 +84,18 @@ Ignoring apps has been moved from settings to the CharLink Admin page. In order 
 From version 1.10.0, login options can have their default selection changed by the admin. This can be done in the CharLink Admin page using the "Default selection" button.
 
 WARNING: Some apps, like Structures, have reportedly causing issues and get the AA instance banned due to the high number of ESI calls they make after linking many chars. In order to avoid this, the default selection of these apps is set to off and a warning is shown in the CharLink Admin page when trying to enable it.
+
+If you want to reset all the default selections to their original value, you can use the management command:
+
+```shell
+python manage.py charlink_reset_selections
+```
+
+or, if you are using Docker:
+
+```shell
+auth charlink_reset_selections
+```
 
 ## Smartfilters
 
