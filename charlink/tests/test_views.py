@@ -710,3 +710,36 @@ class TestAdminImportedApps(TestCase):
         res = self.client.get(reverse('charlink:admin_imported_apps'))
 
         self.assertNotEqual(res.status_code, 200)
+
+
+@patch('charlink.app_imports._imported', False)
+@patch('charlink.app_imports._duplicated_apps', set())
+@patch('charlink.app_imports._supported_apps', {})
+@patch('charlink.app_imports._failed_to_import', {})
+@patch('charlink.app_imports._no_import', [])
+class TestToggleAppVisible(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = UserMainFactory(permissions=['charlink.view_admin'])
+
+    @patch('charlink.app_imports.import_apps')
+    def test_toggle_authentication_login(self, mock_import_apps):
+        mock_import_apps.return_value = {}
+
+        self.client.force_login(self.user)
+
+        app_name = 'allianceauth.authentication_default'
+
+        self.assertEqual(AppSettings.objects.count(), 0)
+
+        res = self.client.get(reverse('charlink:toggle_app_visible', args=[app_name]))
+
+        self.assertRedirects(res, reverse('charlink:admin_imported_apps'))
+
+        self.assertEqual(AppSettings.objects.count(), 0)
+
+        messages = list(get_messages(res.wsgi_request))
+
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0].level, DEFAULT_LEVELS['ERROR'])
