@@ -104,7 +104,6 @@ app_import = AppImport(
                 )
             ),
             get_users_with_perms=_alliance_users_with_perms,
-            default_initial_selection=False,
         ),
         LoginImport(
             app_label="aa_contacts",
@@ -120,7 +119,6 @@ app_import = AppImport(
                 )
             ),
             get_users_with_perms=_corporation_users_with_perms,
-            default_initial_selection=False,
-        )
+        ),
     ]
 )
