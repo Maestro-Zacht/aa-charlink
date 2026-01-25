@@ -16,6 +16,7 @@ from allianceauth.authentication.decorators import permissions_required
 
 from .forms import LinkForm
 from .app_imports import import_apps, get_duplicated_apps, get_failed_to_import, get_no_import
+from .app_imports.utils import LoginImport
 from .decorators import charlink
 from .utils import get_user_available_apps, get_user_linked_chars, get_visible_corps, chars_annotate_linked_apps
 from .models import AppSettings
@@ -291,17 +292,23 @@ def admin_imported_apps(request):
 @login_required
 @permission_required('charlink.view_admin')
 def toggle_app_visible(request, app_name):
-    app_settings = get_object_or_404(AppSettings, app_name=app_name)
-    app_settings.ignored = not app_settings.ignored
-    app_settings.save()
+    if app_name == 'allianceauth.authentication_default':
+        messages.error(
+            request,
+            _("The visibility for the built-in AllianceAuth login cannot be changed.")
+        )
+    else:
+        app_settings = get_object_or_404(AppSettings, app_name=app_name)
+        app_settings.ignored = not app_settings.ignored
+        app_settings.save()
 
-    messages.success(
-        request,
-        _("App %(app_name)s is now %(ignored)s") % {
-            'app_name': app_name,
-            'ignored': _('ignored') if app_settings.ignored else _('visible')
-        }
-    )
+        messages.success(
+            request,
+            _("App %(app_name)s is now %(ignored)s") % {
+                'app_name': app_name,
+                'ignored': _('ignored') if app_settings.ignored else _('visible')
+            }
+        )
 
     return redirect('charlink:admin_imported_apps')
 
@@ -309,16 +316,32 @@ def toggle_app_visible(request, app_name):
 @login_required
 @permission_required('charlink.view_admin')
 def toggle_app_default_selection(request, app_name):
-    app_settings = get_object_or_404(AppSettings, app_name=app_name)
-    app_settings.default_selection = not app_settings.default_selection
-    app_settings.save()
+    if app_name == 'allianceauth.authentication_default':
+        messages.error(
+            request,
+            _("The default selection for the built-in AllianceAuth login cannot be changed.")
+        )
+    else:
+        app_settings = get_object_or_404(AppSettings, app_name=app_name)
+        app_settings.default_selection = not app_settings.default_selection
+        app_settings.save()
 
-    messages.success(
-        request,
-        _("App %(app_name)s is now %(selected)s by default") % {
-            'app_name': app_name,
-            'selected': _('selected') if app_settings.default_selection else _('not selected')
-        }
-    )
+        messages.success(
+            request,
+            _("App %(app_name)s is now %(selected)s by default") % {
+                'app_name': app_name,
+                'selected': _('selected') if app_settings.default_selection else _('not selected')
+            }
+        )
+
+        imported_apps = import_apps()
+        app, _sep, unique_id = app_name.rpartition('_')
+        login_import: LoginImport = imported_apps[app].get(unique_id)
+
+        if not login_import.default_initial_selection and app_settings.default_selection:
+            messages.warning(
+                request,
+                _("WARNING: this app was marked as not selected by the developer. If you are not sure, leave the default selection as is or ask an administrator.")
+            )
 
     return redirect('charlink:admin_imported_apps')
