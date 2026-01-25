@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-09 10:27+0000\n"
+"POT-Creation-Date: 2026-01-25 15:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -136,6 +136,12 @@ msgstr ""
 msgid "Default selection:"
 msgstr ""
 
+#: charlink/templates/charlink/admin_imported_apps.html:64
+msgid ""
+"WARNING: the developer set this to not selected in order to avoid ESI bans. "
+"Ensure you know what you are doing."
+msgstr ""
+
 #: charlink/templates/charlink/admin_imported_apps.html:74
 #: charlink/templates/charlink/charlink.html:101
 msgid "Scopes required:"
@@ -252,58 +258,77 @@ msgstr ""
 msgid "CharLink User Audit"
 msgstr ""
 
-#: charlink/views.py:48
+#: charlink/views.py:49
 msgid "Invalid request"
 msgstr ""
 
-#: charlink/views.py:55
+#: charlink/views.py:56
 msgid "Invalid form data"
 msgstr ""
 
-#: charlink/views.py:138
+#: charlink/views.py:139
 #, python-format
 msgid "Failed to add character to %(field_label)s"
 msgstr ""
 
-#: charlink/views.py:140
+#: charlink/views.py:141
 #, python-format
 msgid "Character successfully added to %(field_label)s"
 msgstr ""
 
-#: charlink/views.py:156
+#: charlink/views.py:157
 msgid "You do not have permission to view the selected corporation statistics."
 msgstr ""
 
-#: charlink/views.py:220
+#: charlink/views.py:221
 msgid "You do not have permission to view the selected user statistics."
 msgstr ""
 
-#: charlink/views.py:245
+#: charlink/views.py:246
 msgid "You do not have permission to view the selected application statistics."
 msgstr ""
 
-#: charlink/views.py:301
+#: charlink/views.py:299
+msgid "The visibility for the built-in AllianceAuth login cannot be changed."
+msgstr ""
+
+#: charlink/views.py:308
 #, python-format
-msgid "App %(app_name)s is now %(ignored)s"
+msgid "App \"%(app_name)s\" is now %(ignored)s"
 msgstr ""
 
-#: charlink/views.py:303
-msgid "ignored"
+#: charlink/views.py:310
+msgid "hidden"
 msgstr ""
 
-#: charlink/views.py:303
+#: charlink/views.py:310
 msgid "visible"
 msgstr ""
 
-#: charlink/views.py:319
-#, python-format
-msgid "App %(app_name)s is now %(selected)s by default"
+#: charlink/views.py:323
+msgid ""
+"The default selection for the built-in AllianceAuth login cannot be changed."
 msgstr ""
 
-#: charlink/views.py:321
+#: charlink/views.py:336
+#, python-format
+msgid "App \"%(app_name)s\" is now %(selected)s by default"
+msgstr ""
+
+#: charlink/views.py:338
 msgid "selected"
 msgstr ""
 
-#: charlink/views.py:321
+#: charlink/views.py:338
 msgid "not selected"
+msgstr ""
+
+#: charlink/views.py:348
+msgid "WARNING"
+msgstr ""
+
+#: charlink/views.py:350
+msgid ""
+"The developer set this to not selected in order to avoid ESI bans. Ensure "
+"you know what you are doing."
 msgstr ""

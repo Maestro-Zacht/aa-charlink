@@ -57,6 +57,7 @@ Admin App status: users with `is_superuser` can now see the list of imported app
    python manage.py migrate
    python manage.py collectstatic
    ```
+
 4. Check in CharLink Admin page that the apps you want to use are shown correctly and their default selection and visibility are what you want. Some apps have their default selection turned off for a good reason, go to [default selection](#default-selection) for more information.
 
 ## Current apps

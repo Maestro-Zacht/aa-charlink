@@ -61,7 +61,7 @@
                                                         </div>
                                                         <div class="card-body">
                                                             {% translate "Default selection:" %}
-                                                            <a href="{% url "charlink:toggle_app_default_selection" login_import.get_query_id %}" class="btn {% if login_import.default_selection %}btn-success{% else %}btn-danger{% endif %} btn-sm ms-2">
+                                                            <a href="{% url "charlink:toggle_app_default_selection" login_import.get_query_id %}" class="btn {% if login_import.default_selection %}btn-success{% else %}btn-danger{% endif %} btn-sm ms-2"{% if not login_import.default_selection and not login_import.default_initial_selection %} data-bs-toggle="tooltip" data-bs-placement="top" title="{% translate "WARNING: the developer set this to not selected in order to avoid ESI bans. Ensure you know what you are doing." %}"{% endif %}>
                                                                 {% if login_import.default_selection %}
                                                                     <i class="fa-solid fa-check"></i>
                                                                 {% else %}
@@ -121,3 +121,9 @@
         </div>
     </div>
 {% endblock charlink_content %}
+
+{% block extra_script %}
+    $(document).ready(function() {
+        $('[data-bs-toggle="tooltip"]').tooltip();
+    });
+{% endblock extra_script %}

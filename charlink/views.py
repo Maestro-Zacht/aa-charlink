@@ -9,6 +9,7 @@ from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
+from django.utils.html import format_html
 
 from allianceauth.services.hooks import get_extension_logger
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
@@ -304,9 +305,9 @@ def toggle_app_visible(request, app_name):
 
         messages.success(
             request,
-            _("App %(app_name)s is now %(ignored)s") % {
-                'app_name': app_name,
-                'ignored': _('ignored') if app_settings.ignored else _('visible')
+            _('App "%(app_name)s" is now %(ignored)s') % {
+                'app_name': app_settings,
+                'ignored': _('hidden') if app_settings.ignored else _('visible')
             }
         )
 
@@ -326,22 +327,28 @@ def toggle_app_default_selection(request, app_name):
         app_settings.default_selection = not app_settings.default_selection
         app_settings.save()
 
-        messages.success(
-            request,
-            _("App %(app_name)s is now %(selected)s by default") % {
-                'app_name': app_name,
-                'selected': _('selected') if app_settings.default_selection else _('not selected')
-            }
-        )
-
         imported_apps = import_apps()
         app, _sep, unique_id = app_name.rpartition('_')
         login_import: LoginImport = imported_apps[app].get(unique_id)
 
+        messages.success(
+            request,
+            _('App "%(app_name)s" is now %(selected)s by default') % {
+                'app_name': app_settings,
+                'selected': _('selected') if app_settings.default_selection else _('not selected')
+            }
+        )
+
         if not login_import.default_initial_selection and app_settings.default_selection:
             messages.warning(
                 request,
-                _("WARNING: this app was marked as not selected by the developer. If you are not sure, leave the default selection as is or ask an administrator.")
+                # _("WARNING: this app was marked as not selected by the developer. If you are not sure, leave it not selected or ask in the AllianceAuth Discord server.")
+                format_html(
+                    "<h1>" +
+                    _("WARNING") +
+                    "</h1><br>" +
+                    _("The developer set this to not selected in order to avoid ESI bans. Ensure you know what you are doing.")
+                )
             )
 
     return redirect('charlink:admin_imported_apps')
