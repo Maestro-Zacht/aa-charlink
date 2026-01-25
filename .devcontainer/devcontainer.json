@@ -28,7 +28,8 @@
 				"eamodio.gitlens",
 				"ryanluker.vscode-coverage-gutters",
 				"ms-vscode.makefile-tools",
-				"mrorz.language-gettext"
+				"mrorz.language-gettext",
+				"streetsidesoftware.code-spell-checker"
 			]
 		}
 	}
