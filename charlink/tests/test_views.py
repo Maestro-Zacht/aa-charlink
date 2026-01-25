@@ -747,7 +747,24 @@ class TestToggleAppVisible(TestCase):
         self.assertEqual(len(messages), 1)
         self.assertEqual(messages[0].level, DEFAULT_LEVELS['ERROR'])
 
-    def test_toggle_other_login(self):
+    @patch('charlink.app_imports.import_apps')
+    def test_toggle_other_login(self, mock_import_apps):
+        mock_import_apps.return_value = {
+            'testapp': AppImport('testapp', [
+                LoginImport(
+                    app_label='testapp',
+                    unique_id='default',
+                    field_label='TestApp',
+                    add_character=lambda request, token: None,
+                    scopes=['scope1'],
+                    check_permissions=lambda user: True,
+                    is_character_added=lambda character: False,
+                    is_character_added_annotation=Mock(),
+                    get_users_with_perms=lambda: None,
+                )
+            ]),
+        }
+
         self.client.force_login(self.user)
 
         app_name = 'testapp_default'
@@ -808,8 +825,9 @@ class TestToggleAppDefaultSelection(TestCase):
         self.assertEqual(messages[0].level, DEFAULT_LEVELS['ERROR'])
 
     @patch('charlink.views.import_apps')
-    def test_toggle_other_login_default_true(self, mock_import_apps):
-        mock_import_apps.return_value = {
+    @patch('charlink.app_imports.import_apps')
+    def test_toggle_other_login_default_true(self, mock_views_import_apps, mock_app_imports_import_apps):
+        mock_import_apps = {
             'testapp': AppImport('testapp', [
                 LoginImport(
                     app_label='testapp',
@@ -824,6 +842,8 @@ class TestToggleAppDefaultSelection(TestCase):
                 )
             ]),
         }
+        mock_views_import_apps.return_value = mock_import_apps
+        mock_app_imports_import_apps.return_value = mock_import_apps
 
         self.client.force_login(self.user)
 
@@ -847,8 +867,9 @@ class TestToggleAppDefaultSelection(TestCase):
         self.assertEqual(messages[0].level, DEFAULT_LEVELS['SUCCESS'])
 
     @patch('charlink.views.import_apps')
-    def test_toggle_other_login_default_false(self, mock_import_apps):
-        mock_import_apps.return_value = {
+    @patch('charlink.app_imports.import_apps')
+    def test_toggle_other_login_default_false(self, mock_views_import_apps, mock_app_imports_import_apps):
+        mock_import_apps = {
             'testapp': AppImport('testapp', [
                 LoginImport(
                     app_label='testapp',
@@ -864,6 +885,8 @@ class TestToggleAppDefaultSelection(TestCase):
                 )
             ]),
         }
+        mock_views_import_apps.return_value = mock_import_apps
+        mock_app_imports_import_apps.return_value = mock_import_apps
 
         self.client.force_login(self.user)
 

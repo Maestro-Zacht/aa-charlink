@@ -342,7 +342,6 @@ def toggle_app_default_selection(request, app_name):
         if not login_import.default_initial_selection and app_settings.default_selection:
             messages.warning(
                 request,
-                # _("WARNING: this app was marked as not selected by the developer. If you are not sure, leave it not selected or ask in the AllianceAuth Discord server.")
                 format_html(
                     "<h1>" +
                     _("WARNING") +
