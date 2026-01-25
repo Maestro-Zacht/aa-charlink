@@ -23,7 +23,7 @@ class AppSettings(models.Model):
     app_name = models.CharField(max_length=255, unique=True)
 
     ignored = models.BooleanField(default=False)
-    default_selection = models.BooleanField(default=True)
+    default_selection = models.BooleanField()
 
     class Meta:
         default_permissions = ()

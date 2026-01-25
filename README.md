@@ -33,13 +33,31 @@ Admin App status: users with `is_superuser` can now see the list of imported app
    pip install aa-charlink
    ```
 
+   if you have a baremetal installation, or add the following line to your `requirements.txt` if you are using Docker:
+
+   ```text
+   aa-charlink==x.y.z
+   ```
+
+   where `x.y.z` is the version you want to install. It is important to pin the version in order to avoid unexpected upgrades and potential breaking changes.
+
 2. Add `'charlink',` to your `INSTALLED_APPS` in `local.py`
 3. Run migrations and collectstatic
+
+   If you are using Docker, run:
+
+   ```shell
+   auth migrate
+   auth collectstatic
+   ```
+
+   otherwise
 
    ```shell
    python manage.py migrate
    python manage.py collectstatic
    ```
+4. Check in CharLink Admin page that the apps you want to use are shown correctly and their default selection and visibility are what you want. Some apps have their default selection turned off for a good reason, go to [default selection](#default-selection) for more information.
 
 ## Current apps
 
@@ -59,11 +77,25 @@ The hook has to return a string with the import path of the module containing th
 
 ## Ignoring apps
 
-Ignoring apps has been moved from settings to the CharLink Admin page. In order to ingore an app, or one of its login options, click on the related eye button in this page.
+Ignoring apps has been moved from settings to the CharLink Admin page. In order to ignore an app, or one of its login options, click on the related eye button in this page.
 
 ## Default selection
 
 From version 1.10.0, login options can have their default selection changed by the admin. This can be done in the CharLink Admin page using the "Default selection" button.
+
+WARNING: Some apps, like Structures, have reportedly causing issues and get the AA instance banned due to the high number of ESI calls they make after linking many chars. In order to avoid this, the default selection of these apps is set to off and a warning is shown in the CharLink Admin page when trying to enable it.
+
+If you want to reset all the default selections to their original value, you can use the management command:
+
+```shell
+python manage.py charlink_reset_selections
+```
+
+or, if you are using Docker:
+
+```shell
+auth charlink_reset_selections
+```
 
 ## Smartfilters
 

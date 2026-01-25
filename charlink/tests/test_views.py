@@ -684,7 +684,7 @@ class TestAdminImportedApps(TestCase):
         cls.admin = UserMainFactory(is_superuser=True)
         cls.user = UserMainFactory()
 
-    @patch('charlink.app_imports.import_apps')
+    @patch('charlink.views.import_apps')
     @patch('charlink.views.get_duplicated_apps')
     @patch('charlink.views.get_failed_to_import')
     @patch('charlink.views.get_no_import')
@@ -710,3 +710,179 @@ class TestAdminImportedApps(TestCase):
         res = self.client.get(reverse('charlink:admin_imported_apps'))
 
         self.assertNotEqual(res.status_code, 200)
+
+
+@patch('charlink.app_imports._imported', False)
+@patch('charlink.app_imports._duplicated_apps', set())
+@patch('charlink.app_imports._supported_apps', {})
+@patch('charlink.app_imports._failed_to_import', {})
+@patch('charlink.app_imports._no_import', [])
+class TestToggleAppVisible(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = UserMainFactory(permissions=['charlink.view_admin'])
+
+    def test_toggle_authentication_login(self):
+        self.client.force_login(self.user)
+
+        app_name = 'allianceauth.authentication_default'
+
+        app_settings = AppSettings.objects.create(
+            app_name=app_name,
+            default_selection=True
+        )
+
+        self.assertFalse(app_settings.ignored)
+
+        res = self.client.get(reverse('charlink:toggle_app_visible', args=[app_name]))
+
+        self.assertRedirects(res, reverse('charlink:admin_imported_apps'))
+
+        app_settings.refresh_from_db()
+        self.assertFalse(app_settings.ignored)
+
+        messages = list(get_messages(res.wsgi_request))
+
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0].level, DEFAULT_LEVELS['ERROR'])
+
+    def test_toggle_other_login(self):
+        self.client.force_login(self.user)
+
+        app_name = 'testapp_default'
+
+        app_settings = AppSettings.objects.create(
+            app_name=app_name,
+            default_selection=True
+        )
+
+        self.assertFalse(app_settings.ignored)
+
+        res = self.client.get(reverse('charlink:toggle_app_visible', args=[app_name]))
+
+        self.assertRedirects(res, reverse('charlink:admin_imported_apps'))
+
+        app_settings.refresh_from_db()
+        self.assertTrue(app_settings.ignored)
+
+        messages = list(get_messages(res.wsgi_request))
+
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0].level, DEFAULT_LEVELS['SUCCESS'])
+
+
+@patch('charlink.app_imports._imported', False)
+@patch('charlink.app_imports._duplicated_apps', set())
+@patch('charlink.app_imports._supported_apps', {})
+@patch('charlink.app_imports._failed_to_import', {})
+@patch('charlink.app_imports._no_import', [])
+class TestToggleAppDefaultSelection(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = UserMainFactory(permissions=['charlink.view_admin'])
+
+    def test_toggle_authentication_login(self):
+        self.client.force_login(self.user)
+
+        app_name = 'allianceauth.authentication_default'
+
+        app_settings = AppSettings.objects.create(
+            app_name=app_name,
+            default_selection=True
+        )
+
+        self.assertTrue(app_settings.default_selection)
+
+        res = self.client.get(reverse('charlink:toggle_app_default_selection', args=[app_name]))
+
+        self.assertRedirects(res, reverse('charlink:admin_imported_apps'))
+
+        app_settings.refresh_from_db()
+        self.assertTrue(app_settings.default_selection)
+
+        messages = list(get_messages(res.wsgi_request))
+
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0].level, DEFAULT_LEVELS['ERROR'])
+
+    @patch('charlink.views.import_apps')
+    def test_toggle_other_login_default_true(self, mock_import_apps):
+        mock_import_apps.return_value = {
+            'testapp': AppImport('testapp', [
+                LoginImport(
+                    app_label='testapp',
+                    unique_id='default',
+                    field_label='TestApp',
+                    add_character=lambda request, token: None,
+                    scopes=['scope1'],
+                    check_permissions=lambda user: True,
+                    is_character_added=lambda character: False,
+                    is_character_added_annotation=Mock(),
+                    get_users_with_perms=lambda: None,
+                )
+            ]),
+        }
+
+        self.client.force_login(self.user)
+
+        app_name = 'testapp_default'
+
+        app_settings = AppSettings.objects.create(
+            app_name=app_name,
+            default_selection=True
+        )
+
+        res = self.client.get(reverse('charlink:toggle_app_default_selection', args=[app_name]))
+
+        self.assertRedirects(res, reverse('charlink:admin_imported_apps'))
+
+        app_settings.refresh_from_db()
+        self.assertFalse(app_settings.default_selection)
+
+        messages = list(get_messages(res.wsgi_request))
+
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0].level, DEFAULT_LEVELS['SUCCESS'])
+
+    @patch('charlink.views.import_apps')
+    def test_toggle_other_login_default_false(self, mock_import_apps):
+        mock_import_apps.return_value = {
+            'testapp': AppImport('testapp', [
+                LoginImport(
+                    app_label='testapp',
+                    unique_id='default',
+                    field_label='TestApp',
+                    add_character=lambda request, token: None,
+                    scopes=['scope1'],
+                    check_permissions=lambda user: True,
+                    is_character_added=lambda character: False,
+                    is_character_added_annotation=Mock(),
+                    get_users_with_perms=lambda: None,
+                    default_initial_selection=False,
+                )
+            ]),
+        }
+
+        self.client.force_login(self.user)
+
+        app_name = 'testapp_default'
+
+        app_settings = AppSettings.objects.create(
+            app_name=app_name,
+            default_selection=False
+        )
+
+        res = self.client.get(reverse('charlink:toggle_app_default_selection', args=[app_name]))
+
+        self.assertRedirects(res, reverse('charlink:admin_imported_apps'))
+
+        app_settings.refresh_from_db()
+        self.assertTrue(app_settings.default_selection)
+
+        messages = list(get_messages(res.wsgi_request))
+
+        self.assertEqual(len(messages), 2)
+        self.assertEqual(messages[0].level, DEFAULT_LEVELS['SUCCESS'])
+        self.assertEqual(messages[1].level, DEFAULT_LEVELS['WARNING'])
