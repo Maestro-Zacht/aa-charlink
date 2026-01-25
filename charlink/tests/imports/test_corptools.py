@@ -9,6 +9,8 @@ from app_utils.testdata_factories import UserMainFactory
 from charlink.imports.corptools import _add_character_charaudit, _is_character_added_charaudit, _corp_perms, _is_character_added_corp, _add_character_corp
 from charlink.app_imports import import_apps
 
+from corptools.models import CharacterAudit
+
 
 class TestAddCharacter(TestCase):
 
@@ -22,12 +24,21 @@ class TestAddCharacter(TestCase):
 
         token = self.user.token_set.first()
 
+        self.assertEqual(CharacterAudit.objects.count(), 0)
+        self.assertEqual(token.character_id, self.user.profile.main_character.character_id)
+
         _add_character_charaudit(None, token)
 
         mock_update_character.assert_called_once_with(args=[token.character_id], kwargs={'force_refresh': True}, priority=6)
 
-        self.user.profile.main_character.characteraudit.active = True
-        self.user.profile.main_character.characteraudit.save()
+        self.assertEqual(CharacterAudit.objects.count(), 1)
+
+        ct: CharacterAudit = CharacterAudit.objects.first()
+
+        self.assertEqual(ct.character.character_id, token.character_id)
+
+        ct.active = True
+        ct.save()
 
         self.assertTrue(_is_character_added_charaudit(self.user.profile.main_character))
 
@@ -63,7 +74,11 @@ class TestIsCharacterAdded(TestCase):
             .added
         )
 
-        _add_character_charaudit(None, self.user.token_set.first())
+        token = self.user.token_set.first()
+
+        self.assertEqual(token.character_id, self.character.character_id)
+
+        _add_character_charaudit(None, token)
 
         self.assertFalse(_is_character_added_charaudit(self.character))
         self.assertFalse(
@@ -73,8 +88,14 @@ class TestIsCharacterAdded(TestCase):
             .added
         )
 
-        self.character.characteraudit.active = True
-        self.character.characteraudit.save()
+        self.assertEqual(CharacterAudit.objects.count(), 1)
+
+        ct: CharacterAudit = CharacterAudit.objects.first()
+
+        self.assertEqual(ct.character.character_id, token.character_id)
+
+        ct.active = True
+        ct.save()
 
         self.assertTrue(_is_character_added_charaudit(self.character))
         self.assertTrue(

@@ -110,7 +110,7 @@ class TestComplianceFilter(TestCase):
         self.assertDictEqual(res, {self.user.pk: {'check': True, 'message': 'Meets requirements'}})
 
     def test_audit_filter_removed_app(self):
-        new_as = AppSettings.objects.create(app_name='non_existent_app')
+        new_as = AppSettings.objects.create(app_name='non_existent_app', default_selection=True)
         self.compliance_filter.selected_apps.add(new_as)
 
         res = self.compliance_filter.audit_filter(User.objects.filter(pk=self.user.pk))
