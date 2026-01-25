@@ -33,6 +33,7 @@ class LoginImport:
         `is_character_added`: A function that checks if the character is already added to the app. It must be a callable that takes an EveCharacter as an argument and returns a boolean.
         `is_character_added_annotation`: A django Exists object that checks if the character is already added to the app.
         `get_users_with_perms`: A function that returns a QuerySet of users with permissions to use the import. It must be a callable that takes no arguments and returns a QuerySet of Users.
+        `default_initial_selection`: Optional boolean that specifies the initial setting for the default selection of the login option in the form. Default is True. It is important to set this to false for options that are not used by everyday characters, to avoid causing issues with ESI rate limits.
     """
     app_label: str
     unique_id: str
@@ -43,6 +44,7 @@ class LoginImport:
     is_character_added: Callable[[EveCharacter], bool]
     is_character_added_annotation: Exists
     get_users_with_perms: Callable[[], QuerySet[User]]
+    default_initial_selection: bool = True
 
     def get_query_id(self):
         return f"{self.app_label}_{self.unique_id}"
@@ -60,6 +62,7 @@ class LoginImport:
         assert hasattr(self, 'is_character_added')
         assert hasattr(self, 'is_character_added_annotation')
         assert hasattr(self, 'get_users_with_perms')
+        assert hasattr(self, 'default_initial_selection')
         assert isinstance(self.app_label, str)
         assert isinstance(self.unique_id, str)
         assert re.match(r'^[a-zA-Z0-9]+$', self.unique_id) is not None
@@ -70,6 +73,7 @@ class LoginImport:
         assert callable(self.is_character_added)
         assert isinstance(self.is_character_added_annotation, Exists)
         assert callable(self.get_users_with_perms)
+        assert isinstance(self.default_initial_selection, bool)
 
     @property
     def is_ignored(self) -> bool:

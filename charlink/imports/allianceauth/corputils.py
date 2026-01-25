@@ -52,5 +52,6 @@ app_import = AppImport('allianceauth.corputils', [
             .filter(token__character_id=OuterRef('character_id'))
         ),
         get_users_with_perms=_users_with_perms,
+        default_initial_selection=False,
     ),
 ])

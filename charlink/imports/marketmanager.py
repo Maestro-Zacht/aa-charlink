@@ -60,6 +60,7 @@ app_import = AppImport('marketmanager', [
             .filter(character_id=OuterRef('character_id'))
             .require_scopes(CORPORATION_SCOPES)
         ),
-        get_users_with_perms=lambda: users_with_permission(Permission.objects.get(content_type__app_label='marketmanager', codename='basic_market_browser'))
+        get_users_with_perms=lambda: users_with_permission(Permission.objects.get(content_type__app_label='marketmanager', codename='basic_market_browser')),
+        default_initial_selection=False,
     )
 ])

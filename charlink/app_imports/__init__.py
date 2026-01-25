@@ -71,7 +71,12 @@ def import_apps():
 
         for app, app_import in _supported_apps.items():
             for login_import in app_import.imports:
-                AppSettings.objects.get_or_create(app_name=login_import.get_query_id())
+                AppSettings.objects.get_or_create(
+                    app_name=login_import.get_query_id(),
+                    defaults={
+                        'default_selection': login_import.default_initial_selection,
+                    }
+                )
 
         _imported = True
 

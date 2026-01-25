@@ -103,7 +103,8 @@ app_import = AppImport(
                     token__character_id=OuterRef('character_id'),
                 )
             ),
-            get_users_with_perms=_alliance_users_with_perms
+            get_users_with_perms=_alliance_users_with_perms,
+            default_initial_selection=False,
         ),
         LoginImport(
             app_label="aa_contacts",
@@ -118,7 +119,8 @@ app_import = AppImport(
                     token__character_id=OuterRef('character_id'),
                 )
             ),
-            get_users_with_perms=_corporation_users_with_perms
+            get_users_with_perms=_corporation_users_with_perms,
+            default_initial_selection=False,
         )
     ]
 )
