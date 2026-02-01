@@ -78,5 +78,6 @@ app_import = AppImport('moonmining', [
             .filter(character_ownership__character_id=OuterRef('pk'))
         ),
         get_users_with_perms=_users_with_perms,
+        default_initial_selection=False
     ),
 ])

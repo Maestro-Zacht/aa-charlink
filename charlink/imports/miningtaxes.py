@@ -103,5 +103,6 @@ app_import = AppImport('miningtaxes', [
             .filter(eve_character_id=OuterRef('pk'))
         ),
         get_users_with_perms=_users_with_perms_admin,
+        default_initial_selection=False,
     ),
 ])
