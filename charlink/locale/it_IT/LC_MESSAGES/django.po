@@ -4,16 +4,16 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
 # Translators:
-# Matteo Ghia, 2025
+# Matteo Ghia, 2026
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-09 10:27+0000\n"
+"POT-Creation-Date: 2026-01-25 15:03+0000\n"
 "PO-Revision-Date: 2024-09-08 14:58+0000\n"
-"Last-Translator: Matteo Ghia, 2025\n"
+"Last-Translator: Matteo Ghia, 2026\n"
 "Language-Team: Italian (Italy) (https://app.transifex.com/alliance-auth/teams/107430/it_IT/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -150,6 +150,15 @@ msgstr "Visibile:"
 msgid "Default selection:"
 msgstr "Selezione predefinita:"
 
+#: charlink/templates/charlink/admin_imported_apps.html:64
+msgid ""
+"WARNING: the developer set this to not selected in order to avoid ESI bans. "
+"Ensure you know what you are doing."
+msgstr ""
+"ATTENZIONE: lo sviluppatore ha impostato questa opzione a \"non "
+"selezionata\" per evitare ban da ESI. Assicurati di sapere cosa stai "
+"facendo."
+
 #: charlink/templates/charlink/admin_imported_apps.html:74
 #: charlink/templates/charlink/charlink.html:101
 msgid "Scopes required:"
@@ -269,65 +278,89 @@ msgstr "Corporazione principale"
 msgid "CharLink User Audit"
 msgstr "Revisione degli utenti di CharLink"
 
-#: charlink/views.py:48
+#: charlink/views.py:49
 msgid "Invalid request"
 msgstr "Richiesta non valida"
 
-#: charlink/views.py:55
+#: charlink/views.py:56
 msgid "Invalid form data"
 msgstr "Dati del form non validi"
 
-#: charlink/views.py:138
+#: charlink/views.py:139
 #, python-format
 msgid "Failed to add character to %(field_label)s"
 msgstr "Aggiunta del personaggio a %(field_label)s non riuscita"
 
-#: charlink/views.py:140
+#: charlink/views.py:141
 #, python-format
 msgid "Character successfully added to %(field_label)s"
 msgstr "Personaggio aggiunto con successo a %(field_label)s"
 
-#: charlink/views.py:156
+#: charlink/views.py:157
 msgid ""
 "You do not have permission to view the selected corporation statistics."
 msgstr ""
 "Non hai il permesso di visualizzare le statistiche della corporazione "
 "selezionata."
 
-#: charlink/views.py:220
+#: charlink/views.py:221
 msgid "You do not have permission to view the selected user statistics."
 msgstr ""
 "Non hai il permesso di visualizzare le statistiche dell'utente selezionato."
 
-#: charlink/views.py:245
+#: charlink/views.py:246
 msgid ""
 "You do not have permission to view the selected application statistics."
 msgstr ""
 "Non hai il permesso di visualizzare le statistiche dell'applicazione "
 "selezionata."
 
-#: charlink/views.py:301
+#: charlink/views.py:299
+msgid "The visibility for the built-in AllianceAuth login cannot be changed."
+msgstr ""
+"La visibilità del login di default di AllianceAuth non può essere cambiata."
+
+#: charlink/views.py:308
 #, python-format
-msgid "App %(app_name)s is now %(ignored)s"
-msgstr "L'applicazione %(app_name)s è ora %(ignored)s"
+msgid "App \"%(app_name)s\" is now %(ignored)s"
+msgstr "L'applicazione \"%(app_name)s\" è ora %(ignored)s"
 
-#: charlink/views.py:303
-msgid "ignored"
-msgstr "ignorata"
+#: charlink/views.py:310
+msgid "hidden"
+msgstr "nascosta"
 
-#: charlink/views.py:303
+#: charlink/views.py:310
 msgid "visible"
 msgstr "visibile"
 
-#: charlink/views.py:319
-#, python-format
-msgid "App %(app_name)s is now %(selected)s by default"
-msgstr "L'applicazione %(app_name)s ora è %(selected)s di default"
+#: charlink/views.py:323
+msgid ""
+"The default selection for the built-in AllianceAuth login cannot be changed."
+msgstr ""
+"La selezione iniziale del login di default di AllianceAuth non può essere "
+"cambiata."
 
-#: charlink/views.py:321
+#: charlink/views.py:336
+#, python-format
+msgid "App \"%(app_name)s\" is now %(selected)s by default"
+msgstr "L'applicazione \"%(app_name)s\" è ora inizialmente %(selected)s "
+
+#: charlink/views.py:338
 msgid "selected"
 msgstr "selezionata"
 
-#: charlink/views.py:321
+#: charlink/views.py:338
 msgid "not selected"
 msgstr "non selezionata"
+
+#: charlink/views.py:348
+msgid "WARNING"
+msgstr "ATTENZIONE"
+
+#: charlink/views.py:350
+msgid ""
+"The developer set this to not selected in order to avoid ESI bans. Ensure "
+"you know what you are doing."
+msgstr ""
+"Lo sviluppatore ha impostato questa opzione a \"non selezionata\" per "
+"evitare ban da ESI. Assicurati di sapere cosa stai facendo"
