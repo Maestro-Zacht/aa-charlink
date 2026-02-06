@@ -108,5 +108,6 @@ app_import = AppImport('corptools', [
             .filter(corporation__corporation_id=OuterRef('corporation_id'))
         ),
         get_users_with_perms=_users_with_perms_corp,
+        default_initial_selection=False,
     )
 ])
