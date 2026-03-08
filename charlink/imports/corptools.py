@@ -13,13 +13,14 @@ from charlink.app_imports.utils import LoginImport, AppImport
 from app_utils.allianceauth import users_with_permission
 
 _corp_perms = [
-    'corptools.own_corp_manager',
-    'corptools.alliance_corp_manager',
-    'corptools.state_corp_manager',
-    'corptools.global_corp_manager',
-    'corptools.holding_corp_structures',
-    'corptools.holding_corp_assets',
-    'corptools.holding_corp_wallets'
+    "corptools.show_if_director",
+    "corptools.own_corp_manager",
+    "corptools.alliance_corp_manager",
+    "corptools.state_corp_manager",
+    "corptools.global_corp_manager",
+    "corptools.holding_corp_structures",
+    "corptools.holding_corp_assets",
+    "corptools.holding_corp_wallets",
 ]
 
 
