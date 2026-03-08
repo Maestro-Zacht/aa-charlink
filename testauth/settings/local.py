@@ -62,6 +62,7 @@ INSTALLED_APPS += [
     'moonmining',
     'moonstuff',
     'structures',
+    "eve_sde",
     'afat',
     'marketmanager',
     'aa_contacts',
@@ -70,6 +71,8 @@ INSTALLED_APPS += [
     'testauth.testapp',
     'testauth.testapp_duplicate',
 ]
+
+INSTALLED_APPS = ["modeltranslation"] + INSTALLED_APPS
 
 # Register an application at https://developers.eveonline.com for Authentication
 # & API Access and fill out these settings. Be sure to set the callback URL
