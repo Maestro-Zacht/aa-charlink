@@ -95,6 +95,7 @@ INSTALLED_APPS += [
     'moonmining',
     'moonstuff',
     'structures',
+    "eve_sde",
     'afat',
     'marketmanager',
     'aa_contacts',
@@ -105,6 +106,8 @@ INSTALLED_APPS += [
     "debug_toolbar",
     'taskmonitor',
 ]
+
+INSTALLED_APPS = ["modeltranslation"] + INSTALLED_APPS
 
 #######################################
 # Add any custom settings below here. #
@@ -230,3 +233,10 @@ CELERYBEAT_SCHEDULE['aa_contacts_update_all_contacts'] = {
     'task': 'aa_contacts.tasks.update_all_contacts',
     'schedule': crontab(minute='24'),
 }
+
+if "eve_sde" in INSTALLED_APPS:
+    # Run at 12:00 UTC each day
+    CELERYBEAT_SCHEDULE["EVE SDE :: Check for SDE Updates"] = {
+        "task": "eve_sde.tasks.check_for_sde_updates",
+        "schedule": crontab(minute="0", hour="12"),
+    }
