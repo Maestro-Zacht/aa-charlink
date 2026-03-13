@@ -1,5 +1,6 @@
 from unittest.mock import patch
 from django.test import TestCase
+from django.contrib.auth.models import Group, User, Permission
 
 from allianceauth.eveonline.models import EveCharacter
 from allianceauth.tests.auth_utils import AuthUtils
@@ -7,7 +8,7 @@ from allianceauth.tests.auth_utils import AuthUtils
 from app_utils.testdata_factories import UserMainFactory, EveCorporationInfoFactory, EveCharacterFactory
 from app_utils.testing import create_state
 
-from charlink.utils import get_visible_corps, chars_annotate_linked_apps, get_user_available_apps, get_user_linked_chars
+from charlink.utils import get_visible_corps, chars_annotate_linked_apps, get_user_available_apps, get_user_linked_chars, permissions_q, users_with_permission
 from charlink.app_imports import import_apps
 from charlink.imports.corptools import _corp_perms
 from charlink.models import AppSettings
@@ -223,3 +224,120 @@ class TestGetUserLinkedChars(TestCase):
 
         self.assertIn('apps', res)
         self.assertIn('characters', res)
+
+
+class TestPermissionsQ(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.permission1 = AuthUtils.get_permission_by_name("corptools.view_characteraudit")
+        cls.permission2 = AuthUtils.get_permission_by_name("afat.manage_afat")
+        cls.group, _ = Group.objects.get_or_create(name="Test Group")
+        # AuthUtils.add_permissions_to_groups([cls.permission], [cls.group])
+        cls.state = AuthUtils.create_state(name="Test State", priority=75)
+        # cls.state.permissions.add(cls.permission)
+
+        cls.user_1 = AuthUtils.create_user("User1")
+        cls.user_2 = AuthUtils.create_user("User2")
+        cls.user_3 = User.objects.create_superuser("Superuser")
+
+    @staticmethod
+    def user_with_permission_pks(perms, require_all) -> set[int]:
+        users = User.objects.filter(permissions_q(perms, require_all)).distinct()
+        return set(users.values_list('pk', flat=True))
+
+    @staticmethod
+    def get_perm_str(perm: Permission) -> str:
+        return f"{perm.content_type.app_label}.{perm.codename}"
+
+    def test_str_perm(self):
+        AuthUtils.add_permissions_to_user([self.permission1], self.user_1)
+
+        result = TestPermissionsQ.user_with_permission_pks(TestPermissionsQ.get_perm_str(self.permission1), require_all=False)
+
+        self.assertSetEqual(result, {self.user_1.pk, self.user_3.pk})
+
+    def test_empty_perms(self):
+        result = TestPermissionsQ.user_with_permission_pks([], require_all=False)
+        self.assertEqual(len(result), User.objects.count())
+
+    def test_invalid_perm_format(self):
+        with self.assertRaises(ValueError):
+            TestPermissionsQ.user_with_permission_pks("invalid_perm_format", require_all=False)
+
+    def test_permission_to_user(self):
+        AuthUtils.add_permissions_to_user([self.permission1], self.user_1)
+
+        result = TestPermissionsQ.user_with_permission_pks([TestPermissionsQ.get_perm_str(self.permission1)], require_all=False)
+
+        self.assertSetEqual(result, {self.user_1.pk, self.user_3.pk})
+
+    def test_permission_to_group(self):
+        AuthUtils.add_permissions_to_groups([self.permission1], [self.group])
+        self.user_1.groups.add(self.group)
+        self.assertSetEqual(
+            TestPermissionsQ.user_with_permission_pks(
+                [TestPermissionsQ.get_perm_str(self.permission1)],
+                require_all=False
+            ),
+            {self.user_1.pk, self.user_3.pk}
+        )
+
+    def test_permission_to_state(self):
+        self.state.permissions.add(self.permission1)
+        AuthUtils.assign_state(self.user_1, self.state, disconnect_signals=True)
+        self.assertSetEqual(
+            TestPermissionsQ.user_with_permission_pks(
+                [TestPermissionsQ.get_perm_str(self.permission1)],
+                require_all=False
+            ),
+            {self.user_1.pk, self.user_3.pk}
+        )
+
+    def test_multiple_assignments(self):
+        AuthUtils.add_permissions_to_user([self.permission1], self.user_1)
+
+        AuthUtils.add_permissions_to_groups([self.permission1], [self.group])
+        self.user_1.groups.add(self.group)
+
+        self.state.permissions.add(self.permission1)
+        AuthUtils.assign_state(self.user_1, self.state, disconnect_signals=True)
+
+        result = TestPermissionsQ.user_with_permission_pks([TestPermissionsQ.get_perm_str(self.permission1)], require_all=False)
+
+        self.assertSetEqual(result, {self.user_1.pk, self.user_3.pk})
+
+    def test_require_any(self):
+        AuthUtils.add_permissions_to_user([self.permission1], self.user_1)
+
+        AuthUtils.add_permissions_to_groups([self.permission2], [self.group])
+        self.user_2.groups.add(self.group)
+
+        result = TestPermissionsQ.user_with_permission_pks(
+            [TestPermissionsQ.get_perm_str(self.permission1), TestPermissionsQ.get_perm_str(self.permission2)],
+            require_all=False
+        )
+
+        self.assertSetEqual(result, {self.user_1.pk, self.user_2.pk, self.user_3.pk})
+
+    def test_require_all(self):
+        AuthUtils.add_permissions_to_user([self.permission1], self.user_1)
+
+        AuthUtils.add_permissions_to_groups([self.permission1], [self.group])
+        self.user_2.groups.add(self.group)
+
+        self.state.permissions.add(self.permission2)
+        AuthUtils.assign_state(self.user_2, self.state, disconnect_signals=True)
+
+        result = TestPermissionsQ.user_with_permission_pks(
+            [TestPermissionsQ.get_perm_str(self.permission1), TestPermissionsQ.get_perm_str(self.permission2)],
+            require_all=True
+        )
+
+        self.assertSetEqual(result, {self.user_2.pk, self.user_3.pk})
+
+    @patch('charlink.utils.permissions_q')
+    def test_users_with_permission_calls_permissions_q(self, mock_permissions_q):
+        perms = [TestPermissionsQ.get_perm_str(self.permission1)]
+        users_with_permission(perms, require_all=True)
+        mock_permissions_q.assert_called_once_with(perms, True)
