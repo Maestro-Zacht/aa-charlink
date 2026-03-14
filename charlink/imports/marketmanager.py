@@ -5,9 +5,9 @@ from django.utils.translation import gettext_lazy as _
 from allianceauth.eveonline.models import EveCharacter
 
 from charlink.app_imports.utils import LoginImport, AppImport
+from charlink.utils import users_with_permissions
 
 from marketmanager.views import CHARACTER_SCOPES, CORPORATION_SCOPES
-from app_utils.allianceauth import users_with_permission
 from esi.models import Token
 
 
@@ -45,7 +45,7 @@ app_import = AppImport('marketmanager', [
             .filter(character_id=OuterRef('character_id'))
             .require_scopes(CHARACTER_SCOPES)
         ),
-        get_users_with_perms=lambda: users_with_permission(Permission.objects.get(content_type__app_label='marketmanager', codename='basic_market_browser'))
+        get_users_with_perms=lambda: users_with_permissions('marketmanager.basic_market_browser', require_all=False)
     ),
     LoginImport(
         app_label='marketmanager',
@@ -60,7 +60,7 @@ app_import = AppImport('marketmanager', [
             .filter(character_id=OuterRef('character_id'))
             .require_scopes(CORPORATION_SCOPES)
         ),
-        get_users_with_perms=lambda: users_with_permission(Permission.objects.get(content_type__app_label='marketmanager', codename='basic_market_browser')),
+        get_users_with_perms=lambda: users_with_permissions('marketmanager.basic_market_browser', require_all=False),
         default_initial_selection=False,
     ),
 ])

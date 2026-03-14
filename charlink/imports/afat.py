@@ -1,12 +1,11 @@
 from django.db.models import Exists, OuterRef
-from django.contrib.auth.models import Permission, User
+from django.contrib.auth.models import User
 from django.utils.translation import gettext_lazy as _
 
 from charlink.app_imports.utils import LoginImport, AppImport
+from charlink.utils import users_with_permissions
 
 from allianceauth.eveonline.models import EveCharacter
-
-from app_utils.allianceauth import users_with_permission
 
 from esi.models import Token
 
@@ -39,26 +38,11 @@ def _check_perms_readfleet(user: User):
 
 
 def _users_with_perms_readfleet():
-    return users_with_permission(
-        Permission.objects.get(
-            content_type__app_label='afat',
-            codename='manage_afat'
-        )
-    ) | users_with_permission(
-        Permission.objects.get(
-            content_type__app_label='afat',
-            codename='add_fatlink'
-        )
-    )
+    return users_with_permissions(['afat.manage_afat', 'afat.add_fatlink'], require_all=False)
 
 
 def _users_with_perms_clickfleet():
-    return users_with_permission(
-        Permission.objects.get(
-            content_type__app_label='afat',
-            codename='basic_access'
-        )
-    )
+    return users_with_permissions('afat.basic_access', require_all=False)
 
 
 app_import = AppImport('afat', [

@@ -11,8 +11,7 @@ from miningtaxes import tasks
 from allianceauth.eveonline.models import EveCharacter
 
 from charlink.app_imports.utils import LoginImport, AppImport
-
-from app_utils.allianceauth import users_with_permission
+from charlink.utils import users_with_permissions
 
 
 def _add_character_basic(request, token):
@@ -58,21 +57,11 @@ def _is_character_added_admin(character: EveCharacter):
 
 
 def _users_with_perms_basic():
-    return users_with_permission(
-        Permission.objects.get(
-            content_type__app_label='miningtaxes',
-            codename='basic_access'
-        )
-    )
+    return users_with_permissions('miningtaxes.basic_access', require_all=False)
 
 
 def _users_with_perms_admin():
-    return users_with_permission(
-        Permission.objects.get(
-            content_type__app_label='miningtaxes',
-            codename='admin_access'
-        )
-    )
+    return users_with_permissions('miningtaxes.admin_access', require_all=False)
 
 
 app_import = AppImport('miningtaxes', [

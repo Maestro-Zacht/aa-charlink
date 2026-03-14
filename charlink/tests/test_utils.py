@@ -8,7 +8,7 @@ from allianceauth.tests.auth_utils import AuthUtils
 from app_utils.testdata_factories import UserMainFactory, EveCorporationInfoFactory, EveCharacterFactory
 from app_utils.testing import create_state
 
-from charlink.utils import get_visible_corps, chars_annotate_linked_apps, get_user_available_apps, get_user_linked_chars, permissions_q, users_with_permission
+from charlink.utils import get_visible_corps, chars_annotate_linked_apps, get_user_available_apps, get_user_linked_chars, permissions_q, users_with_permissions
 from charlink.app_imports import import_apps
 from charlink.imports.corptools import _corp_perms
 from charlink.models import AppSettings
@@ -337,7 +337,7 @@ class TestPermissionsQ(TestCase):
         self.assertSetEqual(result, {self.user_2.pk, self.user_3.pk})
 
     @patch('charlink.utils.permissions_q')
-    def test_users_with_permission_calls_permissions_q(self, mock_permissions_q):
+    def test_users_with_permissions_calls_permissions_q(self, mock_permissions_q):
         perms = [TestPermissionsQ.get_perm_str(self.permission1)]
-        users_with_permission(perms, require_all=True)
+        users_with_permissions(perms, require_all=True)
         mock_permissions_q.assert_called_once_with(perms, True)

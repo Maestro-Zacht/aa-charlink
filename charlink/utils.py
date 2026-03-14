@@ -135,7 +135,7 @@ def permissions_q(perms: list[str], require_all=True):
     return res_q
 
 
-def users_with_permission(perms: list[str], require_all=True):
+def users_with_permissions(perms: list[str], require_all=True):
     """
     Returns a queryset of users that have the specified permissions. It includes superusers.
 

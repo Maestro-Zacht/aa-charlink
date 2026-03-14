@@ -11,8 +11,7 @@ from app_utils.allianceauth import notify_admins
 from allianceauth.eveonline.models import EveCorporationInfo, EveCharacter
 
 from charlink.app_imports.utils import LoginImport, AppImport
-
-from app_utils.allianceauth import users_with_permission
+from charlink.utils import users_with_permissions
 
 
 def _add_character(request, token):
@@ -51,17 +50,7 @@ def _is_character_added(character: EveCharacter):
 
 
 def _users_with_perms():
-    return users_with_permission(
-        Permission.objects.get(
-            content_type__app_label='moonmining',
-            codename='add_refinery_owner'
-        )
-    ) & users_with_permission(
-        Permission.objects.get(
-            content_type__app_label='moonmining',
-            codename='basic_access'
-        )
-    )
+    return users_with_permissions(['moonmining.add_refinery_owner', 'moonmining.basic_access'], require_all=True)
 
 
 app_import = AppImport('moonmining', [

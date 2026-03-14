@@ -13,8 +13,7 @@ from memberaudit import tasks
 from allianceauth.eveonline.models import EveCharacter
 
 from charlink.app_imports.utils import LoginImport, AppImport
-
-from app_utils.allianceauth import users_with_permission
+from charlink.utils import users_with_permissions
 
 
 def _add_character(request, token: Token):
@@ -53,12 +52,7 @@ def _is_character_added(character: EveCharacter):
 
 
 def _users_with_perms():
-    return users_with_permission(
-        Permission.objects.get(
-            content_type__app_label='memberaudit',
-            codename='basic_access'
-        )
-    )
+    return users_with_permissions('memberaudit.basic_access', require_all=False)
 
 
 app_import = AppImport('memberaudit', [

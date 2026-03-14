@@ -2,6 +2,7 @@ ipython
 bpython
 tox
 coverage
+allianceauth-app-utils
 factory_boy
 django-debug-toolbar
 aa-taskmonitor

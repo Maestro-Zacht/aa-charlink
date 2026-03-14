@@ -9,8 +9,7 @@ from corptools.views import CORP_REQUIRED_SCOPES
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
 
 from charlink.app_imports.utils import LoginImport, AppImport
-
-from app_utils.allianceauth import users_with_permission
+from charlink.utils import users_with_permissions
 
 _corp_perms = [
     "corptools.show_if_director",
@@ -55,30 +54,11 @@ def _is_character_added_corp(character: EveCharacter):
 
 
 def _users_with_perms_charaudit():
-    return users_with_permission(
-        Permission.objects.get(
-            content_type__app_label='corptools',
-            codename='view_characteraudit'
-        )
-    )
+    return users_with_permissions('corptools.view_characteraudit', require_all=False)
 
 
 def _users_with_perms_corp():
-    users = users_with_permission(
-        Permission.objects.get(
-            content_type__app_label=_corp_perms[0].split('.')[0],
-            codename=_corp_perms[0].split('.')[1]
-        )
-    )
-    for perm_str in _corp_perms[1:]:
-        users |= users_with_permission(
-            Permission.objects.get(
-                content_type__app_label=perm_str.split('.')[0],
-                codename=perm_str.split('.')[1]
-            )
-        )
-
-    return users
+    return users_with_permissions(_corp_perms, require_all=False)
 
 
 app_import = AppImport('corptools', [
