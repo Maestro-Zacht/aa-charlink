@@ -31,9 +31,13 @@ class AppSettings(models.Model):
     def __str__(self) -> str:
         from .app_imports import import_apps
         imported_apps = import_apps()
+
         app, _, unique_id = self.app_name.rpartition('_')
+        if app not in imported_apps:
+            return gl("{application} (Uninstalled)").format(application=self.app_name)
+
         login_import = imported_apps[app].get(unique_id)
-        return str(login_import.field_label) if login_import else self.app_name
+        return str(login_import.field_label)
 
 
 # Smart filters

@@ -1,6 +1,6 @@
 from unittest.mock import patch
 
-from django.test import TestCase
+from django.test import TestCase, modify_settings
 from django.contrib.auth.models import User
 
 from app_utils.testdata_factories import UserMainFactory, EveCharacterFactory
@@ -29,6 +29,16 @@ class TestAppSettings(TestCase):
         app_setting = AppSettings.objects.get(app_name='allianceauth.authentication_default')
 
         self.assertEqual(str(app_setting), str(auth_import.get('default').field_label))
+
+    @modify_settings(INSTALLED_APPS={'remove': 'memberaudit'})
+    def test_str_method_non_existent_app(self):
+        AppSettings.objects.create(app_name='memberaudit_default', default_selection=True)
+
+        imported_apps = import_apps()
+        self.assertNotIn('memberaudit', imported_apps)
+
+        app_setting = AppSettings.objects.get(app_name='memberaudit_default')
+        self.assertEqual(str(app_setting), 'memberaudit_default (Uninstalled)')
 
 
 class BaseFilterTestImpl(BaseFilter):
