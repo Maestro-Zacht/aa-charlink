@@ -2,24 +2,26 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# 
+#
 # Translators:
 # Matteo Ghia, 2026
-# 
+#
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 15:03+0000\n"
+"POT-Creation-Date: 2026-03-21 18:15+0000\n"
 "PO-Revision-Date: 2024-09-08 14:58+0000\n"
 "Last-Translator: Matteo Ghia, 2026\n"
-"Language-Team: Italian (Italy) (https://app.transifex.com/alliance-auth/teams/107430/it_IT/)\n"
+"Language-Team: Italian (Italy) (https://app.transifex.com/alliance-auth/"
+"teams/107430/it_IT/)\n"
+"Language: it_IT\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: it_IT\n"
-"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? 1 : 2;\n"
+"Plural-Forms: nplurals=3; plural=n == 1 ? 0 : n != 0 && n % 1000000 == 0 ? "
+"1 : 2;\n"
 
 #: charlink/app_imports/__init__.py:42
 msgid "Hook import: failed to validate"
@@ -37,11 +39,11 @@ msgstr "Importazione via hook: errore generico"
 msgid "Scopes error. Contact an administrator."
 msgstr "Errore negli scope. Contatta un amministratore."
 
-#: charlink/imports/afat.py:68
+#: charlink/imports/afat.py:52
 msgid "AFAT Read Fleet"
 msgstr "AFAT Leggi Flotta"
 
-#: charlink/imports/afat.py:85
+#: charlink/imports/afat.py:69
 msgid "AFAT Click Tracking"
 msgstr "AFAT Clicca Tracciamento"
 
@@ -49,8 +51,8 @@ msgstr "AFAT Clicca Tracciamento"
 msgid "Add Character (default)"
 msgstr "Aggiungi personaggio (predefinito)"
 
-#: charlink/imports/allianceauth/corputils.py:45
-#: charlink/imports/corpstats.py:46
+#: charlink/imports/allianceauth/corputils.py:39
+#: charlink/imports/corpstats.py:40
 msgid "Corporation Stats"
 msgstr "Statistiche della corporazione"
 
@@ -62,19 +64,19 @@ msgstr "Market Manager - Accesso personaggio"
 msgid "Market Manager - Corporation Login"
 msgstr "Market Manager - Accesso corporazione"
 
-#: charlink/imports/miningtaxes.py:82
+#: charlink/imports/miningtaxes.py:71
 msgid "Mining Taxes"
 msgstr "Tasse di estrazione"
 
-#: charlink/imports/miningtaxes.py:96
+#: charlink/imports/miningtaxes.py:85
 msgid "Mining Taxes Admin"
 msgstr "Tasse di estrazione - Admin"
 
 #: charlink/imports/structures.py:57
 #, python-format
 msgid ""
-"%(corporation)s has been added with %(character)s as sync character. We have"
-" started fetching structures and notifications for this corporation and you "
+"%(corporation)s has been added with %(character)s as sync character. We have "
+"started fetching structures and notifications for this corporation and you "
 "will receive a report once the process is finished."
 msgstr ""
 "%(corporation)s è stata aggiunta con %(character)s come personaggio per la "
@@ -110,13 +112,32 @@ msgid ""
 "%(character)s was added as sync character to %(corporation)s by %(user)s.\n"
 "We now have %(characters_count)d sync character(s) configured."
 msgstr ""
-"%(character)s è stato aggiunto come personaggio per la sincronizzazione di %(corporation)s da %(user)s.\n"
-"Ora abbiamo %(characters_count)d personaggio(i) per la sincronizzazione configurato(i)."
+"%(character)s è stato aggiunto come personaggio per la sincronizzazione di "
+"%(corporation)s da %(user)s.\n"
+"Ora abbiamo %(characters_count)d personaggio(i) per la sincronizzazione "
+"configurato(i)."
 
 #: charlink/imports/structures.py:107
 #, python-format
 msgid "%s: Character added to: %s"
 msgstr "%s: Personaggio aggiunto a: %s"
+
+#: charlink/models.py:37
+#, python-brace-format
+msgid "{application} (Uninstalled)"
+msgstr ""
+
+#: charlink/models.py:69
+msgid "Smart Filter: Compliance"
+msgstr ""
+
+#: charlink/models.py:113
+msgid "Meets requirements"
+msgstr ""
+
+#: charlink/models.py:113
+msgid "Does not meet requirements"
+msgstr ""
 
 #: charlink/templates/charlink/admin_imported_apps.html:4
 msgid "Charlink Imported Apps"
@@ -156,8 +177,7 @@ msgid ""
 "Ensure you know what you are doing."
 msgstr ""
 "ATTENZIONE: lo sviluppatore ha impostato questa opzione a \"non "
-"selezionata\" per evitare ban da ESI. Assicurati di sapere cosa stai "
-"facendo."
+"selezionata\" per evitare ban da ESI. Assicurati di sapere cosa stai facendo."
 
 #: charlink/templates/charlink/admin_imported_apps.html:74
 #: charlink/templates/charlink/charlink.html:101
@@ -233,8 +253,8 @@ msgid ""
 "eveonline website to authenticate and provide the token with all the scopes "
 "needed."
 msgstr ""
-"Seleziona le app che vuoi collegare dall'elenco. Sarai reindirizzato al sito"
-" web di eveonline per autenticarti e fornire il token con tutti gli scope "
+"Seleziona le app che vuoi collegare dall'elenco. Sarai reindirizzato al sito "
+"web di eveonline per autenticarti e fornire il token con tutti gli scope "
 "necessari."
 
 #: charlink/templates/charlink/charlink.html:42
@@ -297,8 +317,7 @@ msgid "Character successfully added to %(field_label)s"
 msgstr "Personaggio aggiunto con successo a %(field_label)s"
 
 #: charlink/views.py:157
-msgid ""
-"You do not have permission to view the selected corporation statistics."
+msgid "You do not have permission to view the selected corporation statistics."
 msgstr ""
 "Non hai il permesso di visualizzare le statistiche della corporazione "
 "selezionata."
@@ -309,8 +328,7 @@ msgstr ""
 "Non hai il permesso di visualizzare le statistiche dell'utente selezionato."
 
 #: charlink/views.py:246
-msgid ""
-"You do not have permission to view the selected application statistics."
+msgid "You do not have permission to view the selected application statistics."
 msgstr ""
 "Non hai il permesso di visualizzare le statistiche dell'applicazione "
 "selezionata."
@@ -353,11 +371,11 @@ msgstr "selezionata"
 msgid "not selected"
 msgstr "non selezionata"
 
-#: charlink/views.py:348
+#: charlink/views.py:347
 msgid "WARNING"
 msgstr "ATTENZIONE"
 
-#: charlink/views.py:350
+#: charlink/views.py:349
 msgid ""
 "The developer set this to not selected in order to avoid ESI bans. Ensure "
 "you know what you are doing."

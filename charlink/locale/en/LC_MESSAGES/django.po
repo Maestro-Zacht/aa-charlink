@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-01-25 15:03+0000\n"
+"POT-Creation-Date: 2026-03-21 18:13+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -34,11 +34,11 @@ msgstr ""
 msgid "Scopes error. Contact an administrator."
 msgstr ""
 
-#: charlink/imports/afat.py:68
+#: charlink/imports/afat.py:52
 msgid "AFAT Read Fleet"
 msgstr ""
 
-#: charlink/imports/afat.py:85
+#: charlink/imports/afat.py:69
 msgid "AFAT Click Tracking"
 msgstr ""
 
@@ -46,8 +46,8 @@ msgstr ""
 msgid "Add Character (default)"
 msgstr ""
 
-#: charlink/imports/allianceauth/corputils.py:45
-#: charlink/imports/corpstats.py:46
+#: charlink/imports/allianceauth/corputils.py:39
+#: charlink/imports/corpstats.py:40
 msgid "Corporation Stats"
 msgstr ""
 
@@ -59,11 +59,11 @@ msgstr ""
 msgid "Market Manager - Corporation Login"
 msgstr ""
 
-#: charlink/imports/miningtaxes.py:82
+#: charlink/imports/miningtaxes.py:71
 msgid "Mining Taxes"
 msgstr ""
 
-#: charlink/imports/miningtaxes.py:96
+#: charlink/imports/miningtaxes.py:85
 msgid "Mining Taxes Admin"
 msgstr ""
 
@@ -102,6 +102,23 @@ msgstr ""
 #: charlink/imports/structures.py:107
 #, python-format
 msgid "%s: Character added to: %s"
+msgstr ""
+
+#: charlink/models.py:37
+#, python-brace-format
+msgid "{application} (Uninstalled)"
+msgstr ""
+
+#: charlink/models.py:69
+msgid "Smart Filter: Compliance"
+msgstr ""
+
+#: charlink/models.py:113
+msgid "Meets requirements"
+msgstr ""
+
+#: charlink/models.py:113
+msgid "Does not meet requirements"
 msgstr ""
 
 #: charlink/templates/charlink/admin_imported_apps.html:4
@@ -323,11 +340,11 @@ msgstr ""
 msgid "not selected"
 msgstr ""
 
-#: charlink/views.py:348
+#: charlink/views.py:347
 msgid "WARNING"
 msgstr ""
 
-#: charlink/views.py:350
+#: charlink/views.py:349
 msgid ""
 "The developer set this to not selected in order to avoid ESI bans. Ensure "
 "you know what you are doing."

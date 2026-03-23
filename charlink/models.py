@@ -2,7 +2,7 @@ from collections import defaultdict
 
 from django.db import models
 from django.contrib.auth.models import User
-from django.utils.translation import gettext_lazy as gl
+from django.utils.translation import gettext_lazy as _
 
 from allianceauth.eveonline.models import EveCharacter
 
@@ -31,9 +31,14 @@ class AppSettings(models.Model):
     def __str__(self) -> str:
         from .app_imports import import_apps
         imported_apps = import_apps()
-        app, _, unique_id = self.app_name.rpartition('_')
-        login_import = imported_apps[app].get(unique_id)
-        return str(login_import.field_label) if login_import else self.app_name
+
+        app, _sep, unique_id = self.app_name.rpartition('_')
+
+        try:
+            login_import = imported_apps[app].get(unique_id)
+            return str(login_import.field_label)
+        except KeyError:
+            return _("{application} (Uninstalled)").format(application=self.app_name)
 
 
 # Smart filters
@@ -62,7 +67,7 @@ class ComplianceFilter(BaseFilter):
     negate = models.BooleanField(default=False)
 
     class Meta:
-        verbose_name = gl("Smart Filter: Compliance")
+        verbose_name = _("Smart Filter: Compliance")
         verbose_name_plural = verbose_name
         default_permissions = ()
 
@@ -78,7 +83,7 @@ class ComplianceFilter(BaseFilter):
         queries = []
 
         for selected_app in self.selected_apps.all():
-            app, _, unique_id = selected_app.app_name.rpartition('_')
+            app, _sep, unique_id = selected_app.app_name.rpartition('_')
             try:
                 login_import = imported_apps[app].get(unique_id)
             except KeyError:
@@ -106,7 +111,7 @@ class ComplianceFilter(BaseFilter):
         for user_data in chars:
             compliance = user_data['has_compliance'] == user_data['char_count']
             output[user_data['user_pk']] = {
-                "message": gl("Meets requirements") if compliance else gl("Does not meet requirements"),
+                "message": _("Meets requirements") if compliance else _("Does not meet requirements"),
                 "check": compliance ^ self.negate
             }
 
