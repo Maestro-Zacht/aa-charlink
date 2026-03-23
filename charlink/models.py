@@ -33,11 +33,12 @@ class AppSettings(models.Model):
         imported_apps = import_apps()
 
         app, _sep, unique_id = self.app_name.rpartition('_')
-        if app not in imported_apps:
-            return _("{application} (Uninstalled)").format(application=self.app_name)
 
-        login_import = imported_apps[app].get(unique_id)
-        return str(login_import.field_label)
+        try:
+            login_import = imported_apps[app].get(unique_id)
+            return str(login_import.field_label)
+        except KeyError:
+            return _("{application} (Uninstalled)").format(application=self.app_name)
 
 
 # Smart filters
