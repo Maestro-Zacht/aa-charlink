@@ -121,19 +121,19 @@ msgstr "%s: Personaggio aggiunto a: %s"
 #: charlink/models.py:37
 #, python-brace-format
 msgid "{application} (Uninstalled)"
-msgstr ""
+msgstr "{application} (Disinstallata)"
 
 #: charlink/models.py:69
 msgid "Smart Filter: Compliance"
-msgstr ""
+msgstr "Filtro Intelligente: Conformità"
 
 #: charlink/models.py:113
 msgid "Meets requirements"
-msgstr ""
+msgstr "Soddisfa i requisiti"
 
 #: charlink/models.py:113
 msgid "Does not meet requirements"
-msgstr ""
+msgstr "Non soddisfa i requisiti"
 
 #: charlink/templates/charlink/admin_imported_apps.html:4
 msgid "Charlink Imported Apps"
