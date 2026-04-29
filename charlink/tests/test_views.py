@@ -560,7 +560,6 @@ class TestAuditApp(TestCase):
     @classmethod
     def setUpTestData(cls):
         permissions = [
-            "memberaudit.basic_access",
             'corptools.view_characteraudit',
             # "moonmining.add_refinery_owner",
             # "moonmining.basic_access"
@@ -618,7 +617,7 @@ class TestAuditApp(TestCase):
     def test_no_app_perm(self):
         self.client.force_login(self.no_perm_user)
 
-        res = self.client.get(reverse('charlink:audit_app', args=['memberaudit']))
+        res = self.client.get(reverse('charlink:audit_app', args=['corptools']))
 
         self.assertNotEqual(res.status_code, 200)
 
