@@ -2,19 +2,17 @@ ipython
 bpython
 tox
 coverage
-allianceauth-app-utils
+allianceauth-app-utils>=1.31.0a1,<2
 factory_boy
 django-debug-toolbar
-aa-taskmonitor
+# aa-taskmonitor
 
-aa-corpstats-two
 allianceauth-corptools>=3.0.0b4
-django-eveuniverse
-aa-memberaudit
+# django-eveuniverse
+# aa-memberaudit
 aa-miningtaxes
-aa-moonmining
-aa-moonstuff
-aa-structures>=2.11.0
+# aa-moonmining
+# aa-structures>=4.0.0b1
 allianceauth-afat
 aa-market-manager
 aa-contacts

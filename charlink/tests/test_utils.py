@@ -52,7 +52,7 @@ class TestGetVisibleCorps(TestCase):
 
     def test_superuser(self):
         corps = get_visible_corps(self.superuser)
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             corps,
             [
                 self.corporation,
@@ -66,7 +66,7 @@ class TestGetVisibleCorps(TestCase):
     def test_corp_access(self):
         AuthUtils.add_permission_to_user_by_name('charlink.view_corp', self.user)
         corps = get_visible_corps(self.user)
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             corps,
             [
                 self.corporation,
@@ -77,7 +77,7 @@ class TestGetVisibleCorps(TestCase):
     def test_alliance_access(self):
         AuthUtils.add_permission_to_user_by_name('charlink.view_alliance', self.user)
         corps = get_visible_corps(self.user)
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             corps,
             [
                 self.corporation,
@@ -89,7 +89,7 @@ class TestGetVisibleCorps(TestCase):
     def test_state_access(self):
         AuthUtils.add_permission_to_user_by_name('charlink.view_state', self.user)
         corps = get_visible_corps(self.user)
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             corps,
             [
                 self.corporation3,
@@ -100,7 +100,7 @@ class TestGetVisibleCorps(TestCase):
     def test_state_and_alliance_access(self):
         AuthUtils.add_permissions_to_user_by_name(['charlink.view_state', 'charlink.view_alliance'], self.user)
         corps = get_visible_corps(self.user)
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             corps,
             [
                 self.corporation,
@@ -112,7 +112,7 @@ class TestGetVisibleCorps(TestCase):
 
     def test_no_access(self):
         corps = get_visible_corps(self.user)
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             corps,
             [],
             ordered=False
@@ -150,7 +150,7 @@ class TestGetUserAvailableApps(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory(permissions=["memberaudit.basic_access"])
+        cls.user = UserMainFactory()
         cls.corptools_user_corp = UserMainFactory(permissions=_corp_perms)
         cls.corptools_user_charaudit = UserMainFactory(permissions=["corptools.view_characteraudit"])
 
@@ -160,7 +160,7 @@ class TestGetUserAvailableApps(TestCase):
         res = get_user_available_apps(self.user)
         self.assertSetEqual(
             set(res.keys()),
-            {'memberaudit', 'allianceauth.authentication', 'testauth.testapp'}
+            {'allianceauth.authentication', 'testauth.testapp'}
         )
 
         res2 = get_user_available_apps(self.corptools_user_corp)

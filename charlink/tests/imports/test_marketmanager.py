@@ -70,13 +70,13 @@ class TestGetUsersWithPerms(TestCase):
     def test_ok(self):
         app_import = import_apps()['marketmanager']
 
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             app_import.get('character').get_users_with_perms(),
             [self.basic_market_browser_user.pk],
             ordered=False,
             transform=lambda x: x.pk
         )
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             app_import.get('corporation').get_users_with_perms(),
             [self.basic_market_browser_user.pk],
             ordered=False,

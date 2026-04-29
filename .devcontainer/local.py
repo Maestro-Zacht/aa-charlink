@@ -87,14 +87,12 @@ INSTALLED_APPS += [
 
     'charlink',
 
-    'eveuniverse',
-    'corpstats',
+    # 'eveuniverse',
     'corptools',
-    'memberaudit',
+    # 'memberaudit',
     'miningtaxes',
-    'moonmining',
-    'moonstuff',
-    'structures',
+    # 'moonmining',
+    # 'structures',
     "eve_sde",
     'afat',
     'marketmanager',
@@ -104,7 +102,7 @@ INSTALLED_APPS += [
     'live_duplicate',
 
     "debug_toolbar",
-    'taskmonitor',
+    # 'taskmonitor',
 ]
 
 INSTALLED_APPS = ["modeltranslation"] + INSTALLED_APPS
