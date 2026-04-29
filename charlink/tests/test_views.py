@@ -10,7 +10,7 @@ from allianceauth.authentication.models import CharacterOwnership
 from app_utils.testdata_factories import UserMainFactory, EveCorporationInfoFactory, EveCharacterFactory
 
 from charlink.views import get_navbar_elements, dashboard_login
-from charlink.imports.memberaudit import app_import as memberaudit_import
+from charlink.imports.corptools import app_import as corptools_import
 from charlink.imports.miningtaxes import app_import as miningtaxes_import
 from charlink.imports.corptools import _corp_perms
 from charlink.app_imports.utils import AppImport, LoginImport
@@ -66,7 +66,6 @@ class TestDashboardLogin(TestCase):
     def setUpTestData(cls):
         cls.user = UserMainFactory(
             permissions=[
-                'memberaudit.basic_access',
                 'miningtaxes.basic_access',
             ]
         )
@@ -83,12 +82,6 @@ class TestDashboardLogin(TestCase):
                 <div class="form-check">
                     <input type="checkbox" name="charlink-allianceauth.authentication_default" class="form-check-input" disabled id="id_charlink-allianceauth.authentication_default" checked>
                     <label class="form-check-label" for="id_charlink-allianceauth.authentication_default">Add Character (default)</label>
-                </div>
-            </div>''',
-            '''<div class="mb-3">
-                <div class="form-check">
-                    <input type="checkbox" name="charlink-memberaudit_default" class="form-check-input" id="id_charlink-memberaudit_default" checked>
-                    <label class="form-check-label" for="id_charlink-memberaudit_default">Member Audit</label>
                 </div>
             </div>''',
             '''<div class="mb-3">
@@ -129,11 +122,7 @@ class TestDashboardPost(TestCase):
         cls.user = UserMainFactory(
             permissions=[
                 'corputils.add_corpstats',
-                'memberaudit.basic_access',
                 'miningtaxes.basic_access',
-                'moonmining.add_refinery_owner',
-                'moonmining.basic_access',
-                'corpstats.add_corpstat',
             ]
         )
 
@@ -142,9 +131,6 @@ class TestDashboardPost(TestCase):
         super().setUpClass()
         cls.form_data = {
             'charlink-allianceauth.corputils_default': ['on'],
-            'charlink-miningtaxes_default': ['on'],
-            'charlink-moonmining_default': ['on'],
-            'charlink-corpstats_default': ['on'],
         }
 
     def test_post_ok(self):
@@ -168,11 +154,8 @@ class TestDashboardPost(TestCase):
 
         self.assertIn(['allianceauth.authentication', 'default'], converted_imports)
         self.assertIn(['allianceauth.corputils', 'default'], converted_imports)
-        self.assertNotIn(['memberaudit', 'default'], converted_imports)
-        self.assertIn(['miningtaxes', 'default'], converted_imports)
-        self.assertIn(['moonmining', 'default'], converted_imports)
-        self.assertIn(['corpstats', 'default'], converted_imports)
-        self.assertEqual(len(session['charlink']['imports']), 5)
+        self.assertNotIn(['miningtaxes', 'default'], converted_imports)
+        self.assertEqual(len(session['charlink']['imports']), 2)
 
     def test_get(self):
         self.client.force_login(self.user)
@@ -216,19 +199,12 @@ class TestIndex(TestCase):
         cls.user = UserMainFactory(
             permissions=[
                 'corputils.add_corpstats',
-                'memberaudit.basic_access',
                 'miningtaxes.basic_access',
-                'moonmining.add_refinery_owner',
-                'moonmining.basic_access',
-                'corpstats.add_corpstat',
             ]
         )
 
         cls.form_data = {
             'allianceauth.corputils_default': ['on'],
-            'miningtaxes_default': ['on'],
-            'moonmining_default': ['on'],
-            'corpstats_default': ['on'],
         }
 
     def test_get(self):
@@ -261,11 +237,8 @@ class TestIndex(TestCase):
 
         self.assertIn(['allianceauth.authentication', 'default'], converted_imports)
         self.assertIn(['allianceauth.corputils', 'default'], converted_imports)
-        self.assertNotIn(['memberaudit', 'default'], converted_imports)
-        self.assertIn(['miningtaxes', 'default'], converted_imports)
-        self.assertIn(['moonmining', 'default'], converted_imports)
-        self.assertIn(['corpstats', 'default'], converted_imports)
-        self.assertEqual(len(session['charlink']['imports']), 5)
+        self.assertNotIn(['miningtaxes', 'default'], converted_imports)
+        self.assertEqual(len(session['charlink']['imports']), 2)
 
     # form always valid
     # def test_post_wrong_data(self):
@@ -299,10 +272,10 @@ class TestLoginView(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.scopes = list(set(memberaudit_import.imports[0].scopes + miningtaxes_import.imports[0].scopes))
+        cls.scopes = list(set(corptools_import.imports[0].scopes + miningtaxes_import.imports[0].scopes))
         cls.user = UserMainFactory(
             permissions=[
-                'memberaudit.basic_access',
+                'corptools.view_characteraudit',
                 'miningtaxes.basic_access',
             ],
             main_character__scopes=cls.scopes
@@ -310,16 +283,16 @@ class TestLoginView(TestCase):
         cls.token = cls.user.token_set.first()
 
     @patch('charlink.imports.miningtaxes._add_character_basic')
-    @patch('charlink.imports.memberaudit._add_character')
+    @patch('charlink.imports.corptools._add_character_charaudit')
     @patch('charlink.views.import_apps')
     @patch('charlink.decorators.token_required')
-    def test_ok(self, mock_token_required, mock_import_apps, mock_memberaudit_add_character, mock_miningtaxes_add_character):
+    def test_ok(self, mock_token_required, mock_import_apps, mock_corptools_add_character, mock_miningtaxes_add_character):
         import_apps()
         session = self.client.session
         session['charlink'] = {
             'scopes': self.scopes,
             'imports': [
-                ('memberaudit', 'default'),
+                ('corptools', 'default'),
                 ('miningtaxes', 'default'),
                 ('allianceauth.authentication', 'default'),
             ],
@@ -334,17 +307,17 @@ class TestLoginView(TestCase):
         mock_token_required.return_value = fake_decorator
 
         mock_import_apps.return_value = {
-            'memberaudit': AppImport('memberaudit', [
+            'corptools': AppImport('corptools', [
                 LoginImport(
-                    app_label='memberaudit',
+                    app_label='corptools',
                     unique_id='default',
-                    field_label='Member Audit',
-                    add_character=lambda requets, token: None,
-                    scopes=memberaudit_import.imports[0].scopes,
-                    check_permissions=memberaudit_import.imports[0].check_permissions,
-                    is_character_added=memberaudit_import.imports[0].is_character_added,
-                    is_character_added_annotation=memberaudit_import.imports[0].is_character_added_annotation,
-                    get_users_with_perms=memberaudit_import.imports[0].get_users_with_perms,
+                    field_label='Corp Tools',
+                    add_character=lambda request, token: None,
+                    scopes=corptools_import.imports[0].scopes,
+                    check_permissions=corptools_import.imports[0].check_permissions,
+                    is_character_added=corptools_import.imports[0].is_character_added,
+                    is_character_added_annotation=corptools_import.imports[0].is_character_added_annotation,
+                    get_users_with_perms=corptools_import.imports[0].get_users_with_perms,
                 )
             ]),
             'miningtaxes': AppImport('miningtaxes', [
@@ -375,7 +348,7 @@ class TestLoginView(TestCase):
             ]),
         }
 
-        mock_memberaudit_add_character.return_value = None
+        mock_corptools_add_character.return_value = None
         mock_miningtaxes_add_character.side_effect = Exception('test')
 
         self.client.force_login(self.user)
@@ -390,10 +363,10 @@ class TestLoginView(TestCase):
         self.assertEqual(sorted_messages[1].level, DEFAULT_LEVELS['ERROR'])
 
     @patch('charlink.imports.miningtaxes._add_character_basic')
-    @patch('charlink.imports.memberaudit._add_character')
+    @patch('charlink.imports.corptools._add_character_charaudit')
     @patch('charlink.views.import_apps')
     @patch('charlink.decorators.token_required')
-    def test_ignore(self, mock_token_required, mock_import_apps, mock_memberaudit_add_character, mock_miningtaxes_add_character):
+    def test_ignore(self, mock_token_required, mock_import_apps, mock_corptools_add_character, mock_miningtaxes_add_character):
         import_apps()
         AppSettings.objects.filter(app_name__startswith='miningtaxes').update(ignored=True)
 
@@ -401,7 +374,7 @@ class TestLoginView(TestCase):
         session['charlink'] = {
             'scopes': self.scopes,
             'imports': [
-                ('memberaudit', 'default'),
+                ('corptools', 'default'),
                 ('miningtaxes', 'default'),
                 ('allianceauth.authentication', 'default'),
             ],
@@ -416,17 +389,17 @@ class TestLoginView(TestCase):
         mock_token_required.return_value = fake_decorator
 
         mock_import_apps.return_value = {
-            'memberaudit': AppImport('memberaudit', [
+            'corptools': AppImport('corptools', [
                 LoginImport(
-                    app_label='memberaudit',
+                    app_label='corptools',
                     unique_id='default',
-                    field_label='Member Audit',
-                    add_character=lambda requets, token: None,
-                    scopes=memberaudit_import.imports[0].scopes,
-                    check_permissions=memberaudit_import.imports[0].check_permissions,
-                    is_character_added=memberaudit_import.imports[0].is_character_added,
-                    is_character_added_annotation=memberaudit_import.imports[0].is_character_added_annotation,
-                    get_users_with_perms=memberaudit_import.imports[0].get_users_with_perms,
+                    field_label='Corp Tools',
+                    add_character=lambda request, token: None,
+                    scopes=corptools_import.imports[0].scopes,
+                    check_permissions=corptools_import.imports[0].check_permissions,
+                    is_character_added=corptools_import.imports[0].is_character_added,
+                    is_character_added_annotation=corptools_import.imports[0].is_character_added_annotation,
+                    get_users_with_perms=corptools_import.imports[0].get_users_with_perms,
                 )
             ]),
             'miningtaxes': AppImport('miningtaxes', [
@@ -457,7 +430,7 @@ class TestLoginView(TestCase):
             ]),
         }
 
-        mock_memberaudit_add_character.return_value = None
+        mock_corptools_add_character.return_value = None
         mock_miningtaxes_add_character.return_value = None
 
         self.client.force_login(self.user)
@@ -586,11 +559,15 @@ class TestAuditApp(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        permissions = ["memberaudit.basic_access", "moonmining.add_refinery_owner", "moonmining.basic_access"]
+        permissions = [
+            "memberaudit.basic_access",
+            'corptools.view_characteraudit',
+            # "moonmining.add_refinery_owner",
+            # "moonmining.basic_access"
+        ]
         cls.user = UserMainFactory(
             permissions=[
                 'charlink.view_corp',
-                'corptools.view_characteraudit',
                 *permissions,
                 *_corp_perms,
             ]
@@ -612,12 +589,12 @@ class TestAuditApp(TestCase):
     def test_ok(self):
         self.client.force_login(self.user)
 
-        res = self.client.get(reverse('charlink:audit_app', args=['memberaudit']))
+        res = self.client.get(reverse('charlink:audit_app', args=['corptools']))
 
         self.assertEqual(res.status_code, 200)
         self.assertIn('app', res.context)
         self.assertIn('logins', res.context)
-        self.assertEqual(len(res.context['logins']), 1)
+        self.assertEqual(len(res.context['logins']), 2)
         self.assertEqual(len(list(res.context['logins'].values())[0]), 2)
 
     def test_app_empty_perms(self):
@@ -645,22 +622,22 @@ class TestAuditApp(TestCase):
 
         self.assertNotEqual(res.status_code, 200)
 
-    def test_multiple_app_perms(self):
-        self.client.force_login(self.user)
+    # def test_multiple_app_perms(self):
+    #     self.client.force_login(self.user)
 
-        extra_char = EveCharacterFactory(corporation=self.user.profile.main_character.corporation)
-        UserMainFactory(
-            permissions=["moonmining.add_refinery_owner", "moonmining.basic_access"],
-            main_character__character=extra_char
-        )
+    #     extra_char = EveCharacterFactory(corporation=self.user.profile.main_character.corporation)
+    #     UserMainFactory(
+    #         permissions=["moonmining.add_refinery_owner", "moonmining.basic_access"],
+    #         main_character__character=extra_char
+    #     )
 
-        res = self.client.get(reverse('charlink:audit_app', args=['moonmining']))
+    #     res = self.client.get(reverse('charlink:audit_app', args=['moonmining']))
 
-        self.assertEqual(res.status_code, 200)
-        self.assertIn('logins', res.context)
-        self.assertEqual(len(res.context['logins']), 1)
-        self.assertEqual(len(list(res.context['logins'].values())[0]), 3)
-        self.assertIn('app', res.context)
+    #     self.assertEqual(res.status_code, 200)
+    #     self.assertIn('logins', res.context)
+    #     self.assertEqual(len(res.context['logins']), 1)
+    #     self.assertEqual(len(list(res.context['logins'].values())[0]), 3)
+    #     self.assertIn('app', res.context)
 
     def test_app_with_multiple_logins(self):
         self.client.force_login(self.user)

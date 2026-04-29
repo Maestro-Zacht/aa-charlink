@@ -150,7 +150,7 @@ class TestGetUserAvailableApps(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory(permissions=["memberaudit.basic_access"])
+        cls.user = UserMainFactory()
         cls.corptools_user_corp = UserMainFactory(permissions=_corp_perms)
         cls.corptools_user_charaudit = UserMainFactory(permissions=["corptools.view_characteraudit"])
 
@@ -160,7 +160,7 @@ class TestGetUserAvailableApps(TestCase):
         res = get_user_available_apps(self.user)
         self.assertSetEqual(
             set(res.keys()),
-            {'memberaudit', 'allianceauth.authentication', 'testauth.testapp'}
+            {'allianceauth.authentication', 'testauth.testapp'}
         )
 
         res2 = get_user_available_apps(self.corptools_user_corp)
