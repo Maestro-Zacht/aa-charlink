@@ -13,6 +13,8 @@ classifiers = [
 	"Framework :: Django",
 	"Framework :: Django :: 4",
 	"Framework :: Django :: 4.2",
+	"Framework :: Django :: 5",
+	"Framework :: Django :: 5.2",
 	"Operating System :: POSIX :: Linux",
 	"Development Status :: 5 - Production/Stable",
 	"Intended Audience :: Developers",
@@ -22,6 +24,7 @@ classifiers = [
 	"Programming Language :: Python :: 3.10",
 	"Programming Language :: Python :: 3.11",
 	"Programming Language :: Python :: 3.12",
+	"Programming Language :: Python :: 3.13",
 	"Topic :: Internet :: WWW/HTTP",
 	"Topic :: Internet :: WWW/HTTP :: Dynamic Content",
 ]
@@ -36,7 +39,7 @@ keywords = [
 ]
 requires-python = "~=3.10"
 dependencies = [
-    "allianceauth~=4.6",
+    "allianceauth>=4.6,<6",
 ]
 
 [project.urls]
