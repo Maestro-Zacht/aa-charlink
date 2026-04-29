@@ -65,7 +65,7 @@ CACHES = {
 # Add any additional apps to this list.
 INSTALLED_APPS += [
     # https://allianceauth.readthedocs.io/en/latest/features/apps/index.html
-    # 'allianceauth.corputils',
+    'allianceauth.corputils',
     # 'allianceauth.fleetactivitytracking',
     # 'allianceauth.optimer',
     # 'allianceauth.permissions_tool',
