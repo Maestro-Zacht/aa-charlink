@@ -55,7 +55,7 @@ INSTALLED_APPS += [
     'charlink',
     'allianceauth.corputils',
     'corptools',
-    'eveuniverse',
+    # 'eveuniverse',
     # 'memberaudit',
     'miningtaxes',
     # 'moonmining',

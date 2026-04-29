@@ -79,7 +79,7 @@ class TestGetUsersWithPerms(TestCase):
         app_import = import_apps()['afat']
 
         users_readfleet = app_import.get('readfleet').get_users_with_perms()
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             users_readfleet,
             [
                 self.manage_user.pk,
@@ -91,7 +91,7 @@ class TestGetUsersWithPerms(TestCase):
         )
 
         users_clickfat = app_import.get('clickfat').get_users_with_perms()
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             users_clickfat,
             [
                 self.basic_access_user.pk
