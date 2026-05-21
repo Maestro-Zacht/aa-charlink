@@ -64,6 +64,8 @@ Admin App status: users with `is_superuser` can now see the list of imported app
 
 I've opened an [issue](https://github.com/Maestro-Zacht/aa-charlink/issues/1) to track the apps that have a default integration in CharLink and the WIPs. If you want another app to be supported, please comment on the issue, reach me on the [AllianceAuth discord server](https://discord.gg/fjnHAmk) or ask the developer of the app to implement an [integration via hook](#hook-integration).
 
+CharLink supports Alliance Auth 4 and 5. Some optional integrations expose different ESI scope helper names across app versions; CharLink resolves those helpers by capability detection where needed. Optional integration import failures are reported in the CharLink admin status instead of breaking dashboard rendering.
+
 ## Hook integration
 
 From version 1.1.0, CharLink supports hook integration. If you want to integrate your app with CharLink, you need to register a hook in the `auth_hooks.py` file:

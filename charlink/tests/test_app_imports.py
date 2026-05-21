@@ -1,4 +1,5 @@
 from importlib import import_module
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from django.test import TestCase
@@ -9,6 +10,7 @@ from allianceauth.tests.auth_utils import AuthUtils
 from app_utils.testdata_factories import UserMainFactory
 
 from charlink.app_imports import import_apps, get_duplicated_apps, get_failed_to_import, get_no_import
+from charlink.app_imports.utils import AppImport
 from charlink.imports.corptools import _corp_perms
 from charlink.models import AppSettings
 
@@ -100,6 +102,62 @@ class TestImportApps(TestCase):
     def test_get_duplicated_apps_imports_apps(self, mock_import_module):
         get_duplicated_apps()
         self.assertTrue(mock_import_module.called)
+
+    @patch('charlink.app_imports.get_hooks', return_value=[])
+    @patch('charlink.app_imports.import_module')
+    def test_missing_default_import_is_reported_as_no_import(self, mock_import_module, _):
+        mock_import_module.side_effect = ModuleNotFoundError(
+            "No module named 'charlink.imports.fakeapp'",
+            name='charlink.imports.fakeapp',
+        )
+
+        with patch('charlink.app_imports.settings.INSTALLED_APPS', ['fakeapp']):
+            imported_apps = import_apps()
+
+        self.assertEqual(imported_apps, {})
+        self.assertEqual(get_failed_to_import(), {})
+        self.assertEqual(get_no_import(), ['fakeapp'])
+
+    @patch('charlink.app_imports.get_hooks', return_value=[])
+    @patch('charlink.app_imports.import_module')
+    def test_default_import_missing_dependency_is_reported_as_failed(self, mock_import_module, _):
+        mock_import_module.side_effect = ModuleNotFoundError(
+            "No module named 'missing_dependency'",
+            name='missing_dependency',
+        )
+
+        with patch('charlink.app_imports.settings.INSTALLED_APPS', ['brokenapp']):
+            imported_apps = import_apps()
+
+        self.assertEqual(imported_apps, {})
+        self.assertIn('brokenapp', get_failed_to_import())
+        self.assertEqual(get_no_import(), [])
+
+    @patch('charlink.app_imports.get_hooks', return_value=[])
+    @patch('charlink.app_imports.import_module')
+    def test_default_import_generic_exception_is_reported_as_failed(self, mock_import_module, _):
+        mock_import_module.side_effect = AttributeError('broken optional import')
+
+        with patch('charlink.app_imports.settings.INSTALLED_APPS', ['brokenapp']):
+            imported_apps = import_apps()
+
+        self.assertEqual(imported_apps, {})
+        self.assertIn('brokenapp', get_failed_to_import())
+        self.assertEqual(get_no_import(), [])
+
+    @patch('charlink.app_imports.get_hooks', return_value=[])
+    @patch('charlink.app_imports.import_module')
+    def test_default_import_validation_failure_is_reported_as_failed(self, mock_import_module, _):
+        mock_import_module.return_value = SimpleNamespace(
+            app_import=AppImport('invalidapp', [])
+        )
+
+        with patch('charlink.app_imports.settings.INSTALLED_APPS', ['invalidapp']):
+            imported_apps = import_apps()
+
+        self.assertEqual(imported_apps, {})
+        self.assertIn('invalidapp', get_failed_to_import())
+        self.assertEqual(get_no_import(), [])
 
 
 @patch('charlink.app_imports._imported', False)

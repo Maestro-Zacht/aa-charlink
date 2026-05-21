@@ -1,3 +1,89 @@
+from importlib import import_module
+import sys
+from types import ModuleType, SimpleNamespace
+from unittest.mock import patch
+
+from django.test import SimpleTestCase
+
+
+class _FakeQuery:
+    def clone(self):
+        return self
+
+    def exists(self):
+        return self
+
+
+class _FakeQuerySet:
+    query = _FakeQuery()
+
+
+class _FakeManager:
+    def filter(self, *args, **kwargs):
+        return _FakeQuerySet()
+
+
+class _FakeOwnerCharacter:
+    objects = _FakeManager()
+
+
+class _FakeWebhook:
+    objects = _FakeManager()
+
+
+def _load_structures_import_scopes(owner):
+    original_import = sys.modules.pop('charlink.imports.structures', None)
+
+    structures_module = ModuleType('structures')
+    structures_module.__path__ = []
+    structures_module.__title__ = 'Structures'
+    structures_module.tasks = SimpleNamespace(
+        update_all_for_owner=SimpleNamespace(delay=lambda *args, **kwargs: None)
+    )
+
+    structures_models = ModuleType('structures.models')
+    structures_models.Owner = owner
+    structures_models.OwnerCharacter = _FakeOwnerCharacter
+    structures_models.Webhook = _FakeWebhook
+
+    structures_settings = ModuleType('structures.app_settings')
+    structures_settings.STRUCTURES_ADMIN_NOTIFICATIONS_ENABLED = False
+    structures_settings.STRUCTURES_DEFAULT_LANGUAGE = 'en'
+
+    fake_modules = {
+        'structures': structures_module,
+        'structures.models': structures_models,
+        'structures.app_settings': structures_settings,
+    }
+
+    try:
+        with patch.dict(sys.modules, fake_modules):
+            structures_import = import_module('charlink.imports.structures')
+            return structures_import.app_import.imports[0].scopes
+    finally:
+        sys.modules.pop('charlink.imports.structures', None)
+        if original_import:
+            sys.modules['charlink.imports.structures'] = original_import
+
+
+class TestStructuresScopes(SimpleTestCase):
+    def test_uses_esi_scopes_when_available(self):
+        class Owner:
+            @staticmethod
+            def esi_scopes():
+                return ['new_scope']
+
+        self.assertEqual(_load_structures_import_scopes(Owner), ['new_scope'])
+
+    def test_falls_back_to_get_esi_scopes(self):
+        class Owner:
+            @staticmethod
+            def get_esi_scopes():
+                return ['old_scope']
+
+        self.assertEqual(_load_structures_import_scopes(Owner), ['old_scope'])
+
+
 # from unittest.mock import patch
 
 # from django.test import TestCase, RequestFactory

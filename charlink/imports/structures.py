@@ -118,13 +118,19 @@ def _users_with_perms():
     return users_with_permissions('structures.add_structure_owner', require_all=False)
 
 
+def _owner_esi_scopes():
+    if hasattr(Owner, 'esi_scopes'):
+        return Owner.esi_scopes()
+    return Owner.get_esi_scopes()
+
+
 app_import = AppImport('structures', [
     LoginImport(
         app_label='structures',
         unique_id='default',
         field_label=__title__,
         add_character=_add_character,
-        scopes=Owner.get_esi_scopes(),
+        scopes=_owner_esi_scopes(),
         check_permissions=lambda user: user.has_perm("structures.add_structure_owner"),
         is_character_added=_is_character_added,
         is_character_added_annotation=Exists(

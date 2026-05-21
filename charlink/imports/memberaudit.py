@@ -55,13 +55,19 @@ def _users_with_perms():
     return users_with_permissions('memberaudit.basic_access', require_all=False)
 
 
+def _character_esi_scopes():
+    if hasattr(Character, 'esi_scopes'):
+        return Character.esi_scopes()
+    return Character.get_esi_scopes()
+
+
 app_import = AppImport('memberaudit', [
     LoginImport(
         app_label='memberaudit',
         unique_id='default',
         field_label=MEMBERAUDIT_APP_NAME,
         add_character=_add_character,
-        scopes=Character.get_esi_scopes(),
+        scopes=_character_esi_scopes(),
         check_permissions=lambda user: user.has_perm("memberaudit.basic_access"),
         is_character_added=_is_character_added,
         is_character_added_annotation=Exists(

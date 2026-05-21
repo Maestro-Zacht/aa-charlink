@@ -43,8 +43,8 @@ def import_apps():
             except ModuleNotFoundError:
                 logger.debug(f"Loading of {hook_mod} link via hook: failed to import")
                 _failed_to_import[hook_mod] = _("Hook import: import not found")
-            except:
-                logger.debug(f"Loading of {hook_mod} link via hook: failed")
+            except Exception:
+                logger.debug(f"Loading of {hook_mod} link via hook: failed", exc_info=True)
                 _failed_to_import[hook_mod] = _("Hook import: generic error")
             else:
                 if app_import.app_label in _supported_apps:
@@ -60,13 +60,26 @@ def import_apps():
         # defaults
         for app in settings.INSTALLED_APPS:
             if app != 'allianceauth' and app not in _supported_apps:
+                module_name = f'charlink.imports.{app}'
                 try:
-                    module = import_module(f'charlink.imports.{app}')
-                except ModuleNotFoundError:
-                    logger.debug(f"Loading of {app} link: not found")
-                    _no_import.append(app)
+                    app_import: AppImport = import_module(module_name).app_import
+                    assert type(app_import) == AppImport
+                    app_import.validate_import()
+                except AssertionError:
+                    logger.debug(f"Loading of {app} link: failed to validate")
+                    _failed_to_import[app] = _("Default import: failed to validate")
+                except ModuleNotFoundError as e:
+                    if e.name == module_name or module_name.startswith(f'{e.name}.'):
+                        logger.debug(f"Loading of {app} link: not found")
+                        _no_import.append(app)
+                    else:
+                        logger.debug(f"Loading of {app} link: failed to import", exc_info=True)
+                        _failed_to_import[app] = _("Default import: import not found")
+                except Exception:
+                    logger.debug(f"Loading of {app} link: failed", exc_info=True)
+                    _failed_to_import[app] = _("Default import: generic error")
                 else:
-                    _supported_apps[app] = module.app_import
+                    _supported_apps[app] = app_import
                     logger.debug(f"Loading of {app} link: success")
 
         for app, app_import in _supported_apps.items():
