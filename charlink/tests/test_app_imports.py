@@ -1,5 +1,5 @@
 from importlib import import_module
-from unittest.mock import patch
+from unittest.mock import patch, DEFAULT
 
 from django.test import TestCase
 from django.db.models import Q
@@ -24,6 +24,7 @@ class TestImportApps(TestCase):
     @patch('charlink.app_imports._imported', False)
     @patch('charlink.app_imports._duplicated_apps', set())
     @patch('charlink.app_imports._supported_apps', {})
+    @patch('charlink.app_imports._failed_to_import', {})
     def test_not_imported(self, mock_import_module):
         imported_apps = import_apps()
         failed = get_failed_to_import()
@@ -46,7 +47,7 @@ class TestImportApps(TestCase):
         self.assertSetEqual(
             {
                 'allianceauth.corputils_default',
-                # 'structures_default',
+                'structures_default',
                 'testauth.testapp_default',
                 'marketmanager_corporation',
                 'testauth.testapp_import2',
@@ -54,10 +55,10 @@ class TestImportApps(TestCase):
                 'miningtaxes_default',
                 'marketmanager_character',
                 'miningtaxes_admin',
-                # 'moonmining_default',
+                'moonmining_default',
                 'afat_clickfat',
                 'corptools_default',
-                # 'memberaudit_default',
+                'memberaudit_default',
                 'allianceauth.authentication_default',
                 'afat_readfleet',
                 'corptools_structures',
@@ -68,6 +69,23 @@ class TestImportApps(TestCase):
 
         self.assertSetEqual({'testauth.testapp_duplicate'}, duplicated)
         self.assertIn('charlink', no_import)
+
+    @patch('charlink.app_imports.import_module', wraps=import_module)
+    @patch('charlink.app_imports._imported', False)
+    @patch('charlink.app_imports._duplicated_apps', set())
+    @patch('charlink.app_imports._supported_apps', {})
+    @patch('charlink.app_imports._failed_to_import', {})
+    def test_exception_in_default_imports(self, mock_import_module):
+        def custom_side_effect(name):
+            if name == 'charlink.imports.structures':
+                raise Exception("Test exception")
+            return DEFAULT
+        mock_import_module.side_effect = custom_side_effect
+        import_apps()
+        failed = get_failed_to_import()
+
+        self.assertTrue(mock_import_module.called)
+        self.assertIn('structures', failed)
 
     @patch('charlink.app_imports.import_module', wraps=import_module)
     def test_imported(self, mock_import_module):

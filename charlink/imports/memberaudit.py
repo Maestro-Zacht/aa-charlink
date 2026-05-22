@@ -19,9 +19,9 @@ from charlink.utils import users_with_permissions
 def _add_character(request, token: Token):
     eve_character = EveCharacter.objects.get(character_id=token.character_id)
     with transaction.atomic():
-        character, created = Character.objects.update_or_create(
+        character = Character.objects.update_or_create(
             eve_character=eve_character, defaults={"is_disabled": False}
-        )
+        )[0]
     tasks.update_character.apply_async(
         kwargs={
             "character_pk": character.pk,
@@ -61,7 +61,7 @@ app_import = AppImport('memberaudit', [
         unique_id='default',
         field_label=MEMBERAUDIT_APP_NAME,
         add_character=_add_character,
-        scopes=Character.get_esi_scopes(),
+        scopes=Character.esi_scopes(),
         check_permissions=lambda user: user.has_perm("memberaudit.basic_access"),
         is_character_added=_is_character_added,
         is_character_added_annotation=Exists(
