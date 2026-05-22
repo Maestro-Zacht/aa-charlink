@@ -11,7 +11,7 @@ allianceauth-corptools
 django-eveuniverse
 aa-memberaudit
 aa-miningtaxes
-# aa-moonmining
+aa-moonmining
 aa-structures
 allianceauth-afat
 aa-market-manager

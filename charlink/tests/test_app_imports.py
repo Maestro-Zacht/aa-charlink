@@ -46,7 +46,7 @@ class TestImportApps(TestCase):
         self.assertSetEqual(
             {
                 'allianceauth.corputils_default',
-                # 'structures_default',
+                'structures_default',
                 'testauth.testapp_default',
                 'marketmanager_corporation',
                 'testauth.testapp_import2',
@@ -54,10 +54,10 @@ class TestImportApps(TestCase):
                 'miningtaxes_default',
                 'marketmanager_character',
                 'miningtaxes_admin',
-                # 'moonmining_default',
+                'moonmining_default',
                 'afat_clickfat',
                 'corptools_default',
-                # 'memberaudit_default',
+                'memberaudit_default',
                 'allianceauth.authentication_default',
                 'afat_readfleet',
                 'corptools_structures',

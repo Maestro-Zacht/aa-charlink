@@ -91,7 +91,7 @@ INSTALLED_APPS += [
     'corptools',
     'memberaudit',
     'miningtaxes',
-    # 'moonmining',
+    'moonmining',
     'structures',
     "eve_sde",
     'afat',
