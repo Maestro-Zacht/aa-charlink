@@ -87,12 +87,12 @@ INSTALLED_APPS += [
 
     'charlink',
 
-    # 'eveuniverse',
+    'eveuniverse',
     'corptools',
-    # 'memberaudit',
+    'memberaudit',
     'miningtaxes',
     # 'moonmining',
-    # 'structures',
+    'structures',
     "eve_sde",
     'afat',
     'marketmanager',

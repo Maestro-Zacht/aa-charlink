@@ -43,7 +43,7 @@ def import_apps():
             except ModuleNotFoundError:
                 logger.debug(f"Loading of {hook_mod} link via hook: failed to import")
                 _failed_to_import[hook_mod] = _("Hook import: import not found")
-            except:
+            except Exception:
                 logger.debug(f"Loading of {hook_mod} link via hook: failed")
                 _failed_to_import[hook_mod] = _("Hook import: generic error")
             else:
@@ -65,6 +65,9 @@ def import_apps():
                 except ModuleNotFoundError:
                     logger.debug(f"Loading of {app} link: not found")
                     _no_import.append(app)
+                except Exception:
+                    logger.debug(f"Loading of {app} link: failed")
+                    _failed_to_import[app] = _("Default import: generic error")
                 else:
                     _supported_apps[app] = module.app_import
                     logger.debug(f"Loading of {app} link: success")
