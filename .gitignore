@@ -102,3 +102,4 @@ ENV/
 .idea/
 
 mysql-data/
+uv.lock

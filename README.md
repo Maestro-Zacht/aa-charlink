@@ -84,7 +84,7 @@ Ignoring apps has been moved from settings to the CharLink Admin page. In order 
 
 From version 1.10.0, login options can have their default selection changed by the admin. This can be done in the CharLink Admin page using the "Default selection" button.
 
-WARNING: Some apps, like Structures, have reportedly causing issues and get the AA instance banned due to the high number of ESI calls they make after linking many chars. In order to avoid this, the default selection of these apps is set to off and a warning is shown in the CharLink Admin page when trying to enable it.
+WARNING: Some apps, like Structures, have reportedly caused issues and get the AA instance banned due to the high number of ESI calls they make after linking many chars. In order to avoid this, the default selection of these apps is set to off and a warning is shown in the CharLink Admin page when trying to enable it.
 
 If you want to reset all the default selections to their original value, you can use the management command:
 
