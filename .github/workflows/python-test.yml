@@ -54,6 +54,7 @@ jobs:
   test-coverage:
     name: Test Coverage (Python ${{ matrix.python-version }} DB ${{ matrix.database }})
     runs-on: ubuntu-latest
+    needs: [pre-commit, build-test]
 
     services:
       database:
