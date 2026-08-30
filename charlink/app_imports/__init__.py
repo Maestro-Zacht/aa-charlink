@@ -1,13 +1,13 @@
 from importlib import import_module
 
+from allianceauth.hooks import get_hooks
+from allianceauth.services.hooks import get_extension_logger
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
-from allianceauth.services.hooks import get_extension_logger
-from allianceauth.hooks import get_hooks
+from charlink.models import AppSettings
 
 from .utils import AppImport
-from ..models import AppSettings
 
 logger = get_extension_logger(__name__)
 
@@ -19,8 +19,8 @@ _no_import = []
 _imported = False
 
 
-def import_apps():
-    global _imported
+def import_apps():  # noqa: PLR0912
+    global _imported  # noqa: PLW0603
     if not _imported:
         _supported_apps.clear()
         _duplicated_apps.clear()
@@ -28,23 +28,25 @@ def import_apps():
         _no_import.clear()
 
         # hooks
-        charlink_hooks = get_hooks('charlink')
+        charlink_hooks = get_hooks("charlink")
 
         for hook_f in charlink_hooks:
             hook_mod = hook_f()
             try:
                 assert isinstance(hook_mod, str)
                 app_import: AppImport = import_module(hook_mod).app_import
-                assert type(app_import) == AppImport
+                assert isinstance(app_import, AppImport)
                 app_import.validate_import()
             except AssertionError:
-                logger.debug(f"Loading of {hook_mod} link via hook: failed to validate")
+                logger.debug(
+                    "Loading of %s link via hook: failed to validate", hook_mod
+                )
                 _failed_to_import[hook_mod] = _("Hook import: failed to validate")
             except ModuleNotFoundError:
-                logger.debug(f"Loading of {hook_mod} link via hook: failed to import")
+                logger.debug("Loading of %s link via hook: failed to import", hook_mod)
                 _failed_to_import[hook_mod] = _("Hook import: import not found")
-            except Exception:
-                logger.debug(f"Loading of {hook_mod} link via hook: failed")
+            except Exception:  # noqa: BLE001
+                logger.debug("Loading of %s link via hook: failed", hook_mod)
                 _failed_to_import[hook_mod] = _("Hook import: generic error")
             else:
                 if app_import.app_label in _supported_apps:
@@ -52,33 +54,37 @@ def import_apps():
                     _duplicated_apps.add(app_import.app_label)
 
                 if app_import.app_label in _duplicated_apps:
-                    logger.debug(f"Loading of {hook_mod} link via hook: failed, duplicate {app_import.app_label}")
+                    logger.debug(
+                        "Loading of %s link via hook: failed, duplicate %s",
+                        hook_mod,
+                        app_import.app_label,
+                    )
                 else:
                     _supported_apps[app_import.app_label] = app_import
-                    logger.debug(f"Loading of {hook_mod} link via hook: success")
+                    logger.debug("Loading of %s link via hook: success", hook_mod)
 
         # defaults
         for app in settings.INSTALLED_APPS:
-            if app != 'allianceauth' and app not in _supported_apps:
+            if app != "allianceauth" and app not in _supported_apps:
                 try:
-                    module = import_module(f'charlink.imports.{app}')
+                    module = import_module(f"charlink.imports.{app}")
                 except ModuleNotFoundError:
-                    logger.debug(f"Loading of {app} link: not found")
+                    logger.debug("Loading of %s link: not found", app)
                     _no_import.append(app)
-                except Exception:
-                    logger.debug(f"Loading of {app} link: failed")
+                except Exception:  # noqa: BLE001
+                    logger.debug("Loading of %s link: failed", app)
                     _failed_to_import[app] = _("Default import: generic error")
                 else:
                     _supported_apps[app] = module.app_import
-                    logger.debug(f"Loading of {app} link: success")
+                    logger.debug("Loading of %s link: success", app)
 
-        for app, app_import in _supported_apps.items():
+        for app_import in _supported_apps.values():
             for login_import in app_import.imports:
                 AppSettings.objects.get_or_create(
                     app_name=login_import.get_query_id(),
                     defaults={
-                        'default_selection': login_import.default_initial_selection,
-                    }
+                        "default_selection": login_import.default_initial_selection,
+                    },
                 )
 
         _imported = True

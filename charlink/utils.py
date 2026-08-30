@@ -1,12 +1,10 @@
-from typing import List
-from functools import reduce
 import operator
-
-from django.db.models import Exists, OuterRef, Q
-from django.contrib.auth.models import User
+from functools import reduce
 
 from allianceauth.authentication.models import CharacterOwnership
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
+from django.contrib.auth.models import User
+from django.db.models import Exists, OuterRef, Q
 
 from .app_imports import import_apps
 from .app_imports.utils import LoginImport
@@ -17,8 +15,9 @@ def get_visible_corps(user: User):
 
     corps = EveCorporationInfo.objects.filter(
         Exists(
-            CharacterOwnership.objects
-            .filter(character__corporation_id=OuterRef('corporation_id'))
+            CharacterOwnership.objects.filter(
+                character__corporation_id=OuterRef("corporation_id")
+            )
         )
     )
 
@@ -28,21 +27,23 @@ def get_visible_corps(user: User):
         queries = []
         has_access = False
 
-        if user.has_perm('charlink.view_alliance'):
+        if user.has_perm("charlink.view_alliance"):
             queries.append(Q(alliance__alliance_id=char.alliance_id))
             has_access = True
 
-        if user.has_perm('charlink.view_corp') and not user.has_perm('charlink.view_alliance'):
+        if user.has_perm("charlink.view_corp") and not user.has_perm(
+            "charlink.view_alliance"
+        ):
             queries.append(Q(corporation_id=char.corporation_id))
             has_access = True
 
-        if user.has_perm('charlink.view_state'):
+        if user.has_perm("charlink.view_state"):
             alliances = user.profile.state.member_alliances.all()
             corporations = user.profile.state.member_corporations.all()
 
             queries.append(
-                Q(alliance__alliance_id__in=alliances.values('alliance_id')) |
-                Q(id__in=corporations)
+                Q(alliance__alliance_id__in=alliances.values("alliance_id"))
+                | Q(id__in=corporations)
             )
             has_access = True
 
@@ -58,7 +59,7 @@ def get_visible_corps(user: User):
     return corps
 
 
-def chars_annotate_linked_apps(characters, imports: List[LoginImport]):
+def chars_annotate_linked_apps(characters, imports: list[LoginImport]):
     for import_ in imports:
         characters = characters.annotate(
             **{import_.get_query_id(): import_.is_character_added_annotation}
@@ -81,34 +82,43 @@ def get_user_linked_chars(user: User):
     available_apps = get_user_available_apps(user)
 
     return {
-        'apps': available_apps,
-        'characters': chars_annotate_linked_apps(
+        "apps": available_apps,
+        "characters": chars_annotate_linked_apps(
             EveCharacter.objects.filter(character_ownership__user=user),
             [
                 import_
                 for imports in available_apps.values()
                 for import_ in imports.get_imports_with_perms(user).imports
-            ]
-        )
+            ],
+        ),
     }
 
 
 def _get_single_perm_q(perm):
     try:
-        app_label, codename = perm.split('.')
+        app_label, codename = perm.split(".")
     except ValueError:
-        raise ValueError(f"Permission '{perm}' must be in 'app_label.codename' format")
+        msg = f"Permission '{perm}' must be in 'app_label.codename' format"
+        raise ValueError(msg) from None
 
     return (
-        Q(user_permissions__content_type__app_label=app_label, user_permissions__codename=codename) |
-        Q(groups__permissions__content_type__app_label=app_label, groups__permissions__codename=codename) |
-        Q(profile__state__permissions__content_type__app_label=app_label, profile__state__permissions__codename=codename)
+        Q(
+            user_permissions__content_type__app_label=app_label,
+            user_permissions__codename=codename,
+        )
+        | Q(
+            groups__permissions__content_type__app_label=app_label,
+            groups__permissions__codename=codename,
+        )
+        | Q(
+            profile__state__permissions__content_type__app_label=app_label,
+            profile__state__permissions__codename=codename,
+        )
     )
 
 
-def permissions_q(perms: list[str], require_all=True):
-    """
-    Returns a Q object that filters users by a list of permissions. It needs to be used with distinct: `User.objects.filter(permissions_q(perms)).distinct()`
+def permissions_q(perms: list[str], require_all=True):  # noqa: FBT002
+    """Return a Q object that filters users by a list of permissions. It needs to be used with distinct: `User.objects.filter(permissions_q(perms)).distinct()`.
 
     :param perms: List of strings in 'app_label.codename' format.
     :param require_all: True for AND logic (must have all permissions), False for OR logic (must have any permission).
@@ -123,7 +133,7 @@ def permissions_q(perms: list[str], require_all=True):
 
     if require_all:
         subqueries = [
-            Q(pk__in=User.objects.filter(_get_single_perm_q(p)).values('pk'))
+            Q(pk__in=User.objects.filter(_get_single_perm_q(p)).values("pk"))
             for p in perms
         ]
 
@@ -135,9 +145,8 @@ def permissions_q(perms: list[str], require_all=True):
     return res_q
 
 
-def users_with_permissions(perms: list[str], require_all=True):
-    """
-    Returns a queryset of users that have the specified permissions. It includes superusers.
+def users_with_permissions(perms: list[str], require_all=True):  # noqa: FBT002
+    """Return a queryset of users that have the specified permissions. It includes superusers.
 
     :param perms: List of strings in 'app_label.codename' format.
     :param require_all: True for AND logic (must have all permissions), False for OR logic (must have any permission).

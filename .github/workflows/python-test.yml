@@ -15,6 +15,42 @@ on:
       - "**.md"
 
 jobs:
+  pre-commit:
+    name: Pre Commit Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Run Pre Commit Checks
+        uses: pre-commit/action@v3.0.1
+
+  build-test:
+    name: PyPi Build Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v9.0.0
+        with:
+          enable-cache: true
+          python-version: "3.13"
+
+      - name: Package Build
+        run: uv build --no-sources
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: build
+          path: dist
+          if-no-files-found: ignore
+
   test-coverage:
     name: Test Coverage (Python ${{ matrix.python-version }} DB ${{ matrix.database }})
     runs-on: ubuntu-latest
@@ -49,14 +85,13 @@ jobs:
           # - "3.14"
         database:
           # https://endoflife.date/mysql
-          - mysql:8.4     # [LTS] Maintained until: 30 Apr 2032
-          - mysql:9.7     # [LTS] Maintained until: 21 Apr 2034 and Latest version
+          - mysql:8.4 # [LTS] Maintained until: 30 Apr 2032
+          - mysql:9.7 # [LTS] Maintained until: 21 Apr 2034 and Latest version
           # https://endoflife.date/mariadb and https://mariadb.com/kb/en/mariadb-server-release-dates/
-          - mariadb:10.6  # [LTS] Maintained until: July 2026
           - mariadb:10.11 # [LTS] Maintained until: February 2028
-          - mariadb:11.4  # [LTS] Maintained until: May 2029
-          - mariadb:11.8  # [LTS] Maintained until: Jun 2028
-          # - mariadb:12.2  # Latest version
+          - mariadb:11.4 # [LTS] Maintained until: May 2029
+          - mariadb:11.8 # [LTS] Maintained until: Jun 2028
+          - mariadb:12.3 # [LTS] Maintained until: June 2029 and Latest official release
 
     steps:
       - name: Checkout
@@ -116,26 +151,4 @@ jobs:
           directory: artifacts
           fail_ci_if_error: true # optional (default = false)
           verbose: true # optional (default = false)
-  build-test:
-    name: PyPi Build Test
-    runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v9.0.0
-        with:
-          enable-cache: true
-          python-version: "3.13"
-
-      - name: Package Build
-        run: uv build --no-sources
-
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: build
-          path: dist
-          if-no-files-found: ignore

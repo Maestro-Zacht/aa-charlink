@@ -1,14 +1,12 @@
-from django.db.models import Exists, OuterRef
-from django.contrib.auth.models import Permission, User
-
-from corptools.models import CharacterAudit, CorporationAudit
-from corptools.tasks import update_character, update_all_corps
-from corptools.app_settings import get_character_scopes, CORPTOOLS_APP_NAME
-from corptools.views import CORP_REQUIRED_SCOPES
-
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
+from corptools.app_settings import CORPTOOLS_APP_NAME, get_character_scopes
+from corptools.models import CharacterAudit, CorporationAudit
+from corptools.tasks import update_all_corps, update_character
+from corptools.views import CORP_REQUIRED_SCOPES
+from django.contrib.auth.models import User
+from django.db.models import Exists, OuterRef
 
-from charlink.app_imports.utils import LoginImport, AppImport
+from charlink.app_imports.utils import AppImport, LoginImport
 from charlink.utils import users_with_permissions
 
 _corp_perms = [
@@ -23,20 +21,25 @@ _corp_perms = [
 ]
 
 
-def _add_character_charaudit(request, token):
+def _add_character_charaudit(request, token):  # noqa: ARG001
     CharacterAudit.objects.update_or_create(
-        character=EveCharacter.objects.get_character_by_id(token.character_id))
-    update_character.apply_async(args=[token.character_id], kwargs={
-                                 "force_refresh": True}, priority=6)
+        character=EveCharacter.objects.get_character_by_id(token.character_id)
+    )
+    update_character.apply_async(
+        args=[token.character_id], kwargs={"force_refresh": True}, priority=6
+    )
 
 
-def _add_character_corp(request, token):
+def _add_character_corp(request, token):  # noqa: ARG001
     char = EveCharacter.objects.get_character_by_id(token.character_id)
-    corp, created = EveCorporationInfo.objects.get_or_create(corporation_id=char.corporation_id,
-                                                             defaults={'member_count': 0,
-                                                                       'corporation_ticker': char.corporation_ticker,
-                                                                       'corporation_name': char.corporation_name
-                                                                       })
+    corp, _ = EveCorporationInfo.objects.get_or_create(
+        corporation_id=char.corporation_id,
+        defaults={
+            "member_count": 0,
+            "corporation_ticker": char.corporation_ticker,
+            "corporation_name": char.corporation_name,
+        },
+    )
     CorporationAudit.objects.update_or_create(corporation=corp)
     update_all_corps.apply_async(priority=6)
 
@@ -50,45 +53,52 @@ def _is_character_added_charaudit(character: EveCharacter):
 
 
 def _is_character_added_corp(character: EveCharacter):
-    return CorporationAudit.objects.filter(corporation__corporation_id=character.corporation_id).exists()
+    return CorporationAudit.objects.filter(
+        corporation__corporation_id=character.corporation_id
+    ).exists()
 
 
 def _users_with_perms_charaudit():
-    return users_with_permissions('corptools.view_characteraudit', require_all=False)
+    return users_with_permissions("corptools.view_characteraudit", require_all=False)
 
 
 def _users_with_perms_corp():
     return users_with_permissions(_corp_perms, require_all=False)
 
 
-app_import = AppImport('corptools', [
-    LoginImport(
-        app_label='corptools',
-        unique_id='default',
-        field_label=CORPTOOLS_APP_NAME,
-        add_character=_add_character_charaudit,
-        scopes=get_character_scopes(),
-        check_permissions=lambda user: user.has_perm('corptools.view_characteraudit'),
-        is_character_added=_is_character_added_charaudit,
-        is_character_added_annotation=Exists(
-            CharacterAudit.objects
-            .filter(character_id=OuterRef('pk'), active=True)
+app_import = AppImport(
+    "corptools",
+    [
+        LoginImport(
+            app_label="corptools",
+            unique_id="default",
+            field_label=CORPTOOLS_APP_NAME,
+            add_character=_add_character_charaudit,
+            scopes=get_character_scopes(),
+            check_permissions=lambda user: user.has_perm(
+                "corptools.view_characteraudit"
+            ),
+            is_character_added=_is_character_added_charaudit,
+            is_character_added_annotation=Exists(
+                CharacterAudit.objects.filter(character_id=OuterRef("pk"), active=True)
+            ),
+            get_users_with_perms=_users_with_perms_charaudit,
         ),
-        get_users_with_perms=_users_with_perms_charaudit,
-    ),
-    LoginImport(
-        app_label='corptools',
-        unique_id='structures',
-        field_label="Corporation Audit",
-        add_character=_add_character_corp,
-        scopes=CORP_REQUIRED_SCOPES,
-        check_permissions=_check_perms_corp,
-        is_character_added=_is_character_added_corp,
-        is_character_added_annotation=Exists(
-            CorporationAudit.objects
-            .filter(corporation__corporation_id=OuterRef('corporation_id'))
+        LoginImport(
+            app_label="corptools",
+            unique_id="structures",
+            field_label="Corporation Audit",
+            add_character=_add_character_corp,
+            scopes=CORP_REQUIRED_SCOPES,
+            check_permissions=_check_perms_corp,
+            is_character_added=_is_character_added_corp,
+            is_character_added_annotation=Exists(
+                CorporationAudit.objects.filter(
+                    corporation__corporation_id=OuterRef("corporation_id")
+                )
+            ),
+            get_users_with_perms=_users_with_perms_corp,
+            default_initial_selection=False,
         ),
-        get_users_with_perms=_users_with_perms_corp,
-        default_initial_selection=False,
-    )
-])
+    ],
+)
