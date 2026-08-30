@@ -82,8 +82,8 @@ jobs:
         python-version:
           - "3.11"
           - "3.12"
-          # - "3.13"
-          # - "3.14"
+          - "3.13"
+          - "3.14"
         database:
           # https://endoflife.date/mysql
           - mysql:8.4 # [LTS] Maintained until: 30 Apr 2032
