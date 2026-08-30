@@ -1,18 +1,17 @@
+from allianceauth.eveonline.models import EveCharacter
+from django.contrib import messages
 from django.db import transaction
 from django.db.models import Exists, OuterRef
-from django.contrib.auth.models import Permission
-from django.contrib import messages
 from django.utils.html import format_html
-
 from esi.models import Token
-
-from memberaudit.models import Character, ComplianceGroupDesignation
-from memberaudit.app_settings import MEMBERAUDIT_APP_NAME, MEMBERAUDIT_TASKS_NORMAL_PRIORITY
 from memberaudit import tasks
+from memberaudit.app_settings import (
+    MEMBERAUDIT_APP_NAME,
+    MEMBERAUDIT_TASKS_NORMAL_PRIORITY,
+)
+from memberaudit.models import Character, ComplianceGroupDesignation
 
-from allianceauth.eveonline.models import EveCharacter
-
-from charlink.app_imports.utils import LoginImport, AppImport
+from charlink.app_imports.utils import AppImport, LoginImport
 from charlink.utils import users_with_permissions
 
 
@@ -52,22 +51,26 @@ def _is_character_added(character: EveCharacter):
 
 
 def _users_with_perms():
-    return users_with_permissions('memberaudit.basic_access', require_all=False)
+    return users_with_permissions("memberaudit.basic_access", require_all=False)
 
 
-app_import = AppImport('memberaudit', [
-    LoginImport(
-        app_label='memberaudit',
-        unique_id='default',
-        field_label=MEMBERAUDIT_APP_NAME,
-        add_character=_add_character,
-        scopes=Character.esi_scopes(),
-        check_permissions=lambda user: user.has_perm("memberaudit.basic_access"),
-        is_character_added=_is_character_added,
-        is_character_added_annotation=Exists(
-            Character.objects
-            .filter(eve_character_id=OuterRef('pk'), is_disabled=False)
+app_import = AppImport(
+    "memberaudit",
+    [
+        LoginImport(
+            app_label="memberaudit",
+            unique_id="default",
+            field_label=MEMBERAUDIT_APP_NAME,
+            add_character=_add_character,
+            scopes=Character.esi_scopes(),
+            check_permissions=lambda user: user.has_perm("memberaudit.basic_access"),
+            is_character_added=_is_character_added,
+            is_character_added_annotation=Exists(
+                Character.objects.filter(
+                    eve_character_id=OuterRef("pk"), is_disabled=False
+                )
+            ),
+            get_users_with_perms=_users_with_perms,
         ),
-        get_users_with_perms=_users_with_perms,
-    ),
-])
+    ],
+)

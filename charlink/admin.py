@@ -5,8 +5,8 @@ from .models import ComplianceFilter
 
 
 class ComplianceFilterAdmin(admin.ModelAdmin):
-    filter_horizontal = ('selected_apps',)
+    filter_horizontal = ("selected_apps",)
 
 
-if apps.is_installed('securegroups'):
+if apps.is_installed("securegroups"):
     admin.site.register(ComplianceFilter, ComplianceFilterAdmin)

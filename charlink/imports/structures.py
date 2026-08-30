@@ -1,25 +1,19 @@
-from django.db.models import Exists, OuterRef
-from django.contrib.auth.models import Permission
-
-from django.utils import translation
-from django.utils.translation import gettext as _
-from django.utils.html import format_html
+from allianceauth.authentication.models import CharacterOwnership
+from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
+from app_utils.allianceauth import notify_admins
 from django.contrib import messages
-
-
+from django.db.models import Exists, OuterRef
+from django.utils import translation
+from django.utils.html import format_html
+from django.utils.translation import gettext as _
 from structures import __title__, tasks
-from structures.models import Owner, Webhook, OwnerCharacter
 from structures.app_settings import (
     STRUCTURES_ADMIN_NOTIFICATIONS_ENABLED,
     STRUCTURES_DEFAULT_LANGUAGE,
 )
+from structures.models import Owner, OwnerCharacter, Webhook
 
-from app_utils.allianceauth import notify_admins
-
-from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
-from allianceauth.authentication.models import CharacterOwnership
-
-from charlink.app_imports.utils import LoginImport, AppImport
+from charlink.app_imports.utils import AppImport, LoginImport
 from charlink.utils import users_with_permissions
 
 
@@ -68,8 +62,7 @@ def _add_character(request, token):
             with translation.override(STRUCTURES_DEFAULT_LANGUAGE):
                 notify_admins(
                     message=_(
-                        "%(corporation)s was added as new "
-                        "structure owner by %(user)s."
+                        "%(corporation)s was added as new structure owner by %(user)s."
                     )
                     % {"corporation": owner, "user": token.user.username},
                     title=_("%s: Structure owner added: %s") % (__title__, owner),
@@ -115,23 +108,29 @@ def _is_character_added(character: EveCharacter):
 
 
 def _users_with_perms():
-    return users_with_permissions('structures.add_structure_owner', require_all=False)
+    return users_with_permissions("structures.add_structure_owner", require_all=False)
 
 
-app_import = AppImport('structures', [
-    LoginImport(
-        app_label='structures',
-        unique_id='default',
-        field_label=__title__,
-        add_character=_add_character,
-        scopes=Owner.esi_scopes(),
-        check_permissions=lambda user: user.has_perm("structures.add_structure_owner"),
-        is_character_added=_is_character_added,
-        is_character_added_annotation=Exists(
-            OwnerCharacter.objects
-            .filter(character_ownership__character_id=OuterRef('pk'))
+app_import = AppImport(
+    "structures",
+    [
+        LoginImport(
+            app_label="structures",
+            unique_id="default",
+            field_label=__title__,
+            add_character=_add_character,
+            scopes=Owner.esi_scopes(),
+            check_permissions=lambda user: user.has_perm(
+                "structures.add_structure_owner"
+            ),
+            is_character_added=_is_character_added,
+            is_character_added_annotation=Exists(
+                OwnerCharacter.objects.filter(
+                    character_ownership__character_id=OuterRef("pk")
+                )
+            ),
+            get_users_with_perms=_users_with_perms,
+            default_initial_selection=False,
         ),
-        get_users_with_perms=_users_with_perms,
-        default_initial_selection=False,
-    ),
-])
+    ],
+)

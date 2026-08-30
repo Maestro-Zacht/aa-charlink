@@ -1,16 +1,13 @@
+from allianceauth.eveonline.models import EveCharacter
+from django.contrib import messages
 from django.db import transaction
 from django.db.models import Exists, OuterRef
-from django.contrib.auth.models import Permission
-from django.contrib import messages
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
-
-from miningtaxes.models import Character, Stats, AdminCharacter
 from miningtaxes import tasks
+from miningtaxes.models import AdminCharacter, Character, Stats
 
-from allianceauth.eveonline.models import EveCharacter
-
-from charlink.app_imports.utils import LoginImport, AppImport
+from charlink.app_imports.utils import AppImport, LoginImport
 from charlink.utils import users_with_permissions
 
 
@@ -57,41 +54,42 @@ def _is_character_added_admin(character: EveCharacter):
 
 
 def _users_with_perms_basic():
-    return users_with_permissions('miningtaxes.basic_access', require_all=False)
+    return users_with_permissions("miningtaxes.basic_access", require_all=False)
 
 
 def _users_with_perms_admin():
-    return users_with_permissions('miningtaxes.admin_access', require_all=False)
+    return users_with_permissions("miningtaxes.admin_access", require_all=False)
 
 
-app_import = AppImport('miningtaxes', [
-    LoginImport(
-        app_label='miningtaxes',
-        unique_id='default',
-        field_label=_("Mining Taxes"),
-        add_character=_add_character_basic,
-        scopes=Character.get_esi_scopes(),
-        check_permissions=lambda user: user.has_perm("miningtaxes.basic_access"),
-        is_character_added=_is_character_added_basic,
-        is_character_added_annotation=Exists(
-            Character.objects
-            .filter(eve_character_id=OuterRef('pk'))
+app_import = AppImport(
+    "miningtaxes",
+    [
+        LoginImport(
+            app_label="miningtaxes",
+            unique_id="default",
+            field_label=_("Mining Taxes"),
+            add_character=_add_character_basic,
+            scopes=Character.get_esi_scopes(),
+            check_permissions=lambda user: user.has_perm("miningtaxes.basic_access"),
+            is_character_added=_is_character_added_basic,
+            is_character_added_annotation=Exists(
+                Character.objects.filter(eve_character_id=OuterRef("pk"))
+            ),
+            get_users_with_perms=_users_with_perms_basic,
         ),
-        get_users_with_perms=_users_with_perms_basic,
-    ),
-    LoginImport(
-        app_label='miningtaxes',
-        unique_id='admin',
-        field_label=_("Mining Taxes Admin"),
-        add_character=_add_character_admin,
-        scopes=AdminCharacter.get_esi_scopes(),
-        check_permissions=lambda user: user.has_perm("miningtaxes.admin_access"),
-        is_character_added=_is_character_added_admin,
-        is_character_added_annotation=Exists(
-            AdminCharacter.objects
-            .filter(eve_character_id=OuterRef('pk'))
+        LoginImport(
+            app_label="miningtaxes",
+            unique_id="admin",
+            field_label=_("Mining Taxes Admin"),
+            add_character=_add_character_admin,
+            scopes=AdminCharacter.get_esi_scopes(),
+            check_permissions=lambda user: user.has_perm("miningtaxes.admin_access"),
+            is_character_added=_is_character_added_admin,
+            is_character_added_annotation=Exists(
+                AdminCharacter.objects.filter(eve_character_id=OuterRef("pk"))
+            ),
+            get_users_with_perms=_users_with_perms_admin,
+            default_initial_selection=False,
         ),
-        get_users_with_perms=_users_with_perms_admin,
-        default_initial_selection=False,
-    ),
-])
+    ],
+)
