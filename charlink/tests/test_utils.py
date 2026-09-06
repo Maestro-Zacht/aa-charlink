@@ -2,18 +2,17 @@ from unittest.mock import patch
 
 from allianceauth.eveonline.models import EveCharacter
 from allianceauth.tests.auth_utils import AuthUtils
-from app_utils.testdata_factories import (
-    EveCharacterFactory,
-    EveCorporationInfoFactory,
-    UserMainFactory,
-)
-from app_utils.testing import create_state
 from django.contrib.auth.models import Group, Permission, User
 from django.test import TestCase
 
 from charlink.app_imports import import_apps
 from charlink.imports.corptools import _corp_perms
 from charlink.models import AppSettings
+from charlink.tests.factories import (
+    create_eve_character,
+    create_eve_corporation,
+    create_user_main,
+)
 from charlink.utils import (
     chars_annotate_linked_apps,
     get_user_available_apps,
@@ -32,8 +31,8 @@ from charlink.utils import (
 class TestGetVisibleCorps(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory()
-        cls.superuser = UserMainFactory(is_superuser=True)
+        cls.user = create_user_main()
+        cls.superuser = create_user_main(is_superuser=True)
 
         cls.main_char = cls.user.profile.main_character
 
@@ -41,24 +40,24 @@ class TestGetVisibleCorps(TestCase):
         cls.alliance = cls.corporation.alliance
         cls.state = cls.user.profile.state
 
-        cls.corporation2 = EveCorporationInfoFactory(create_alliance=False)
+        cls.corporation2 = create_eve_corporation(create_alliance=False)
         cls.corporation2.alliance = cls.alliance
         cls.corporation2.save()
-        char = EveCharacterFactory(corporation=cls.corporation2)
-        UserMainFactory(main_character__character=char)
+        char = create_eve_character(corporation=cls.corporation2)
+        create_user_main(character=char)
 
-        cls.corporation3 = EveCorporationInfoFactory()
+        cls.corporation3 = create_eve_corporation()
         cls.alliance2 = cls.corporation3.alliance
         cls.state.member_alliances.add(cls.alliance2)
-        char = EveCharacterFactory(corporation=cls.corporation3)
-        UserMainFactory(main_character__character=char)
+        char = create_eve_character(corporation=cls.corporation3)
+        create_user_main(character=char)
 
-        cls.corporation_empty = EveCorporationInfoFactory(alliance=cls.alliance2)
+        cls.corporation_empty = create_eve_corporation(alliance=cls.alliance2)
 
         cls.corporation_superuser = cls.superuser.profile.main_character.corporation
         cls.alliance_superuser = cls.corporation2.alliance
-        cls.state_superuser = create_state(
-            1000, member_alliances=[cls.alliance_superuser]
+        cls.state_superuser = AuthUtils.create_state(
+            "Superuser State", 1000, member_alliances=cls.alliance_superuser
         )
 
     def test_superuser(self):
@@ -136,7 +135,8 @@ class TestGetVisibleCorps(TestCase):
 class TestCharsAnnotateLinkedApps(TestCase):
     @classmethod
     def setUpTestData(cls):
-        EveCharacterFactory.create_batch(10)
+        for _ in range(10):
+            create_eve_character()
 
     def test_ok(self):
         chars = EveCharacter.objects.all()
@@ -159,9 +159,9 @@ class TestCharsAnnotateLinkedApps(TestCase):
 class TestGetUserAvailableApps(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory()
-        cls.corptools_user_corp = UserMainFactory(permissions=_corp_perms)
-        cls.corptools_user_charaudit = UserMainFactory(
+        cls.user = create_user_main()
+        cls.corptools_user_corp = create_user_main(permissions=_corp_perms)
+        cls.corptools_user_charaudit = create_user_main(
             permissions=["corptools.view_characteraudit"]
         )
 
@@ -225,7 +225,7 @@ class TestGetUserAvailableApps(TestCase):
 class TestGetUserLinkedChars(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory()
+        cls.user = create_user_main()
 
     def test_ok(self):
         res = get_user_linked_chars(self.user)

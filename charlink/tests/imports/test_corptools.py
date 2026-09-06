@@ -1,7 +1,6 @@
 from unittest.mock import patch
 
 from allianceauth.eveonline.models import EveCharacter
-from app_utils.testdata_factories import UserMainFactory
 from corptools.models import CharacterAudit
 from django.test import TestCase
 
@@ -13,12 +12,13 @@ from charlink.imports.corptools import (
     _is_character_added_charaudit,
     _is_character_added_corp,
 )
+from charlink.tests.factories import create_user_main
 
 
 class TestAddCharacter(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory(
+        cls.user = create_user_main(
             permissions=["corptools.view_characteraudit", *_corp_perms]
         )
 
@@ -65,7 +65,7 @@ class TestAddCharacter(TestCase):
 class TestIsCharacterAdded(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory()
+        cls.user = create_user_main()
         cls.character = cls.user.profile.main_character
 
     @patch("charlink.imports.corptools.update_character.apply_async")
@@ -127,11 +127,11 @@ class TestIsCharacterAdded(TestCase):
 class TestCheckPermissions(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.no_perm_user = UserMainFactory()
-        cls.charaudit_user = UserMainFactory(
+        cls.no_perm_user = create_user_main()
+        cls.charaudit_user = create_user_main(
             permissions=["corptools.view_characteraudit"]
         )
-        cls.corp_user = UserMainFactory(permissions=_corp_perms)
+        cls.corp_user = create_user_main(permissions=_corp_perms)
 
     def test_ok_charaudit(self):
         login_import = import_apps()["corptools"].get("default")
@@ -150,9 +150,12 @@ class TestCheckPermissions(TestCase):
 class TestGetUsersWithPerms(TestCase):
     @classmethod
     def setUpTestData(cls):
-        UserMainFactory.create_batch(4)
-        UserMainFactory.create_batch(3, permissions=["corptools.view_characteraudit"])
-        UserMainFactory.create_batch(5, permissions=_corp_perms)
+        for _ in range(4):
+            create_user_main()
+        for _ in range(3):
+            create_user_main(permissions=["corptools.view_characteraudit"])
+        for _ in range(5):
+            create_user_main(permissions=_corp_perms)
 
     def test_ok_charaudit(self):
         login_import = import_apps()["corptools"].get("default")

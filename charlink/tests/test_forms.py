@@ -1,13 +1,13 @@
 from unittest.mock import patch
 
 from allianceauth.tests.auth_utils import AuthUtils
-from app_utils.testdata_factories import UserMainFactory
 from django.db.models import Q
 from django.test import TestCase
 
 from charlink.app_imports import import_apps
 from charlink.forms import LinkForm
 from charlink.models import AppSettings
+from charlink.tests.factories import create_user_main
 
 
 @patch("charlink.app_imports._imported", False)
@@ -18,7 +18,7 @@ from charlink.models import AppSettings
 class TestLinkForm(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory()
+        cls.user = create_user_main()
 
     def test_init_no_perms(self):
         import_apps()

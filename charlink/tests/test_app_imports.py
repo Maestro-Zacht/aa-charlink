@@ -2,7 +2,6 @@ from importlib import import_module
 from unittest.mock import DEFAULT, patch
 
 from allianceauth.tests.auth_utils import AuthUtils
-from app_utils.testdata_factories import UserMainFactory
 from django.db.models import Q
 from django.test import TestCase
 
@@ -14,6 +13,7 @@ from charlink.app_imports import (
 )
 from charlink.imports.corptools import _corp_perms
 from charlink.models import AppSettings
+from charlink.tests.factories import create_user_main
 
 
 @patch("charlink.app_imports._imported", False)
@@ -104,7 +104,7 @@ class TestImportApps(TestCase):
         self.assertNotIn("allianceauth.eveonline", imported_apps)
 
     def test_supported_apps_default(self):
-        user = UserMainFactory()
+        user = create_user_main()
         main_char = user.profile.main_character
 
         add_char = import_apps()["allianceauth.authentication"]
@@ -177,7 +177,7 @@ class TestLoginImport(TestCase):
 class TestAppImport(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory()
+        cls.user = create_user_main()
 
     def test_get_form_fields(self):
         imported_apps = import_apps()
@@ -241,9 +241,9 @@ class TestAppImport(TestCase):
         imports = app_import.get_imports_with_perms(self.user)
         self.assertEqual(len(imports.imports), 1)
 
-        user_corp = UserMainFactory(permissions=_corp_perms)
-        user_charaudit = UserMainFactory(permissions=["corptools.view_characteraudit"])
-        user_both = UserMainFactory(
+        user_corp = create_user_main(permissions=_corp_perms)
+        user_charaudit = create_user_main(permissions=["corptools.view_characteraudit"])
+        user_both = create_user_main(
             permissions=["corptools.view_characteraudit", *_corp_perms]
         )
 
@@ -271,9 +271,9 @@ class TestAppImport(TestCase):
         imports = app_import.get_imports_with_perms(self.user)
         self.assertEqual(len(imports.imports), 1)
 
-        user_corp = UserMainFactory(permissions=_corp_perms)
-        user_charaudit = UserMainFactory(permissions=["corptools.view_characteraudit"])
-        user_both = UserMainFactory(
+        user_corp = create_user_main(permissions=_corp_perms)
+        user_charaudit = create_user_main(permissions=["corptools.view_characteraudit"])
+        user_both = create_user_main(
             permissions=["corptools.view_characteraudit", *_corp_perms]
         )
 
@@ -288,7 +288,7 @@ class TestAppImport(TestCase):
         imports_both = corptools_import.get_imports_with_perms(user_both)
         self.assertEqual(len(imports_both.imports), 0)
 
-        user_marketmanager = UserMainFactory(
+        user_marketmanager = create_user_main(
             permissions=["marketmanager.basic_market_browser"]
         )
         marketmanager_import = import_apps()["marketmanager"]
@@ -313,13 +313,13 @@ class TestAppImport(TestCase):
 
         self.assertTrue(app_import.has_any_perms(self.user))
 
-        user_marketmanager = UserMainFactory(
+        user_marketmanager = create_user_main(
             permissions=["marketmanager.basic_market_browser"]
         )
         marketmanager_import = import_apps()["marketmanager"]
         self.assertTrue(marketmanager_import.has_any_perms(user_marketmanager))
 
-        user_both = UserMainFactory(
+        user_both = create_user_main(
             permissions=["corptools.view_characteraudit", *_corp_perms]
         )
         corptools_import = import_apps()["corptools"]

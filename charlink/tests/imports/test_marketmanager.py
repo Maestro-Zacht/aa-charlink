@@ -1,20 +1,23 @@
-from app_utils.testdata_factories import EveCharacterFactory, UserMainFactory
-from app_utils.testing import add_character_to_user
 from django.test import TestCase
 from marketmanager.views import CHARACTER_SCOPES, CORPORATION_SCOPES
 
 from charlink.app_imports import import_apps
+from charlink.tests.factories import (
+    add_character_to_user,
+    create_eve_character,
+    create_user_main,
+)
 
 
 class TestIsCharacterAdded(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory()
+        cls.user = create_user_main()
         cls.main_character = cls.user.profile.main_character
 
-        cls.login_char = EveCharacterFactory()
+        cls.login_char = create_eve_character()
         add_character_to_user(cls.user, cls.login_char, scopes=CHARACTER_SCOPES)
-        cls.login_corp = EveCharacterFactory()
+        cls.login_corp = create_eve_character()
         add_character_to_user(cls.user, cls.login_corp, scopes=CORPORATION_SCOPES)
 
     def test_ok_character_login(self):
@@ -53,10 +56,10 @@ class TestAddCharacter(TestCase):
 class TestCheckPermissions(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.basic_market_browser_user = UserMainFactory(
+        cls.basic_market_browser_user = create_user_main(
             permissions=["marketmanager.basic_market_browser"]
         )
-        cls.no_perm_user = UserMainFactory()
+        cls.no_perm_user = create_user_main()
 
     def test_ok(self):
         app_import = import_apps()["marketmanager"]
@@ -82,10 +85,10 @@ class TestCheckPermissions(TestCase):
 class TestGetUsersWithPerms(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.basic_market_browser_user = UserMainFactory(
+        cls.basic_market_browser_user = create_user_main(
             permissions=["marketmanager.basic_market_browser"]
         )
-        cls.no_perm_user = UserMainFactory()
+        cls.no_perm_user = create_user_main()
 
     def test_ok(self):
         app_import = import_apps()["marketmanager"]

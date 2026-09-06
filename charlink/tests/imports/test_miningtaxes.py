@@ -1,6 +1,5 @@
 from unittest.mock import patch
 
-from app_utils.testdata_factories import UserMainFactory
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import RequestFactory, TestCase
 from miningtaxes.models import AdminCharacter, Character
@@ -12,12 +11,13 @@ from charlink.imports.miningtaxes import (
     _is_character_added_admin,
     _is_character_added_basic,
 )
+from charlink.tests.factories import create_user_main
 
 
 class TestAddCharacter(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory(permissions=["miningtaxes.basic_access"])
+        cls.user = create_user_main(permissions=["miningtaxes.basic_access"])
         cls.character = cls.user.profile.main_character
 
     @classmethod
@@ -61,7 +61,7 @@ class TestAddCharacter(TestCase):
 class TestIsCharacterAdded(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory(permissions=["miningtaxes.basic_access"])
+        cls.user = create_user_main(permissions=["miningtaxes.basic_access"])
         cls.character = cls.user.profile.main_character
 
     def test_ok_basic(self):
@@ -78,9 +78,9 @@ class TestIsCharacterAdded(TestCase):
 class TestCheckPermissions(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.no_perm_user = UserMainFactory()
-        cls.perm_user_basic = UserMainFactory(permissions=["miningtaxes.basic_access"])
-        cls.perm_user_admin = UserMainFactory(permissions=["miningtaxes.admin_access"])
+        cls.no_perm_user = create_user_main()
+        cls.perm_user_basic = create_user_main(permissions=["miningtaxes.basic_access"])
+        cls.perm_user_admin = create_user_main(permissions=["miningtaxes.admin_access"])
 
     def test_ok_basic(self):
         login_import = import_apps()["miningtaxes"].get("default")
@@ -98,9 +98,9 @@ class TestCheckPermissions(TestCase):
 class TestGetUsersWithPerms(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.no_perm_user = UserMainFactory()
-        cls.perm_user_basic = UserMainFactory(permissions=["miningtaxes.basic_access"])
-        cls.perm_user_admin = UserMainFactory(permissions=["miningtaxes.admin_access"])
+        cls.no_perm_user = create_user_main()
+        cls.perm_user_basic = create_user_main(permissions=["miningtaxes.basic_access"])
+        cls.perm_user_admin = create_user_main(permissions=["miningtaxes.admin_access"])
 
     def test_ok_basic(self):
         login_import = import_apps()["miningtaxes"].get("default")

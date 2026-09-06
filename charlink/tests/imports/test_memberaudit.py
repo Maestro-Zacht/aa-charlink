@@ -1,8 +1,7 @@
 from unittest.mock import patch
 
 from allianceauth.eveonline.models import EveCharacter
-from app_utils.testdata_factories import UserMainFactory
-from app_utils.testing import create_authgroup
+from allianceauth.groupmanagement.models import Group
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import RequestFactory, TestCase
 from memberaudit.app_settings import MEMBERAUDIT_TASKS_NORMAL_PRIORITY
@@ -10,12 +9,13 @@ from memberaudit.models import ComplianceGroupDesignation
 
 from charlink.app_imports import import_apps
 from charlink.imports.memberaudit import _add_character, _is_character_added
+from charlink.tests.factories import create_user_main
 
 
 class TestAddCharacter(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory(permissions=["memberaudit.basic_access"])
+        cls.user = create_user_main(permissions=["memberaudit.basic_access"])
         cls.character = cls.user.profile.main_character
 
     @classmethod
@@ -53,7 +53,7 @@ class TestAddCharacter(TestCase):
         messages = FallbackStorage(request)
         request._messages = messages
 
-        group = create_authgroup()
+        group = Group.objects.create(name="Compliance Group")
         ComplianceGroupDesignation.objects.create(group=group)
 
         _add_character(request, token)
@@ -68,7 +68,7 @@ class TestAddCharacter(TestCase):
 class TestIsCharacterAdded(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory(permissions=["memberaudit.basic_access"])
+        cls.user = create_user_main(permissions=["memberaudit.basic_access"])
         cls.character = cls.user.profile.main_character
 
     @classmethod
@@ -122,8 +122,8 @@ class TestIsCharacterAdded(TestCase):
 class TestCheckPermissions(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.no_perm_user = UserMainFactory()
-        cls.perm_user = UserMainFactory(permissions=["memberaudit.basic_access"])
+        cls.no_perm_user = create_user_main()
+        cls.perm_user = create_user_main(permissions=["memberaudit.basic_access"])
 
     def test_ok(self):
         login_import = import_apps()["memberaudit"].get("default")
@@ -135,8 +135,8 @@ class TestCheckPermissions(TestCase):
 class TestGetUsersWithPerms(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.no_perm_user = UserMainFactory()
-        cls.perm_user = UserMainFactory(permissions=["memberaudit.basic_access"])
+        cls.no_perm_user = create_user_main()
+        cls.perm_user = create_user_main(permissions=["memberaudit.basic_access"])
 
     def test_ok(self):
         login_import = import_apps()["memberaudit"].get("default")

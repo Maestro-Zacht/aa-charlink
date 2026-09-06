@@ -1,7 +1,5 @@
 from unittest.mock import patch
 
-from app_utils.testdata_factories import EveCharacterFactory, UserMainFactory
-from app_utils.testing import add_character_to_user, add_new_token
 from corptools.models import CharacterAudit
 from django.contrib.auth.models import User
 from django.test import TestCase, modify_settings
@@ -11,6 +9,12 @@ from charlink.app_imports import import_apps
 from charlink.imports.allianceauth.authentication import app_import as auth_import
 from charlink.imports.corptools import app_import as corptools_import
 from charlink.models import AppSettings, BaseFilter, ComplianceFilter
+from charlink.tests.factories import (
+    add_character_to_user,
+    add_new_token,
+    create_eve_character,
+    create_user_main,
+)
 
 
 @patch("charlink.app_imports._imported", False)
@@ -73,9 +77,7 @@ class TestBaseFilter(TestCase):
 class TestComplianceFilter(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory(
-            main_character__scopes=corptools_import.get("default").scopes
-        )
+        cls.user = create_user_main(scopes=corptools_import.get("default").scopes)
         cls.compliance_filter = ComplianceFilter.objects.create(
             name="compliance test", description="compliance description"
         )
@@ -105,7 +107,7 @@ class TestComplianceFilter(TestCase):
     def test_audit_filter_with_2_apps(self, mock_update_character):
         mock_update_character.return_value = None
 
-        character = EveCharacterFactory()
+        character = create_eve_character()
         add_character_to_user(self.user, character)
 
         import_apps()

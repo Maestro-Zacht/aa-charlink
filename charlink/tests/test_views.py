@@ -1,11 +1,6 @@
 from unittest.mock import Mock, patch
 
 from allianceauth.authentication.models import CharacterOwnership
-from app_utils.testdata_factories import (
-    EveCharacterFactory,
-    EveCorporationInfoFactory,
-    UserMainFactory,
-)
 from django.contrib.messages import DEFAULT_LEVELS, get_messages
 from django.db.models import Exists, OuterRef
 from django.test import RequestFactory, TestCase
@@ -17,6 +12,11 @@ from charlink.imports.corptools import _corp_perms
 from charlink.imports.corptools import app_import as corptools_import
 from charlink.imports.miningtaxes import app_import as miningtaxes_import
 from charlink.models import AppSettings
+from charlink.tests.factories import (
+    create_eve_character,
+    create_eve_corporation,
+    create_user_main,
+)
 from charlink.views import dashboard_login, get_navbar_elements
 
 
@@ -28,8 +28,8 @@ from charlink.views import dashboard_login, get_navbar_elements
 class TestGetNavbarElements(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.permuser = UserMainFactory(permissions=["charlink.view_corp"])
-        cls.nopermuser = UserMainFactory()
+        cls.permuser = create_user_main(permissions=["charlink.view_corp"])
+        cls.nopermuser = create_user_main()
 
     def test_with_perm(self):
         res = get_navbar_elements(self.permuser)
@@ -64,7 +64,7 @@ class TestGetNavbarElements(TestCase):
 class TestDashboardLogin(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory(
+        cls.user = create_user_main(
             permissions=[
                 "miningtaxes.basic_access",
             ]
@@ -118,7 +118,7 @@ class TestDashboardLogin(TestCase):
 class TestDashboardPost(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory(
+        cls.user = create_user_main(
             permissions=[
                 "corputils.add_corpstats",
                 "miningtaxes.basic_access",
@@ -192,7 +192,7 @@ class TestDashboardPost(TestCase):
 class TestIndex(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory(
+        cls.user = create_user_main(
             permissions=[
                 "corputils.add_corpstats",
                 "miningtaxes.basic_access",
@@ -271,12 +271,12 @@ class TestLoginView(TestCase):
                 + miningtaxes_import.imports[0].scopes
             )
         )
-        cls.user = UserMainFactory(
+        cls.user = create_user_main(
             permissions=[
                 "corptools.view_characteraudit",
                 "miningtaxes.basic_access",
             ],
-            main_character__scopes=cls.scopes,
+            scopes=cls.scopes,
         )
         cls.token = cls.user.token_set.first()
 
@@ -528,11 +528,11 @@ class TestLoginView(TestCase):
 class TestAudit(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory(permissions=["charlink.view_corp"])
+        cls.user = create_user_main(permissions=["charlink.view_corp"])
         cls.corp = cls.user.profile.main_character.corporation
-        cls.corp2 = EveCorporationInfoFactory()
-        cls.char2 = EveCharacterFactory(corporation=cls.corp2)
-        cls.user2 = UserMainFactory(main_character__character=cls.char2)
+        cls.corp2 = create_eve_corporation()
+        cls.char2 = create_eve_character(corporation=cls.corp2)
+        cls.user2 = create_user_main(character=cls.char2)
 
     def test_ok(self):
         self.client.force_login(self.user)
@@ -562,10 +562,10 @@ class TestAudit(TestCase):
 class TestSearch(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory(permissions=["charlink.view_corp"])
+        cls.user = create_user_main(permissions=["charlink.view_corp"])
         cls.main_char = cls.user.profile.main_character
 
-        cls.user2 = UserMainFactory()
+        cls.user2 = create_user_main()
         cls.main_char2 = cls.user2.profile.main_character
 
     def test_ok(self):
@@ -609,14 +609,14 @@ class TestSearch(TestCase):
 class TestAuditUser(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory(permissions=["charlink.view_corp"])
+        cls.user = create_user_main(permissions=["charlink.view_corp"])
 
-        char2 = EveCharacterFactory(
+        char2 = create_eve_character(
             corporation=cls.user.profile.main_character.corporation
         )
-        cls.user2 = UserMainFactory(main_character__character=char2)
+        cls.user2 = create_user_main(character=char2)
 
-        cls.user_ext = UserMainFactory()
+        cls.user_ext = create_user_main()
 
     def test_ok(self):
         self.client.force_login(self.user)
@@ -647,24 +647,22 @@ class TestAuditApp(TestCase):
             # "moonmining.add_refinery_owner",
             # "moonmining.basic_access"
         ]
-        cls.user = UserMainFactory(
+        cls.user = create_user_main(
             permissions=[
                 "charlink.view_corp",
                 *permissions,
                 *_corp_perms,
             ]
         )
-        char2, char3 = EveCharacterFactory.create_batch(
-            2, corporation=cls.user.profile.main_character.corporation
-        )
-        cls.user2 = UserMainFactory(
-            permissions=permissions, main_character__character=char2
-        )
-        cls.random_char = EveCharacterFactory(
+        corporation = cls.user.profile.main_character.corporation
+        char2 = create_eve_character(corporation=corporation)
+        char3 = create_eve_character(corporation=corporation)
+        cls.user2 = create_user_main(permissions=permissions, character=char2)
+        cls.random_char = create_eve_character(
             corporation=cls.user.profile.main_character.corporation
         )
-        cls.no_perm_user = UserMainFactory(
-            permissions=["charlink.view_corp"], main_character__character=char3
+        cls.no_perm_user = create_user_main(
+            permissions=["charlink.view_corp"], character=char3
         )
 
     def test_ok(self):
@@ -708,10 +706,10 @@ class TestAuditApp(TestCase):
     # def test_multiple_app_perms(self):
     #     self.client.force_login(self.user)
 
-    #     extra_char = EveCharacterFactory(corporation=self.user.profile.main_character.corporation)
-    #     UserMainFactory(
+    #     extra_char = create_eve_character(corporation=self.user.profile.main_character.corporation)
+    #     create_user_main(
     #         permissions=["moonmining.add_refinery_owner", "moonmining.basic_access"],
-    #         main_character__character=extra_char
+    #         character=extra_char
     #     )
 
     #     res = self.client.get(reverse('charlink:audit_app', args=['moonmining']))
@@ -740,8 +738,8 @@ class TestAuditApp(TestCase):
 class TestAdminImportedApps(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.admin = UserMainFactory(is_superuser=True)
-        cls.user = UserMainFactory()
+        cls.admin = create_user_main(is_superuser=True)
+        cls.user = create_user_main()
 
     @patch("charlink.views.import_apps")
     @patch("charlink.views.get_duplicated_apps")
@@ -785,7 +783,7 @@ class TestAdminImportedApps(TestCase):
 class TestToggleAppVisible(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory(permissions=["charlink.view_admin"])
+        cls.user = create_user_main(permissions=["charlink.view_admin"])
 
     def test_toggle_authentication_login(self):
         self.client.force_login(self.user)
@@ -862,7 +860,7 @@ class TestToggleAppVisible(TestCase):
 class TestToggleAppDefaultSelection(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory(permissions=["charlink.view_admin"])
+        cls.user = create_user_main(permissions=["charlink.view_admin"])
 
     def test_toggle_authentication_login(self):
         self.client.force_login(self.user)

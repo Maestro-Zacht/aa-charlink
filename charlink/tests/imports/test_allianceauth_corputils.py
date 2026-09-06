@@ -1,22 +1,22 @@
 from unittest.mock import patch
 
 from allianceauth.corputils.models import CorpStats
-from app_utils.testdata_factories import (
-    EveCharacterFactory,
-    EveCorporationInfoFactory,
-    UserMainFactory,
-)
-from app_utils.testing import add_character_to_user
 from django.test import TestCase
 
 from charlink.app_imports import import_apps
 from charlink.imports.allianceauth.corputils import _add_character, _is_character_added
+from charlink.tests.factories import (
+    add_character_to_user,
+    create_eve_character,
+    create_eve_corporation,
+    create_user_main,
+)
 
 
 class TestAddCharacter(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory(permissions=["corputils.add_corpstats"])
+        cls.user = create_user_main(permissions=["corputils.add_corpstats"])
         cls.token = cls.user.token_set.first()
 
     @patch("allianceauth.corputils.models.CorpStats.update")
@@ -30,7 +30,7 @@ class TestAddCharacter(TestCase):
 
     @patch(
         "allianceauth.eveonline.managers.EveCorporationManager.create_corporation",
-        wraps=lambda corp_id: EveCorporationInfoFactory(corporation_id=corp_id),
+        wraps=lambda corp_id: create_eve_corporation(corporation_id=corp_id),
     )
     @patch("allianceauth.corputils.models.CorpStats.update")
     def test_corp_missing(self, mock_update, mock_create_corporation):
@@ -49,7 +49,7 @@ class TestAddCharacter(TestCase):
 class TestIsCharacterAdded(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory(permissions=["corputils.add_corpstats"])
+        cls.user = create_user_main(permissions=["corputils.add_corpstats"])
         cls.character = cls.user.profile.main_character
         cls.token = cls.user.token_set.first()
         CorpStats.objects.create(token=cls.token, corp=cls.character.corporation)
@@ -57,7 +57,7 @@ class TestIsCharacterAdded(TestCase):
     def test_ok(self):
         self.assertTrue(_is_character_added(self.character))
 
-        newchar = EveCharacterFactory()
+        newchar = create_eve_character()
         add_character_to_user(self.user, newchar)
 
         self.assertFalse(_is_character_added(newchar))
@@ -66,8 +66,8 @@ class TestIsCharacterAdded(TestCase):
 class TestCheckPermissions(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.perm_user = UserMainFactory(permissions=["corputils.add_corpstats"])
-        cls.no_perm_user = UserMainFactory()
+        cls.perm_user = create_user_main(permissions=["corputils.add_corpstats"])
+        cls.no_perm_user = create_user_main()
 
     def test_ok(self):
         login_import = import_apps()["allianceauth.corputils"].get("default")
@@ -78,8 +78,8 @@ class TestCheckPermissions(TestCase):
 class TestUsersWithPerms(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.perm_user = UserMainFactory(permissions=["corputils.add_corpstats"])
-        cls.no_perm_user = UserMainFactory()
+        cls.perm_user = create_user_main(permissions=["corputils.add_corpstats"])
+        cls.no_perm_user = create_user_main()
 
     def test_ok(self):
         login_import = import_apps()["allianceauth.corputils"].get("default")

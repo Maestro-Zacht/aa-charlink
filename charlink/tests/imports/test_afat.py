@@ -1,8 +1,11 @@
-from app_utils.testdata_factories import EveCharacterFactory, UserMainFactory
-from app_utils.testing import add_character_to_user
 from django.test import TestCase
 
 from charlink.app_imports import import_apps
+from charlink.tests.factories import (
+    add_character_to_user,
+    create_eve_character,
+    create_user_main,
+)
 
 _scopes_readfleet = ["esi-fleets.read_fleet.v1"]
 _scopes_clickfleet = [
@@ -23,12 +26,12 @@ class TestAddCharacter(TestCase):
 class TestIsCharacterAdded(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory()
+        cls.user = create_user_main()
         cls.main_character = cls.user.profile.main_character
 
-        cls.char_readfleet = EveCharacterFactory()
+        cls.char_readfleet = create_eve_character()
         add_character_to_user(cls.user, cls.char_readfleet, scopes=_scopes_readfleet)
-        cls.char_clickfat = EveCharacterFactory()
+        cls.char_clickfat = create_eve_character()
         add_character_to_user(cls.user, cls.char_clickfat, scopes=_scopes_clickfleet)
 
     def test_ok(self):
@@ -58,13 +61,13 @@ class TestIsCharacterAdded(TestCase):
 class TestCheckPermissions(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.manage_user = UserMainFactory(permissions=["afat.manage_afat"])
-        cls.add_fatlink_user = UserMainFactory(permissions=["afat.add_fatlink"])
-        cls.both_user = UserMainFactory(
+        cls.manage_user = create_user_main(permissions=["afat.manage_afat"])
+        cls.add_fatlink_user = create_user_main(permissions=["afat.add_fatlink"])
+        cls.both_user = create_user_main(
             permissions=["afat.manage_afat", "afat.add_fatlink"]
         )
-        cls.basic_access_user = UserMainFactory(permissions=["afat.basic_access"])
-        cls.no_perm_user = UserMainFactory()
+        cls.basic_access_user = create_user_main(permissions=["afat.basic_access"])
+        cls.no_perm_user = create_user_main()
 
     def test_ok(self):
         app_import = import_apps()["afat"]
@@ -89,13 +92,13 @@ class TestCheckPermissions(TestCase):
 class TestGetUsersWithPerms(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.manage_user = UserMainFactory(permissions=["afat.manage_afat"])
-        cls.add_fatlink_user = UserMainFactory(permissions=["afat.add_fatlink"])
-        cls.both_user = UserMainFactory(
+        cls.manage_user = create_user_main(permissions=["afat.manage_afat"])
+        cls.add_fatlink_user = create_user_main(permissions=["afat.add_fatlink"])
+        cls.both_user = create_user_main(
             permissions=["afat.manage_afat", "afat.add_fatlink"]
         )
-        cls.basic_access_user = UserMainFactory(permissions=["afat.basic_access"])
-        cls.no_perm_user = UserMainFactory()
+        cls.basic_access_user = create_user_main(permissions=["afat.basic_access"])
+        cls.no_perm_user = create_user_main()
 
     def test_ok(self):
         app_import = import_apps()["afat"]

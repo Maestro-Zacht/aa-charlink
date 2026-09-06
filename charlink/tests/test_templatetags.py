@@ -1,16 +1,17 @@
-from app_utils.testdata_factories import EveCharacterFactory, UserMainFactory
 from django.template import Context, Template
 from django.test import TestCase
+
+from charlink.tests.factories import create_eve_character, create_user_main
 
 
 class TestGetCorpMembersFilter(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.testuser = UserMainFactory()
+        cls.testuser = create_user_main()
         cls.testcorp = cls.testuser.profile.main_character.corporation
 
         cls.corpmates = [
-            *EveCharacterFactory.create_batch(5, corporation=cls.testcorp),
+            *[create_eve_character(corporation=cls.testcorp) for _ in range(5)],
             cls.testuser.profile.main_character,
         ]
 
@@ -30,7 +31,7 @@ class TestGetCorpMembersFilter(TestCase):
 class TestGetCharAttrFilter(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.testuser = UserMainFactory()
+        cls.testuser = create_user_main()
         cls.testcharacter = cls.testuser.profile.main_character
 
         cls.template = Template(
