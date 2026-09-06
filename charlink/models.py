@@ -1,21 +1,23 @@
 from collections import defaultdict
 
-from django.db import models
+from allianceauth.eveonline.models import EveCharacter
 from django.contrib.auth.models import User
+from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from allianceauth.eveonline.models import EveCharacter
 
-
-class General(models.Model):
+class General(models.Model):  # noqa: DJ008
     class Meta:
         managed = False
         default_permissions = ()
         permissions = (
-            ('view_corp', 'Can view linked character of members of their corporation.'),
-            ('view_alliance', 'Can view linked character of members of their alliance.'),
-            ('view_state', 'Can view linked character of members of their auth state.'),
-            ('view_admin', 'Can view CharLink Admin page.'),
+            ("view_corp", "Can view linked character of members of their corporation."),
+            (
+                "view_alliance",
+                "Can view linked character of members of their alliance.",
+            ),
+            ("view_state", "Can view linked character of members of their auth state."),
+            ("view_admin", "Can view CharLink Admin page."),
         )
 
 
@@ -29,10 +31,11 @@ class AppSettings(models.Model):
         default_permissions = ()
 
     def __str__(self) -> str:
-        from .app_imports import import_apps
+        from .app_imports import import_apps  # noqa: PLC0415
+
         imported_apps = import_apps()
 
-        app, _sep, unique_id = self.app_name.rpartition('_')
+        app, _sep, unique_id = self.app_name.rpartition("_")
 
         try:
             login_import = imported_apps[app].get(unique_id)
@@ -43,8 +46,11 @@ class AppSettings(models.Model):
 
 # Smart filters
 
+
 class BaseFilter(models.Model):
-    name = models.CharField(max_length=500)  # This is the filters name shown to the admin
+    name = models.CharField(
+        max_length=500
+    )  # This is the filters name shown to the admin
     description = models.CharField(max_length=500)  # this is what is shown to the user
 
     class Meta:
@@ -55,14 +61,18 @@ class BaseFilter(models.Model):
         return f"{self.name}: {self.description}"
 
     def process_filter(self, user: User):  # Single User Pass Fail system
-        raise NotImplementedError("Please Create a filter!")
+        msg = "Please Create a filter!"
+        raise NotImplementedError(msg)
 
-    def audit_filter(self, users):  # Bulk check system that also advises the user with simple messages
-        raise NotImplementedError("Please Create an audit function!")
+    def audit_filter(
+        self, users
+    ):  # Bulk check system that also advises the user with simple messages
+        msg = "Please Create an audit function!"
+        raise NotImplementedError(msg)
 
 
 class ComplianceFilter(BaseFilter):
-    selected_apps = models.ManyToManyField(AppSettings, related_name='+')
+    selected_apps = models.ManyToManyField(AppSettings, related_name="+")
 
     negate = models.BooleanField(default=False)
 
@@ -72,10 +82,10 @@ class ComplianceFilter(BaseFilter):
         default_permissions = ()
 
     def process_filter(self, user: User):
-        return self.audit_filter(User.objects.filter(pk=user.pk))[user.pk]['check']
+        return self.audit_filter(User.objects.filter(pk=user.pk))[user.pk]["check"]
 
     def audit_filter(self, users):
-        from .app_imports import import_apps
+        from .app_imports import import_apps  # noqa: PLC0415
 
         output = defaultdict(lambda: {"message": "", "check": False})
         imported_apps = import_apps()
@@ -83,36 +93,37 @@ class ComplianceFilter(BaseFilter):
         queries = []
 
         for selected_app in self.selected_apps.all():
-            app, _sep, unique_id = selected_app.app_name.rpartition('_')
+            app, _sep, unique_id = selected_app.app_name.rpartition("_")
             try:
                 login_import = imported_apps[app].get(unique_id)
             except KeyError:
                 return output
             queries.append(login_import.is_character_added_annotation)
 
-        chars = EveCharacter.objects.filter(
-            character_ownership__user__in=users
-        )
+        chars = EveCharacter.objects.filter(character_ownership__user__in=users)
 
         q = queries[0]
         for query in queries[1:]:
             q = q & query
 
         chars = (
-            chars
-            .annotate(has_compliance=q)
-            .values(user_pk=models.F('character_ownership__user'))
+            chars.annotate(has_compliance=q)
+            .values(user_pk=models.F("character_ownership__user"))
             .annotate(
-                has_compliance=models.Sum('has_compliance', output_field=models.IntegerField())
+                has_compliance=models.Sum(
+                    "has_compliance", output_field=models.IntegerField()
+                )
             )
-            .annotate(char_count=models.Count('*'))
+            .annotate(char_count=models.Count("*"))
         )
 
         for user_data in chars:
-            compliance = user_data['has_compliance'] == user_data['char_count']
-            output[user_data['user_pk']] = {
-                "message": _("Meets requirements") if compliance else _("Does not meet requirements"),
-                "check": compliance ^ self.negate
+            compliance = user_data["has_compliance"] == user_data["char_count"]
+            output[user_data["user_pk"]] = {
+                "message": _("Meets requirements")
+                if compliance
+                else _("Does not meet requirements"),
+                "check": compliance ^ self.negate,
             }
 
         return output

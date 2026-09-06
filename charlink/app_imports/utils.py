@@ -1,25 +1,22 @@
 import re
-from dataclasses import dataclass
-from typing import Callable, List
 from collections import defaultdict
-
-from django.db.models import Exists, QuerySet
-from django import forms
-from django.contrib.auth.models import User
-from django.conf import settings
-from django.http import HttpRequest
+from collections.abc import Callable
+from dataclasses import dataclass
 
 from allianceauth.eveonline.models import EveCharacter
+from django import forms
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.db.models import Exists, QuerySet
+from django.http import HttpRequest
 from esi.models import Token
 
-from ..models import AppSettings
+from charlink.models import AppSettings
 
 
 @dataclass
 class LoginImport:
-    """
-    The class for implementing a login import for an app.
-
+    """The class for implementing a login import for an app.
 
     There can be multiple imports for an app, like in case of corptools where there is Character Audit and Corporation Audit.
 
@@ -34,12 +31,14 @@ class LoginImport:
         `is_character_added_annotation`: A django Exists object that checks if the character is already added to the app.
         `get_users_with_perms`: A function that returns a QuerySet of users with permissions to use the import. It must be a callable that takes no arguments and returns a QuerySet of Users.
         `default_initial_selection`: Optional boolean that specifies the initial setting for the default selection of the login option in the form. Default is True. It is important to set this to false for options that are not used by everyday characters, to avoid causing issues with ESI rate limits.
+
     """
+
     app_label: str
     unique_id: str
     field_label: str
     add_character: Callable[[HttpRequest, Token], None]
-    scopes: List[str]
+    scopes: list[str]
     check_permissions: Callable[[User], bool]
     is_character_added: Callable[[EveCharacter], bool]
     is_character_added_annotation: Exists
@@ -53,19 +52,19 @@ class LoginImport:
         return hash(self.get_query_id())
 
     def validate_import(self):
-        assert hasattr(self, 'app_label')
-        assert hasattr(self, 'unique_id')
-        assert hasattr(self, 'field_label')
-        assert hasattr(self, 'add_character')
-        assert hasattr(self, 'scopes')
-        assert hasattr(self, 'check_permissions')
-        assert hasattr(self, 'is_character_added')
-        assert hasattr(self, 'is_character_added_annotation')
-        assert hasattr(self, 'get_users_with_perms')
-        assert hasattr(self, 'default_initial_selection')
+        assert hasattr(self, "app_label")
+        assert hasattr(self, "unique_id")
+        assert hasattr(self, "field_label")
+        assert hasattr(self, "add_character")
+        assert hasattr(self, "scopes")
+        assert hasattr(self, "check_permissions")
+        assert hasattr(self, "is_character_added")
+        assert hasattr(self, "is_character_added_annotation")
+        assert hasattr(self, "get_users_with_perms")
+        assert hasattr(self, "default_initial_selection")
         assert isinstance(self.app_label, str)
         assert isinstance(self.unique_id, str)
-        assert re.match(r'^[a-zA-Z0-9]+$', self.unique_id) is not None
+        assert re.match(r"^[a-zA-Z0-9]+$", self.unique_id) is not None
         assert isinstance(str(self.field_label), str)
         assert callable(self.add_character)
         assert isinstance(self.scopes, list)
@@ -88,23 +87,23 @@ class LoginImport:
 
 @dataclass
 class AppImport:
-    """
-    Class wrapper for LoginImports.
+    """Class wrapper for LoginImports.
 
     Args:
         `app_label`: The app label of the app the imports are for. It must be in settings.INSTALLED_APPS.
         `imports`: The imports for the app. Must be a list of LoginImport objects.
+
     """
 
     app_label: str
-    imports: List[LoginImport]
+    imports: list[LoginImport]
 
     def get_form_fields(self, user):
         return {
             import_.get_query_id(): forms.BooleanField(
                 required=False,
                 initial=import_.default_selection,
-                label=import_.field_label
+                label=import_.field_label,
             )
             for import_ in self.imports
             if import_.check_permissions(user) and not import_.is_ignored
@@ -117,22 +116,27 @@ class AppImport:
                 import_
                 for import_ in self.imports
                 if import_.check_permissions(user) and not import_.is_ignored
-            ]
+            ],
         )
 
     def has_any_perms(self, user: User):
-        return any(import_.check_permissions(user) for import_ in self.imports if not import_.is_ignored)
+        return any(
+            import_.check_permissions(user)
+            for import_ in self.imports
+            if not import_.is_ignored
+        )
 
     def get(self, unique_id: str) -> LoginImport:
         for import_ in self.imports:
             if import_.unique_id == unique_id:
                 return import_
 
-        raise KeyError(f"Import with unique_id {unique_id} not found")
+        msg = f"Import with unique_id {unique_id} not found"
+        raise KeyError(msg)
 
     def validate_import(self):
-        assert hasattr(self, 'app_label')
-        assert hasattr(self, 'imports')
+        assert hasattr(self, "app_label")
+        assert hasattr(self, "imports")
         assert isinstance(self.app_label, str)
         assert isinstance(self.imports, list)
         assert len(self.imports) > 0

@@ -1,20 +1,16 @@
-from django.db.models import Exists, OuterRef
-from django.contrib.auth.models import Permission
-from django.utils.translation import gettext_lazy as _
-
 from allianceauth.eveonline.models import EveCharacter
-
-from charlink.app_imports.utils import LoginImport, AppImport
-from charlink.utils import users_with_permissions
-
-from marketmanager.views import CHARACTER_SCOPES, CORPORATION_SCOPES
+from django.db.models import Exists, OuterRef
+from django.utils.translation import gettext_lazy as _
 from esi.models import Token
+from marketmanager.views import CHARACTER_SCOPES, CORPORATION_SCOPES
+
+from charlink.app_imports.utils import AppImport, LoginImport
+from charlink.utils import users_with_permissions
 
 
 def _is_character_added_character_login(character: EveCharacter):
     return (
-        Token.objects
-        .filter(character_id=character.character_id)
+        Token.objects.filter(character_id=character.character_id)
         .require_valid()
         .require_scopes(CHARACTER_SCOPES)
         .exists()
@@ -23,44 +19,54 @@ def _is_character_added_character_login(character: EveCharacter):
 
 def _is_character_added_corporation_login(character: EveCharacter):
     return (
-        Token.objects
-        .filter(character_id=character.character_id)
+        Token.objects.filter(character_id=character.character_id)
         .require_valid()
         .require_scopes(CORPORATION_SCOPES)
         .exists()
     )
 
 
-app_import = AppImport('marketmanager', [
-    LoginImport(
-        app_label='marketmanager',
-        unique_id='character',
-        field_label=_('Market Manager - Character Login'),
-        add_character=lambda request, token: None,
-        scopes=CHARACTER_SCOPES,
-        check_permissions=lambda user: user.has_perm("marketmanager.basic_market_browser"),
-        is_character_added=_is_character_added_character_login,
-        is_character_added_annotation=Exists(
-            Token.objects
-            .filter(character_id=OuterRef('character_id'))
-            .require_scopes(CHARACTER_SCOPES)
+app_import = AppImport(
+    "marketmanager",
+    [
+        LoginImport(
+            app_label="marketmanager",
+            unique_id="character",
+            field_label=_("Market Manager - Character Login"),
+            add_character=lambda request, token: None,  # noqa: ARG005
+            scopes=CHARACTER_SCOPES,
+            check_permissions=lambda user: user.has_perm(
+                "marketmanager.basic_market_browser"
+            ),
+            is_character_added=_is_character_added_character_login,
+            is_character_added_annotation=Exists(
+                Token.objects.filter(
+                    character_id=OuterRef("character_id")
+                ).require_scopes(CHARACTER_SCOPES)
+            ),
+            get_users_with_perms=lambda: users_with_permissions(
+                "marketmanager.basic_market_browser", require_all=False
+            ),
         ),
-        get_users_with_perms=lambda: users_with_permissions('marketmanager.basic_market_browser', require_all=False)
-    ),
-    LoginImport(
-        app_label='marketmanager',
-        unique_id='corporation',
-        field_label=_('Market Manager - Corporation Login'),
-        add_character=lambda request, token: None,
-        scopes=CORPORATION_SCOPES,
-        check_permissions=lambda user: user.has_perm("marketmanager.basic_market_browser"),
-        is_character_added=_is_character_added_corporation_login,
-        is_character_added_annotation=Exists(
-            Token.objects
-            .filter(character_id=OuterRef('character_id'))
-            .require_scopes(CORPORATION_SCOPES)
+        LoginImport(
+            app_label="marketmanager",
+            unique_id="corporation",
+            field_label=_("Market Manager - Corporation Login"),
+            add_character=lambda request, token: None,  # noqa: ARG005
+            scopes=CORPORATION_SCOPES,
+            check_permissions=lambda user: user.has_perm(
+                "marketmanager.basic_market_browser"
+            ),
+            is_character_added=_is_character_added_corporation_login,
+            is_character_added_annotation=Exists(
+                Token.objects.filter(
+                    character_id=OuterRef("character_id")
+                ).require_scopes(CORPORATION_SCOPES)
+            ),
+            get_users_with_perms=lambda: users_with_permissions(
+                "marketmanager.basic_market_browser", require_all=False
+            ),
+            default_initial_selection=False,
         ),
-        get_users_with_perms=lambda: users_with_permissions('marketmanager.basic_market_browser', require_all=False),
-        default_initial_selection=False,
-    ),
-])
+    ],
+)

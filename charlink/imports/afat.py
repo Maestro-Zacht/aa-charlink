@@ -1,22 +1,23 @@
-from django.db.models import Exists, OuterRef
-from django.contrib.auth.models import User
-from django.utils.translation import gettext_lazy as _
-
-from charlink.app_imports.utils import LoginImport, AppImport
-from charlink.utils import users_with_permissions
-
 from allianceauth.eveonline.models import EveCharacter
-
+from django.contrib.auth.models import User
+from django.db.models import Exists, OuterRef
+from django.utils.translation import gettext_lazy as _
 from esi.models import Token
 
+from charlink.app_imports.utils import AppImport, LoginImport
+from charlink.utils import users_with_permissions
+
 _scopes_readfleet = ["esi-fleets.read_fleet.v1"]
-_scopes_clickfleet = ["esi-location.read_location.v1", "esi-location.read_ship_type.v1", "esi-location.read_online.v1"]
+_scopes_clickfleet = [
+    "esi-location.read_location.v1",
+    "esi-location.read_ship_type.v1",
+    "esi-location.read_online.v1",
+]
 
 
 def _is_character_added_readfleet(character: EveCharacter):
     return (
-        Token.objects
-        .filter(character_id=character.character_id)
+        Token.objects.filter(character_id=character.character_id)
         .require_valid()
         .require_scopes(_scopes_readfleet)
         .exists()
@@ -25,8 +26,7 @@ def _is_character_added_readfleet(character: EveCharacter):
 
 def _is_character_added_clickfleet(character: EveCharacter):
     return (
-        Token.objects
-        .filter(character_id=character.character_id)
+        Token.objects.filter(character_id=character.character_id)
         .require_valid()
         .require_scopes(_scopes_clickfleet)
         .exists()
@@ -34,49 +34,53 @@ def _is_character_added_clickfleet(character: EveCharacter):
 
 
 def _check_perms_readfleet(user: User):
-    return user.has_perm('afat.manage_afat') or user.has_perm('afat.add_fatlink')
+    return user.has_perm("afat.manage_afat") or user.has_perm("afat.add_fatlink")
 
 
 def _users_with_perms_readfleet():
-    return users_with_permissions(['afat.manage_afat', 'afat.add_fatlink'], require_all=False)
+    return users_with_permissions(
+        ["afat.manage_afat", "afat.add_fatlink"], require_all=False
+    )
 
 
 def _users_with_perms_clickfleet():
-    return users_with_permissions('afat.basic_access', require_all=False)
+    return users_with_permissions("afat.basic_access", require_all=False)
 
 
-app_import = AppImport('afat', [
-    LoginImport(
-        app_label='afat',
-        unique_id='readfleet',
-        field_label=_('AFAT Read Fleet'),
-        add_character=lambda requets, token: None,
-        scopes=_scopes_readfleet,
-        check_permissions=_check_perms_readfleet,
-        is_character_added=_is_character_added_readfleet,
-        is_character_added_annotation=Exists(
-            Token.objects.all()
-
-            .filter(character_id=OuterRef('character_id'))
-            .require_scopes(_scopes_readfleet)
-            # .require_valid()
+app_import = AppImport(
+    "afat",
+    [
+        LoginImport(
+            app_label="afat",
+            unique_id="readfleet",
+            field_label=_("AFAT Read Fleet"),
+            add_character=lambda requets, token: None,  # noqa: ARG005
+            scopes=_scopes_readfleet,
+            check_permissions=_check_perms_readfleet,
+            is_character_added=_is_character_added_readfleet,
+            is_character_added_annotation=Exists(
+                Token.objects.all()
+                .filter(character_id=OuterRef("character_id"))
+                .require_scopes(_scopes_readfleet)
+                # .require_valid()
+            ),
+            get_users_with_perms=_users_with_perms_readfleet,
         ),
-        get_users_with_perms=_users_with_perms_readfleet,
-    ),
-    LoginImport(
-        app_label='afat',
-        unique_id='clickfat',
-        field_label=_('AFAT Click Tracking'),
-        add_character=lambda request, token: None,
-        scopes=_scopes_clickfleet,
-        check_permissions=lambda user: user.has_perm('afat.basic_access'),
-        is_character_added=_is_character_added_clickfleet,
-        is_character_added_annotation=Exists(
-            Token.objects.all()
-            .filter(character_id=OuterRef('character_id'))
-            .require_scopes(_scopes_clickfleet)
-            # .require_valid()
+        LoginImport(
+            app_label="afat",
+            unique_id="clickfat",
+            field_label=_("AFAT Click Tracking"),
+            add_character=lambda request, token: None,  # noqa: ARG005
+            scopes=_scopes_clickfleet,
+            check_permissions=lambda user: user.has_perm("afat.basic_access"),
+            is_character_added=_is_character_added_clickfleet,
+            is_character_added_annotation=Exists(
+                Token.objects.all()
+                .filter(character_id=OuterRef("character_id"))
+                .require_scopes(_scopes_clickfleet)
+                # .require_valid()
+            ),
+            get_users_with_perms=_users_with_perms_clickfleet,
         ),
-        get_users_with_perms=_users_with_perms_clickfleet,
-    )
-])
+    ],
+)

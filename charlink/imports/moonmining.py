@@ -1,16 +1,12 @@
-from django.db.models import Exists, OuterRef
-from django.contrib.auth.models import Permission
+from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
+from app_utils.allianceauth import notify_admins
 from django.contrib import messages
-
-from moonmining.models import Owner
+from django.db.models import Exists, OuterRef
 from moonmining import __title__, tasks
 from moonmining.app_settings import MOONMINING_ADMIN_NOTIFICATIONS_ENABLED
+from moonmining.models import Owner
 
-from app_utils.allianceauth import notify_admins
-
-from allianceauth.eveonline.models import EveCorporationInfo, EveCharacter
-
-from charlink.app_imports.utils import LoginImport, AppImport
+from charlink.app_imports.utils import AppImport, LoginImport
 from charlink.utils import users_with_permissions
 
 
@@ -37,36 +33,39 @@ def _add_character(request, token):
     messages.success(request, f"Update of refineries started for {owner}.")
     if MOONMINING_ADMIN_NOTIFICATIONS_ENABLED:
         notify_admins(
-            message=("%(corporation)s was added as new owner by %(user)s.")
-            % {"corporation": owner, "user": token.user},
+            message=(f"{owner} was added as new owner by {token.user}."),
             title=f"{__title__}: Owner added: {owner}",
         )
 
 
 def _is_character_added(character: EveCharacter):
-    return Owner.objects.filter(
-        character_ownership__character=character
-    ).exists()
+    return Owner.objects.filter(character_ownership__character=character).exists()
 
 
 def _users_with_perms():
-    return users_with_permissions(['moonmining.add_refinery_owner', 'moonmining.basic_access'], require_all=True)
+    return users_with_permissions(
+        ["moonmining.add_refinery_owner", "moonmining.basic_access"], require_all=True
+    )
 
 
-app_import = AppImport('moonmining', [
-    LoginImport(
-        app_label='moonmining',
-        unique_id='default',
-        field_label=__title__,
-        add_character=_add_character,
-        scopes=Owner.esi_scopes(),
-        check_permissions=lambda user: user.has_perms(["moonmining.add_refinery_owner", "moonmining.basic_access"]),
-        is_character_added=_is_character_added,
-        is_character_added_annotation=Exists(
-            Owner.objects
-            .filter(character_ownership__character_id=OuterRef('pk'))
+app_import = AppImport(
+    "moonmining",
+    [
+        LoginImport(
+            app_label="moonmining",
+            unique_id="default",
+            field_label=__title__,
+            add_character=_add_character,
+            scopes=Owner.esi_scopes(),
+            check_permissions=lambda user: user.has_perms(
+                ["moonmining.add_refinery_owner", "moonmining.basic_access"]
+            ),
+            is_character_added=_is_character_added,
+            is_character_added_annotation=Exists(
+                Owner.objects.filter(character_ownership__character_id=OuterRef("pk"))
+            ),
+            get_users_with_perms=_users_with_perms,
+            default_initial_selection=False,
         ),
-        get_users_with_perms=_users_with_perms,
-        default_initial_selection=False
-    ),
-])
+    ],
+)

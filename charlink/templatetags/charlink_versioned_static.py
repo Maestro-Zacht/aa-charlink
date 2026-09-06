@@ -1,5 +1,4 @@
-"""
-Versioned static URLs to break browser caches when changing the app version.
+"""Versioned static URLs to break browser caches when changing the app version.
 
 Credits to aa-forum
 """
@@ -13,15 +12,12 @@ from charlink import __version__
 
 @register.simple_tag
 def charlink_static(path: str) -> str:
-    """
-    Versioned static URL
+    """Versioned static URL.
+
     :param path:
     :type path:
     :return:
     :rtype:
     """
-
     static_url = static(path)
-    versioned_url = static_url + "?v=" + __version__
-
-    return versioned_url
+    return static_url + "?v=" + __version__

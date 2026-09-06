@@ -5,9 +5,17 @@
 
 version: 2
 updates:
-
   # Enable version updates for GitHub Actions
-  - package-ecosystem: 'github-actions'
-    directory: '/'
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
-      interval: 'weekly'
+      interval: "monthly"
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    groups:
+      pre-commit-ecosystem:
+        patterns:
+          - "*"
+        update-types: ["major", "minor", "patch"]

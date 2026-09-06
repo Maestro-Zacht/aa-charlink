@@ -1,19 +1,20 @@
 from unittest.mock import patch
 
-from django.test import TestCase, RequestFactory
-from django.contrib.messages.storage.fallback import FallbackStorage
-
-from app_utils.testdata_factories import UserMainFactory, EveCorporationInfoFactory, EveCharacterFactory
+from app_utils.testdata_factories import (
+    EveCharacterFactory,
+    EveCorporationInfoFactory,
+    UserMainFactory,
+)
 from app_utils.testing import add_character_to_user
+from django.contrib.messages.storage.fallback import FallbackStorage
+from django.test import RequestFactory, TestCase
+from structures.models import Owner, Webhook
 
-from charlink.imports.structures import _add_character, _is_character_added
 from charlink.app_imports import import_apps
-
-from structures.models import Webhook, Owner
+from charlink.imports.structures import _add_character, _is_character_added
 
 
 class TestAddCharacter(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         cls.user = UserMainFactory(permissions=["structures.add_structure_owner"])
@@ -29,8 +30,8 @@ class TestAddCharacter(TestCase):
     def test_ok(self, mock_update_all_for_owner):
         mock_update_all_for_owner.return_value = None
 
-        request = self.factory.get('/charlink/login/')
-        setattr(request, 'session', 'session')
+        request = self.factory.get("/charlink/login/")
+        request.session = "session"
         messages = FallbackStorage(request)
         request._messages = messages
         request.user = self.user
@@ -40,15 +41,18 @@ class TestAddCharacter(TestCase):
         self.assertTrue(_is_character_added(self.character))
         mock_update_all_for_owner.assert_called_once()
 
-    @patch('allianceauth.eveonline.managers.EveCorporationManager.create_corporation', wraps=lambda corp_id: EveCorporationInfoFactory(corporation_id=corp_id))
+    @patch(
+        "allianceauth.eveonline.managers.EveCorporationManager.create_corporation",
+        wraps=lambda corp_id: EveCorporationInfoFactory(corporation_id=corp_id),
+    )
     @patch("structures.tasks.update_all_for_owner.delay")
     def test_missing_corp(self, mock_update_all_for_owner, mock_create_corporation):
         mock_update_all_for_owner.return_value = None
 
         self.character.corporation.delete()
 
-        request = self.factory.get('/charlink/login/')
-        setattr(request, 'session', 'session')
+        request = self.factory.get("/charlink/login/")
+        request.session = "session"
         messages = FallbackStorage(request)
         request._messages = messages
         request.user = self.user
@@ -63,8 +67,8 @@ class TestAddCharacter(TestCase):
     def test_already_added(self, mock_update_all_for_owner):
         mock_update_all_for_owner.return_value = None
 
-        request = self.factory.get('/charlink/login/')
-        setattr(request, 'session', 'session')
+        request = self.factory.get("/charlink/login/")
+        request.session = "session"
         messages = FallbackStorage(request)
         request._messages = messages
         request.user = self.user
@@ -79,10 +83,14 @@ class TestAddCharacter(TestCase):
     def test_default_webhooks(self, mock_update_all_for_owner):
         mock_update_all_for_owner.return_value = None
 
-        Webhook.objects.create(is_default=True, name="test", url="https://discordapp.com/api/webhooks/123456/abcdef")
+        Webhook.objects.create(
+            is_default=True,
+            name="test",
+            url="https://discordapp.com/api/webhooks/123456/abcdef",
+        )
 
-        request = self.factory.get('/charlink/login/')
-        setattr(request, 'session', 'session')
+        request = self.factory.get("/charlink/login/")
+        request.session = "session"
         messages = FallbackStorage(request)
         request._messages = messages
         request.user = self.user
@@ -94,12 +102,12 @@ class TestAddCharacter(TestCase):
         self.assertEqual(Owner.objects.first().webhooks.count(), 1)
 
     @patch("structures.tasks.update_all_for_owner.delay")
-    @patch('charlink.imports.structures.STRUCTURES_ADMIN_NOTIFICATIONS_ENABLED', False)
+    @patch("charlink.imports.structures.STRUCTURES_ADMIN_NOTIFICATIONS_ENABLED", False)
     def test_no_admin_notifications(self, mock_update_all_for_owner):
         mock_update_all_for_owner.return_value = None
 
-        request = self.factory.get('/charlink/login/')
-        setattr(request, 'session', 'session')
+        request = self.factory.get("/charlink/login/")
+        request.session = "session"
         messages = FallbackStorage(request)
         request._messages = messages
         request.user = self.user
@@ -113,8 +121,8 @@ class TestAddCharacter(TestCase):
     def test_second_owner(self, mock_update_all_for_owner):
         mock_update_all_for_owner.return_value = None
 
-        request = self.factory.get('/charlink/login/')
-        setattr(request, 'session', 'session')
+        request = self.factory.get("/charlink/login/")
+        request.session = "session"
         messages = FallbackStorage(request)
         request._messages = messages
         request.user = self.user
@@ -127,19 +135,21 @@ class TestAddCharacter(TestCase):
         character2 = EveCharacterFactory(corporation=self.character.corporation)
         add_character_to_user(self.user, character2)
 
-        _add_character(request, self.user.token_set.get(character_id=character2.character_id))
+        _add_character(
+            request, self.user.token_set.get(character_id=character2.character_id)
+        )
 
         self.assertTrue(_is_character_added(character2))
         self.assertEqual(Owner.objects.first().valid_characters_count(), 2)
         mock_update_all_for_owner.assert_called_once()
 
     @patch("structures.tasks.update_all_for_owner.delay")
-    @patch('charlink.imports.structures.STRUCTURES_ADMIN_NOTIFICATIONS_ENABLED', False)
+    @patch("charlink.imports.structures.STRUCTURES_ADMIN_NOTIFICATIONS_ENABLED", False)
     def test_second_owner_no_admin_notifications(self, mock_update_all_for_owner):
         mock_update_all_for_owner.return_value = None
 
-        request = self.factory.get('/charlink/login/')
-        setattr(request, 'session', 'session')
+        request = self.factory.get("/charlink/login/")
+        request.session = "session"
         messages = FallbackStorage(request)
         request._messages = messages
         request.user = self.user
@@ -152,7 +162,9 @@ class TestAddCharacter(TestCase):
         character2 = EveCharacterFactory(corporation=self.character.corporation)
         add_character_to_user(self.user, character2)
 
-        _add_character(request, self.user.token_set.get(character_id=character2.character_id))
+        _add_character(
+            request, self.user.token_set.get(character_id=character2.character_id)
+        )
 
         self.assertTrue(_is_character_added(character2))
         self.assertEqual(Owner.objects.first().valid_characters_count(), 2)
@@ -160,7 +172,6 @@ class TestAddCharacter(TestCase):
 
 
 class TestIsCharacterAdded(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         cls.user = UserMainFactory(permissions=["structures.add_structure_owner"])
@@ -178,8 +189,8 @@ class TestIsCharacterAdded(TestCase):
 
         self.assertFalse(_is_character_added(self.character))
 
-        request = self.factory.get('/charlink/login/')
-        setattr(request, 'session', 'session')
+        request = self.factory.get("/charlink/login/")
+        request.session = "session"
         messages = FallbackStorage(request)
         request._messages = messages
         request.user = self.user
@@ -190,28 +201,26 @@ class TestIsCharacterAdded(TestCase):
 
 
 class TestCheckPermissions(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         cls.no_perm_user = UserMainFactory()
         cls.perm_user = UserMainFactory(permissions=["structures.add_structure_owner"])
 
     def test_ok(self):
-        login_import = import_apps()['structures'].get('default')
+        login_import = import_apps()["structures"].get("default")
 
         self.assertTrue(login_import.check_permissions(self.perm_user))
         self.assertFalse(login_import.check_permissions(self.no_perm_user))
 
 
 class TestGetUsersWithPerms(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         cls.no_perm_user = UserMainFactory()
         cls.perm_user = UserMainFactory(permissions=["structures.add_structure_owner"])
 
     def test_ok(self):
-        login_import = import_apps()['structures'].get('default')
+        login_import = import_apps()["structures"].get("default")
 
         users = login_import.get_users_with_perms()
         self.assertEqual(users.count(), 1)
