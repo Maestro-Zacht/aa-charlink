@@ -1,12 +1,12 @@
 from unittest.mock import patch
 
-from app_utils.testdata_factories import UserMainFactory
 from django.test import TestCase
 from django.urls import reverse
 from securegroups.models import SmartFilter
 
 from charlink.app_imports import import_apps
 from charlink.models import ComplianceFilter
+from charlink.tests.factories import create_user_main
 
 
 @patch("charlink.app_imports._imported", False)
@@ -17,7 +17,7 @@ from charlink.models import ComplianceFilter
 class TestHooks(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.testuser = UserMainFactory()
+        cls.testuser = create_user_main()
 
     @classmethod
     def setUpClass(cls):

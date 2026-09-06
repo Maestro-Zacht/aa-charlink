@@ -1,23 +1,23 @@
 from unittest.mock import patch
 
-from app_utils.testdata_factories import (
-    EveCharacterFactory,
-    EveCorporationInfoFactory,
-    UserMainFactory,
-)
-from app_utils.testing import add_character_to_user
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import RequestFactory, TestCase
 from structures.models import Owner, Webhook
 
 from charlink.app_imports import import_apps
 from charlink.imports.structures import _add_character, _is_character_added
+from charlink.tests.factories import (
+    add_character_to_user,
+    create_eve_character,
+    create_eve_corporation,
+    create_user_main,
+)
 
 
 class TestAddCharacter(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory(permissions=["structures.add_structure_owner"])
+        cls.user = create_user_main(permissions=["structures.add_structure_owner"])
         cls.character = cls.user.profile.main_character
         cls.token = cls.user.token_set.first()
 
@@ -43,7 +43,7 @@ class TestAddCharacter(TestCase):
 
     @patch(
         "allianceauth.eveonline.managers.EveCorporationManager.create_corporation",
-        wraps=lambda corp_id: EveCorporationInfoFactory(corporation_id=corp_id),
+        wraps=lambda corp_id: create_eve_corporation(corporation_id=corp_id),
     )
     @patch("structures.tasks.update_all_for_owner.delay")
     def test_missing_corp(self, mock_update_all_for_owner, mock_create_corporation):
@@ -132,7 +132,7 @@ class TestAddCharacter(TestCase):
         self.assertTrue(_is_character_added(self.character))
         mock_update_all_for_owner.assert_called_once()
 
-        character2 = EveCharacterFactory(corporation=self.character.corporation)
+        character2 = create_eve_character(corporation=self.character.corporation)
         add_character_to_user(self.user, character2)
 
         _add_character(
@@ -159,7 +159,7 @@ class TestAddCharacter(TestCase):
         self.assertTrue(_is_character_added(self.character))
         mock_update_all_for_owner.assert_called_once()
 
-        character2 = EveCharacterFactory(corporation=self.character.corporation)
+        character2 = create_eve_character(corporation=self.character.corporation)
         add_character_to_user(self.user, character2)
 
         _add_character(
@@ -174,7 +174,7 @@ class TestAddCharacter(TestCase):
 class TestIsCharacterAdded(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory(permissions=["structures.add_structure_owner"])
+        cls.user = create_user_main(permissions=["structures.add_structure_owner"])
         cls.character = cls.user.profile.main_character
         cls.token = cls.user.token_set.first()
 
@@ -203,8 +203,8 @@ class TestIsCharacterAdded(TestCase):
 class TestCheckPermissions(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.no_perm_user = UserMainFactory()
-        cls.perm_user = UserMainFactory(permissions=["structures.add_structure_owner"])
+        cls.no_perm_user = create_user_main()
+        cls.perm_user = create_user_main(permissions=["structures.add_structure_owner"])
 
     def test_ok(self):
         login_import = import_apps()["structures"].get("default")
@@ -216,8 +216,8 @@ class TestCheckPermissions(TestCase):
 class TestGetUsersWithPerms(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.no_perm_user = UserMainFactory()
-        cls.perm_user = UserMainFactory(permissions=["structures.add_structure_owner"])
+        cls.no_perm_user = create_user_main()
+        cls.perm_user = create_user_main(permissions=["structures.add_structure_owner"])
 
     def test_ok(self):
         login_import = import_apps()["structures"].get("default")

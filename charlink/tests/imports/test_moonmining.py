@@ -1,17 +1,17 @@
 from unittest.mock import patch
 
-from app_utils.testdata_factories import EveCorporationInfoFactory, UserMainFactory
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import RequestFactory, TestCase
 
 from charlink.app_imports import import_apps
 from charlink.imports.moonmining import _add_character, _is_character_added
+from charlink.tests.factories import create_eve_corporation, create_user_main
 
 
 class TestAddCharacter(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory(
+        cls.user = create_user_main(
             permissions=["moonmining.add_refinery_owner", "moonmining.basic_access"]
         )
         cls.character = cls.user.profile.main_character
@@ -39,7 +39,7 @@ class TestAddCharacter(TestCase):
 
     @patch(
         "allianceauth.eveonline.managers.EveCorporationManager.create_corporation",
-        wraps=lambda corp_id: EveCorporationInfoFactory(corporation_id=corp_id),
+        wraps=lambda corp_id: create_eve_corporation(corporation_id=corp_id),
     )
     @patch("moonmining.tasks.update_owner.delay")
     def test_missing_corporation(self, mock_update_owner, mock_create_corporation):
@@ -84,7 +84,7 @@ class TestAddCharacter(TestCase):
 class TestIsCharacterAdded(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = UserMainFactory(
+        cls.user = create_user_main(
             permissions=["moonmining.add_refinery_owner", "moonmining.basic_access"]
         )
         cls.character = cls.user.profile.main_character
@@ -112,8 +112,8 @@ class TestIsCharacterAdded(TestCase):
 class TestCheckPermissions(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.no_perm_user = UserMainFactory()
-        cls.perm_user = UserMainFactory(
+        cls.no_perm_user = create_user_main()
+        cls.perm_user = create_user_main(
             permissions=["moonmining.add_refinery_owner", "moonmining.basic_access"]
         )
 
@@ -127,8 +127,8 @@ class TestCheckPermissions(TestCase):
 class TestGetUsersWithPerms(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.no_perm_user = UserMainFactory()
-        cls.perm_user = UserMainFactory(
+        cls.no_perm_user = create_user_main()
+        cls.perm_user = create_user_main(
             permissions=["moonmining.add_refinery_owner", "moonmining.basic_access"]
         )
 
