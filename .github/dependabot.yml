@@ -20,4 +20,3 @@ updates:
       pre-commit-ecosystem:
         patterns:
           - "*"
-        update-types: ["major", "minor", "patch"]
