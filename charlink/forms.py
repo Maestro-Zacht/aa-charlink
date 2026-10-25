@@ -1,6 +1,10 @@
+from collections import defaultdict
+from functools import cached_property
+
 from django import forms
 
 from .app_imports import import_apps
+from .app_imports.utils import LoginImport
 
 
 class LinkForm(forms.Form):
@@ -19,3 +23,22 @@ class LinkForm(forms.Form):
             form_fields = imports.get_form_fields(user)
             if app != "allianceauth.authentication" and len(form_fields) > 0:
                 self.fields.update(form_fields)
+
+    @cached_property
+    def login_imports(self) -> list[LoginImport]:
+        """Login imports matching the form fields, in field order."""
+        by_id = {
+            login_import.get_query_id(): login_import
+            for app_import in import_apps().values()
+            for login_import in app_import.imports
+        }
+        return [by_id[name] for name in self.fields]
+
+    @cached_property
+    def scopes_required(self) -> list[tuple[str, list[str]]]:
+        """Sorted `(scope, [query_id, ...])` pairs for the form's login imports."""
+        scopes = defaultdict(list)
+        for login_import in self.login_imports:
+            for scope in login_import.scopes:
+                scopes[scope].append(login_import.get_query_id())
+        return sorted(scopes.items())
