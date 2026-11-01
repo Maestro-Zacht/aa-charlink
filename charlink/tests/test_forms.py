@@ -52,3 +52,36 @@ class TestLinkForm(TestCase):
         self.assertNotIn("allianceauth.corputils_default", form.fields)
         self.assertNotIn("marketmanager_corporation", form.fields)
         self.assertIn("marketmanager_character", form.fields)
+
+    def test_login_imports(self):
+        import_apps()
+        user = AuthUtils.add_permissions_to_user_by_name(
+            ["marketmanager.basic_market_browser"], self.user
+        )
+        form = LinkForm(user)
+
+        query_ids = [login_import.get_query_id() for login_import in form.login_imports]
+        self.assertListEqual(query_ids, list(form.fields))
+        self.assertEqual(query_ids[0], "allianceauth.authentication_default")
+        self.assertIn("marketmanager_character", query_ids)
+        self.assertIn("marketmanager_corporation", query_ids)
+        self.assertNotIn("allianceauth.corputils_default", query_ids)
+
+    def test_scopes_required(self):
+        import_apps()
+        user = AuthUtils.add_permissions_to_user_by_name(
+            ["marketmanager.basic_market_browser"], self.user
+        )
+        form = LinkForm(user)
+
+        scopes = [scope for scope, _ in form.scopes_required]
+        self.assertListEqual(scopes, sorted(set(scopes)))
+
+        scopes_required = dict(form.scopes_required)
+        for login_import in form.login_imports:
+            for scope in login_import.scopes:
+                self.assertIn(login_import.get_query_id(), scopes_required[scope])
+        self.assertListEqual(
+            scopes_required["esi-markets.structure_markets.v1"],
+            ["marketmanager_character", "marketmanager_corporation"],
+        )

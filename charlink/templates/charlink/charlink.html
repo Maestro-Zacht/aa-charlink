@@ -30,17 +30,33 @@
         </div>
         <div class="card-body">
             <div class="tab-content">
-                <div class="tab-pane fade text-center container-fluid show active" id="loginForm" role="tabpanel" aria-labelledby="login-tab" tabindex="0">
+                <div class="tab-pane fade container-fluid show active" id="loginForm" role="tabpanel" aria-labelledby="login-tab" tabindex="0">
                     <div class="row justify-content-center">
-                        <div class="col-12 my-3">
+                        <div class="col-12 my-3 text-center">
                             <p>{% translate "Select the apps you want to link from the list. You will be redirected to eveonline website to authenticate and provide the token with all the scopes needed." %}</p>
                         </div>
-                        <div class="col-lg-4">
+                        <div class="col-md-3">
                             <form method="post">
                                 {% csrf_token %}
-                                {% bootstrap_form form %}
+                                {% for field in form %}
+                                    <div data-charlink-app="{{ field.name }}">{% bootstrap_field field %}</div>
+                                {% endfor %}
                                 <button type="submit" class="btn btn-primary mt-3">{% translate "Login" %}</button>
                             </form>
+                        </div>
+                        <div class="col-auto d-none d-md-flex">
+                            <div class="vr"></div>
+                        </div>
+                        <div class="col-md mt-4 mt-md-0">
+                            <h5>{% translate "Scopes required:" %}</h5>
+                            <div class="d-flex flex-wrap gap-1 mb-3 font-monospace">
+                                {% for scope, app_ids in form.scopes_required %}
+                                    <span class="badge text-bg-secondary text-wrap text-break d-none" data-charlink-scope data-charlink-apps="{{ app_ids|join:' ' }}">{{ scope }}</span>
+                                {% endfor %}
+                            </div>
+                            <button type="button" class="btn btn-outline-info btn-sm" data-bs-toggle="modal" data-bs-target="#charlinkScopesModal">
+                                {% translate "Scopes breakdown" %}
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -79,31 +95,40 @@
             </div>
         </div>
     </div>
-    <div class="card mt-3">
-        <div class="card-header">
-            <ul class="nav nav-tabs card-header-tabs">
-                {% for import_data in characters_added.apps.values %}
-                    {% for login_data in import_data.imports %}
-                        <li class="nav-item">
-                            <button class="nav-link{% if forloop.parentloop.first and forloop.first %} active{% endif %}" id="{{ import_data.app_label }}-{{ login_data.unique_id }}-tab" data-bs-toggle="tab" data-bs-target="#{{ import_data.app_label }}-{{ login_data.unique_id }}" type="button" role="tab" aria-controls="{{ import_data.app_label }}-{{ login_data.unique_id }}" aria-selected="{% if forloop.parentloop.first and forloop.first %}true{% else %}false{% endif %}">
-                                {{ login_data.field_label }}
-                            </button>
-                        </li>
-                    {% endfor %}
-                {% endfor %}
-            </ul>
-        </div>
-        <div class="card-body">
-            <div class="tab-content">
-                {% for import_data in characters_added.apps.values %}
-                    {% for login_data in import_data.imports %}
-                        <div class="tab-pane fade {% if forloop.parentloop.first and forloop.first %}show active {% endif %}text-center" id="{{ import_data.app_label }}-{{ login_data.unique_id }}" role="tabpanel" aria-labelledby="{{ import_data.app_label }}-{{ login_data.unique_id }}-tab" tabindex="0">
-                            {% translate "Scopes required:" %}
-                            {{ login_data.scopes|unordered_list|safe }}
-                        </div>
-                    {% endfor %}
-                {% endfor %}
+    <div class="modal fade" id="charlinkScopesModal" tabindex="-1" aria-labelledby="charlinkScopesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="charlinkScopesModalLabel">{% translate "Scopes breakdown" %}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% translate 'Close' %}"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="accordion" id="charlinkScopesAccordion">
+                        {% for login_import in form.login_imports %}
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#charlinkScopes{{ forloop.counter }}" aria-expanded="false" aria-controls="charlinkScopes{{ forloop.counter }}">
+                                        {{ login_import.field_label }}
+                                    </button>
+                                </h2>
+                                <div id="charlinkScopes{{ forloop.counter }}" class="accordion-collapse collapse" data-bs-parent="#charlinkScopesAccordion">
+                                    <div class="accordion-body">
+                                        <ul class="list-unstyled font-monospace mb-0">
+                                            {% for scope in login_import.scopes %}
+                                                <li>{{ scope }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 {% endblock charlink_content %}
+
+{% block extra_javascript %}
+    <script src="{% charlink_static 'charlink/js/login-scopes.js' %}"></script>
+{% endblock extra_javascript %}

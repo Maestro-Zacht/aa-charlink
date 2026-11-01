@@ -211,6 +211,9 @@ class TestIndex(TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertIn("form", res.context)
         self.assertIn("characters_added", res.context)
+        self.assertContains(res, 'id="charlinkScopesModal"')
+        self.assertContains(res, "data-charlink-scope")
+        self.assertContains(res, "charlink/js/login-scopes.js")
 
     def test_post_ok(self):
         self.client.force_login(self.user)
