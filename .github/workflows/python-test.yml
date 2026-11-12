@@ -62,8 +62,12 @@ jobs:
         env:
           MYSQL_ROOT_PASSWORD: temp_password_aa_tox_tests
           MYSQL_DATABASE: tox_allianceauth
+          POSTGRES_USER: root
+          POSTGRES_PASSWORD: temp_password_aa_tox_tests
+          POSTGRES_DB: tox_allianceauth
         ports:
           - 3306:3306
+          - 5432:5432
         options: --tmpfs /var/lib/mysql
 
       redis:
@@ -95,6 +99,11 @@ jobs:
           - mariadb:11.8 # [LTS] Maintained until: June 2028
           - mariadb:12.3 # [LTS] Maintained until: June 2029
           - mariadb:13.0 # Latest official release
+          # https://endoflife.date/postgresql
+          - postgres:15 #[LTS] Maintained until: Nov 2027
+          - postgres:16 #[LTS] Maintained until: Nov 2028
+          - postgres:17 #[LTS] Maintained until: Nov 2029
+          - postgres:18 #[LTS] Maintained until: Nov 2030
 
     steps:
       - name: Checkout
@@ -111,7 +120,9 @@ jobs:
 
       - name: Run Tox
         env:
+          AA_DB_ENGINE: ${{ startsWith(matrix.database, 'postgres') && 'postgresql' || 'mysql' }}
           AA_DB_HOST: 127.0.0.1
+          AA_DB_PORT: ${{ startsWith(matrix.database, 'postgres') && '5432' || '3306' }}
           AA_DB_NAME: tox_allianceauth
           AA_DB_USER: root
           AA_DB_PASSWORD: temp_password_aa_tox_tests
