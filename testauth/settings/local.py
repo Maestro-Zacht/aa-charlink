@@ -4,21 +4,23 @@
 from .base import *
 
 if os.environ.get('USE_MYSQL', True) is True:
+    db_engine = os.environ.get('AA_DB_ENGINE', 'mysql')
     DATABASES = {
         "default": {
-            "ENGINE": 'django.db.backends.mysql',
+            "ENGINE": f"django.db.backends.{db_engine}",
             'NAME': os.environ.get('AA_DB_NAME'),
             'USER': os.environ.get('AA_DB_USER'),
             'PASSWORD': os.environ.get('AA_DB_PASSWORD'),
             'HOST': os.environ.get('AA_DB_HOST'),
-            'PORT': '3306',
-            "OPTIONS": {"charset": "utf8mb4"},
+            'PORT': os.environ.get('AA_DB_PORT', '3306'),
             "TEST": {
-                "CHARSET": "utf8mb4",
                 "NAME": f"test_{os.environ.get('AA_DB_NAME')}",
             },
         },
     }
+    if db_engine == 'mysql':
+        DATABASES["default"]["OPTIONS"] = {"charset": "utf8mb4"}
+        DATABASES["default"]["TEST"]["CHARSET"] = "utf8mb4"
 else:
     DATABASES = {
         "default": {
